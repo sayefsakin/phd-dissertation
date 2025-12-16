@@ -1,0 +1,186 @@
+\chapter{Gantt Chart Task Taxonomy and Data Queries}
+\label{chap:gantt-taxonomy}
+
+Chapter~\ref{chap:traveler} presented \emph{Traveler}, a design for interactive analysis of large task-parallel execution traces, arguing that effective event-sequence visualization emerges from coupling visual design choices with data management strategies. This chapter broadens the lens beyond a single system to the \emph{visual idiom} most commonly used to depict discrete event sequences with duration and cross-tracks relationships: the Gantt chart. Our goal is to systematize how interactive Gantt charts support user work at scale. We contribute a literature-derived taxonomy of low-level \emph{visualization tasks} for Gantt charts and tightly coupled auxiliary views, and we map these tasks to the \emph{data queries} that enable them. This abstraction supports principled visual design and surfaces the data-access patterns that must be optimized to sustain interactivity for large datasets. This work was published as a short paper in IEEE VIS 2024~\cite{sakin2024gantttaxonomy}. The published paper has been slightly modified and presented in this chapter.
+
+\section{Introduction}
+\label{sec:ch4-first-intro}
+
+Gantt charts are a visual idiom for displaying multiple event sequences with dependencies between events in different sequences. Data is organized on two axes, one representing a notion of time or order and the other partitioning the events by some factor relating them, such as different people, roles, or resources assigned to them.
+
+Gantt charts are widely used in project planning, process scheduling, and progress tracking~\cite{wilson2003gantt}. Project managers use Gantt charts for planning employee work assignments and estimating project completion time~\cite{tory2013comparative}. Gantt charts are similarly used in manufacturing for scheduling multi-stage pipelines~\cite{jo2014livegantt}. Medical practitioners have used Gantt charts to understand treatment responses across individuals~\cite{antweiler2022uncovering}. In parallel computing, Gantt charts are used to examine inter-resource dependencies and complex program behavior~\cite{isaacs2014state}.
+
+However, many of these applications, especially those coming from automated processes such as manufacturing and computing, can generate data with billions of events across tens of thousands of independent sequences---a scale beyond most Gantt chart implementations. A variety of designs have been proposed for when the data can no longer be resolved in a single image. Often the strategy involves aggregating or eliding data and implementing interactions such as zooming, panning, and filtering to present (a subset of) the data in the intuitive Gantt chart form. However, poor support for scale continues to be a significant barrier~\cite{isaacs2014state, davidson2023qualitative} and querying these large-scale datasets to implement the existing techniques can lead to large latencies, further hampering exploratory analysis~\cite{liu2014latency}. 
+
+To better understand strategies and barriers to using Gantt charts with large numbers of events or sequences, we develop a literature-based task taxonomy, focusing on low-level visualization tasks that Gantt-focused systems use to support scale. Our taxonomy includes not only the Gantt-based tasks, but also those of highly coupled auxiliary views supporting the analysis of Gantt data. This taxonomy can be matched with user tasks when designing with Gantt charts in single or multi-view systems. We also match these tasks with data queries supporting them, enabling the analysis of data management techniques for supporting interactions as the datasets scale up. We expect visualization creators to use this taxonomy when considering options for representing large scale Gantt data and when considering implementation needs.
+
+\textbf{Contributions.}
+
+\begin{itemize}\itemsep0.25ex
+    \item A multi-layer \textbf{visualization task taxonomy} for interactive Gantt charts and their common auxiliary views.
+    \item A \textbf{classification of data queries} and their relationship with the proposed visualization task taxonomy for representing discrete event data visualized by Gantt charts.
+    \item A \textbf{literature review} of scholarly articles over the last 30 years that have used Gantt charts as a significant view.
+\end{itemize}
+
+
+\section{Gantt Chart Terminology and Related Work}
+\label{sec:background}
+
+This section formalizes the data model and visual encodings underlying Gantt charts and situates our scope within the broader literature on time-oriented and event-sequence visualization. We adopt precise terminology (e.g., \emph{event}, \emph{track}, \emph{dependency}) to reduce ambiguity across domains and to prepare the ground for the task--query mapping developed later in this chapter.
+
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=1.0\columnwidth]{figs/ganttoverview.pdf}
+  \caption{Gantt chart showing a window of time and three tracks.}
+  \label{fig:gantt_desc}
+\end{figure}
+
+\subsection{Data Model}
+\label{subsec:gantt-data}
+Gantt charts depict discrete \emph{events} that admit a partial order, typically induced by a temporal attribute that we simply call \emph{time}. In the canonical use, events have \emph{duration} (distinct start and end times), placing Gantt charts squarely within the wider family of \emph{event-sequence} visualizations.
+
+Events are partitioned into parallel sequences by an attribute indicating the responsible agent or resource. The literature variously names this partitioning attribute as \emph{schedule}, \emph{location}, \emph{resource}, \emph{person}, \emph{process}, or \emph{task}. To avoid overloading and to remain domain-agnostic, we use the term \emph{track} to denote the categorical attribute that groups events into parallel sequences. Unlike time, which is intrinsically ordered, tracks may admit zero or multiple meaningful orderings (e.g., alphabetical, by utilization, by geography).
+
+Cross-track relationships often matter as much as per-track activity. We use \emph{dependency} to mean a directed relation in which one event constrains another (e.g., a message receipt enabling a computation). The collection of events and their dependencies forms a \emph{dependency graph}; depending on the application, graph nodes may represent individual events or aggregates thereof. Events and tracks can bear additional attributes (e.g., provenance labels, categorical codes, or resource capacities), which are frequently leveraged for filtering, highlighting, and summarization in analysis workflows.
+
+\subsection{Visual Encoding Assumptions}
+\label{subsec:gantt-encoding}
+The prevalent Gantt encoding (\autoref{fig:gantt_desc}) maps time to the horizontal axis and tracks to the vertical axis; events are drawn as axis-aligned rectangles with width proportional to duration and vertical position determined by the track. Interactive systems typically support panning and zooming along both axes. While alternative layouts exist---such as swapped axes~\cite{de2010zinsight}, circular or three-dimensional arrangements~\cite{devaux2014datatube4log}, and geography-aware track placement~\cite{schnorr2010triva}---this dissertation focuses on the common two-dimensional form to keep the task and query abstractions concrete and comparable across systems.
+
+Dependencies are rendered as line segments or arrows connecting the corresponding rectangles. Straight-line embeddings are common in research prototypes, whereas orthogonal edge routings appear in several commercial project tools~\cite{aigner2011visualization}. In practice, the core bar layout is often augmented by auxiliary encodings (e.g., color for event type, per-track summaries) or coordinated views that bring dependency structure to the fore (e.g., a node-link diagram of the dependency graph). These auxiliary representations are not merely decorative: they are a primary mechanism for managing scale and complexity when the base chart becomes visually saturated.
+
+\subsection{Related Works}
+\label{subsec:gantt-related}
+Comprehensive surveys of time-oriented visualization~\cite{aigner2011visualization, shurkhovetskyy2018data, guo2021survey} enumerate a wide design space for temporal data, within which Gantt charts serve as the canonical idiom for duration-bearing, multi-entity event sequences. Domain-specific surveys in parallel and high-performance computing highlight the centrality of Gantt-style timelines for execution traces and performance analysis~\cite{ezzati2017multi, isaacs2014state}. Complementary taxonomic work on timestamped instantaneous events (i.e., without modeled dependencies) provides task vocabularies germane to point processes~\cite{peiris2022data}; our focus, by contrast, is on duration-bearing sequences with explicit cross-track dependencies, a setting in which Gantt charts and their coupled views are most prominent.
+
+\section{Gantt Chart Task Taxonomy and Data Queries}
+\label{sec:task_taxonomy}
+We conduct a survey of Gantt charts used in visualizations with an emphasis on the visual tasks supported. We present our methodology, the derived tasks, and a translation of the tasks discovered into a set of data queries. \autoref{fig:gantt_heatmap} presents a heatmap of our visualization tasks and their mapping to data queries, where each cell indicates in how many papers the task was observed.
+
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=\textwidth]{figs/Gantt-heatmap-v8.pdf}
+  \caption{Mapping between data queries and interactive visualization tasks for Gantt charts. Each heatmap cell denotes in how many papers we observed the given visualization task. Tasks observed in each paper are included in the supplemental materials. These counts suggest common tasks to support and possibilities for handling scale, and indicate which queries are most common and may be considered for optimization.}
+  \label{fig:gantt_heatmap}
+\end{figure}
+
+\subsection{Methodology}
+\label{subsec:task_methods}
+We obtained an initial list of papers from surveys that feature Gantt charts~\cite{isaacs2014state, guo2021survey, ezzati2017multi}. We then expanded our list through searches in IEEE Xplore and Google Scholar using the following keywords, sourced from the surveys: \textit{Gantt chart}, \textit{timeline visualization}, \textit{event sequence visualization}, \textit{schedule visualization}, \textit{execution trace visualization}, \textit{trace analysis}, \textit{performance analysis}, \textit{performance visualization}, \textit{parallel program analysis}, \textit{task parallel trace analysis}, and \textit{time-series charts}. We collected papers with promising abstracts, resulting in 137 research articles. We filtered these papers to those including interactive Gantt charts, resulting in a set of 35 papers. 
+
+We also identified 11 additional commercially available online tools that use Gantt charts (see supplemental materials). We did not find additional tasks by investigating their websites. We do not include them in \autoref{fig:gantt_heatmap} as their Gantt view features were not described in detail in their publicly available documentation.
+
+For each paper, we examined the description of use, task analyses if they existed, the visualization itself, and any use cases or evaluation. The initial round of qualitative coding focused on identifying, distilling, and tagging how the Gantt chart was used---what visualization tasks it was supporting. We then made a second pass to merge, split, and elaborate on the codes. This two-round process resulted in 29 distinct low-level visualization tasks. We categorized them into groups based on their intended higher-level user goal.
+
+\subsection{Gantt Chart Task Taxonomy}
+\label{subsec:tasks}
+We define the 29 visualization tasks, T1--T29, collected into eight groups by their higher-level user goals. We cite example sources from the literature leading to each task; the full list of sources for each task appears in the supplemental material. These are \emph{visualization} tasks, focused on the functionality the Gantt chart and its closely related auxiliary views need to provide, independent of domain-specific semantics. Choosing this perspective supports both the evaluation of data management strategies and the selection of tasks to support when implementing Gantt charts.
+
+\subsubsection{Event Overviews}
+\textbf{T1: Display the full Gantt chart.} The most basic draw operation. For all but the smallest datasets, rendering to fit on screen involves aggregation, filtering, or overplotting; nevertheless, we assume that all data must be accessed. Highly aggregated overviews often seed subsequent navigation~\cite{nagel1996vampir, zaki1999toward, pinto2016analyzing, kaldor2017canopy}. 
+
+\textbf{T2: Display event attributes.} Beyond time and track, additional attributes appear via color/labels or auxiliary views, typically on demand through brushing~\cite{andre2007continuum, meyer2016visual}, clicking~\cite{pillet1995paraver}, or hovering~\cite{de2010zinsight}. Attributes are shown in static panes~\cite{meyer2016visual, sakin2022traveler, kaldor2017canopy}, multiple coordinated views~\cite{nagel1996vampir,de2010zinsight,sakin2022traveler}, lenses~\cite{nagel1996vampir, luz2010improving, jo2014livegantt}, or tooltips~\cite{de2010zinsight, jo2014livegantt, antweiler2022uncovering}.
+
+\textbf{T3: Display a window.} Present a subset in time and/or track space, obtained by brushing~\cite{adhianto2010hpctoolkit, sakin2022traveler}, zoom/pan, textual input, or selection via a dependency diagram~\cite{de2010zinsight}. 
+
+\textbf{T4: Re-encode.} Alter mappings (e.g., axis-to-attribute~\cite{pillet1995paraver, gupta2016movementslicer}) or time semantics~\cite{isaacs2014combing, jo2014livegantt, zaki1999toward}.
+
+\textbf{T5: Compare events from multiple datasets.} Via juxtaposed windows~\cite{sakin2022traveler, kaldor2017canopy} or in-chart overlays~\cite{bell2003paraprof}. 
+
+\subsubsection{Analyze Derived Data}
+\textbf{T6: Display event distributions.} Summaries such as percentages~\cite{adhianto2010hpctoolkit}, histograms~\cite{sakin2022traveler}, or outlier views~\cite{jo2014livegantt, schaubschlaeger2003event}. 
+
+\textbf{T7: Aggregate events.} Compute aggregates (e.g., average/min/max) and display via aggregate Gantt views~\cite{sakin2022traveler, nesi2023summarizing, kaldor2017canopy}, lenses~\cite{jo2014livegantt}, re-encoding~\cite{topol1998pvanim}, or juxtaposition~\cite{gupta2016movementslicer}.
+
+\textbf{T8: Derive event attributes from dependencies.} Compute dependency-aware metrics (e.g., inclusive time) in-chart or in a detail view~\cite{adhianto2010hpctoolkit, sakin2022traveler}.
+
+\textbf{T9: Display patterns.} Define, detect, and depict recurring event/dependency motifs~\cite{de2010zinsight, isaacs2014combing}.
+
+\subsubsection{Search}
+\textbf{T10: Browsing.} Zooming and panning leading to T3; nearly universal.
+
+\textbf{T11: Highlight events.} Locate via attribute-based highlighting (color~\cite{adhianto2010hpctoolkit, isaacs2014combing, zaki1999toward, sakin2022traveler, nesi2023summarizing, kaldor2017canopy, dkabrowski2024manufacturing}, marks~\cite{sun2021daisen}, or re-organization~\cite{jo2014livegantt,luz2010improving}).
+
+\textbf{T12: Lookup events.} Show the context of a selected event and propagate selection across views (e.g., source code, maps)~\cite{yan1995performance, adhianto2010hpctoolkit, zaki1999toward, gupta2016movementslicer}.
+
+\subsubsection{Manipulating Tracks}
+\textbf{T13: Aggregate tracks.} Pre-computed~\cite{sakin2022traveler, sun2021daisen, nesi2023summarizing} or interactive~\cite{plaisant1998information, jo2014livegantt, kaldor2017canopy} grouping.
+
+\textbf{T14: Display track detail.} Via tooltips~\cite{sun2021daisen}, lenses~\cite{jo2014livegantt}, color~\cite{schnorr2010triva}, highlighting~\cite{drebes2014aftermath, adhianto2010hpctoolkit}, or sub-rows~\cite{plaisant1998information}. 
+
+\textbf{T15: Re-order tracks.} Manual (dragging~\cite{de2000paje}), attribute-based~\cite{heath1991visualizing}, or condition-driven reordering~\cite{jo2014livegantt, de2010zinsight}. 
+
+\textbf{T16: Remove tracks.} Omit tracks entirely (observed in~\cite{gupta2016movementslicer}). 
+
+\textbf{T17: Compare tracks.} Facilitate comparison by repositioning~\cite{sun2021daisen} or hiding unrelated tracks~\cite{koike1997visualinda,tory2013comparative, kaldor2017canopy}; add per-track summaries~\cite{pinto2016analyzing}.
+
+\subsubsection{Filtering}
+\textbf{T18: Filter events and tracks.} Filter by event attributes (time most common); prevalent across domains.
+
+\textbf{T19: Customize filters.} Construct compound filters via GUIs (dropdowns, sliders, checkboxes)~\cite{fails2006visual, jo2014livegantt, drebes2014aftermath, pillet1995paraver, kaldor2017canopy}. 
+
+\subsubsection{Exploring Dependencies}
+\textbf{T20: Display dependency graph.} View the induced network, either in-place (de-emphasizing other marks)~\cite{schnorr2010triva} or in a linked view~\cite{adhianto2010hpctoolkit, de2010zinsight, sakin2022traveler}. 
+
+\textbf{T21: Follow paths.} Navigate chains of dependencies via Gantt navigation~\cite{haugen2015visualizing, hirakata2022exploring} or linked graph traversal with collapsible subgraphs~\cite{de2010zinsight, sakin2022traveler, adhianto2010hpctoolkit}. 
+
+\textbf{T22: Link nodes and events.} Connect graph nodes (possibly aggregates) back to constituent events via coordinated highlighting~\cite{de2010zinsight, sakin2022traveler}. 
+
+\textbf{T23: Highlight dependencies.} Draw selected dependencies for paths or subgraphs across views~\cite{sakin2022traveler, schnorr2010triva, isaacs2014combing, haugen2015visualizing, tory2013comparative, dkabrowski2024manufacturing}. 
+
+\textbf{T24: Display dependency attributes.} Encode dependency details via color or marks~\cite{koike1997visualinda, drebes2014aftermath, de2010zinsight, isaacs2014combing, antweiler2022uncovering, dkabrowski2024manufacturing}. 
+
+\textbf{T25: Compare dependency graphs.} Compare alternative or partitioned graphs (e.g., via treemaps)~\cite{sun2021daisen}. 
+
+\textbf{T26: Display graph metrics.} Compute and present structural metrics (e.g., depth, size, distances)~\cite{adhianto2010hpctoolkit, schnorr2010triva, tory2013comparative}.
+
+\subsubsection{Modifying the Data}
+\textbf{T27: Update event data.} Edit attributes, including repositioning events and persisting changes~\cite{jo2014livegantt, bell2003paraprof}.
+
+\textbf{T28: Annotate.} Add textual/graphical annotations separate from base data~\cite{drebes2014aftermath, gupta2016movementslicer}.
+
+\subsubsection{Exporting}
+\textbf{T29: Export.} Output to shareable formats (e.g., PNG/SVG)~\cite{drebes2014aftermath, zaki1999toward, pillet1995paraver, sakin2022traveler}.
+
+\subsection{Data Queries for Gantt Charts}
+\label{subsec:task_queries}
+We organize queries required by the tasks based on the similarity of their data-access profile. (T19 \emph{filter customization} and T29 \emph{export} do not require additional data fetches.)
+
+\subsubsection{Event-Related Fetch Queries}
+\textbf{Q1: Get data from a range.} Multi-dimensional ranges (e.g., time and track). \emph{Input:} range tuples. \emph{Output:} events with start time, end time, and track. \emph{Supports:} T1, T3, T4, T5, T6, T7, T8, T10, T13.
+
+\textbf{Q2: Get the attribute values of an event.} \emph{Input:} event identifier. \emph{Output:} attribute--value list. \emph{Supports:} T2, T12.
+
+\textbf{Q3: Get data matching pattern.} Potentially expensive, application-specific pattern matching. \emph{Input:} search range (as Q1) and pattern. \emph{Output:} matching events. \emph{Supports:} T9.
+
+\textbf{Q4: Get events from a range meeting conditions.} Range plus predicates. \emph{Input:} ranges and conditions. \emph{Output:} qualifying events. \emph{Supports:} T11, T18. 
+
+\textbf{Q5: Get track details.} By track list or by events-to-tracks. \emph{Input:} track identifiers \emph{or} event identifiers. \emph{Output:} track attribute--values \emph{or} associated tracks. \emph{Supports:} T14, T17. 
+
+\textbf{Q6: Get track ordering.} \emph{Input:} tracks and ordering condition. \emph{Output:} ordered track list. \emph{Supports:} T15.
+
+\subsubsection{Dependency-Related Fetch Queries}
+Queries operate on nodes that may represent individual or aggregated events.
+
+\textbf{Q7: Get neighbor details of a node.} \emph{Input:} graph node. \emph{Output:} neighbors and attributes. \emph{Supports:} T21, T24.
+
+\textbf{Q8: Find a node by attribute.} Often by dependency attribute. \emph{Input:} attribute name and value. \emph{Output:} matching nodes. \emph{Supports:} T22.
+
+\textbf{Q9: Calculate graph metrics.} \emph{Input:} metric spec. \emph{Output:} structural metrics. \emph{Supports:} T26. 
+
+\textbf{Q10: Get graph by attributes.} Build (sub)graphs by attribute filters or connectivity rules. \emph{Input:} attribute names and ranges. \emph{Output:} constructed graph. \emph{Supports:} T20, T23, T25.
+
+\subsubsection{Update Queries}
+Each returns a Boolean success indicator.
+
+\textbf{Q11: Add annotation.} \emph{Input:} time, track, and annotation content. \emph{Supports:} T28. 
+
+\textbf{Q12: Update event.} \emph{Input:} event identifier and attribute update. \emph{Supports:} T27.
+
+\textbf{Q13: Remove track.} Mark tracks for omission in subsequent queries. \emph{Input:} track identifiers. \emph{Supports:} T16.
+
+\section{Discussion and Chapter Conclusion}
+\label{sec:conclusion}
+This chapter distilled three decades of Gantt-centric visualization research into a reusable, implementation-oriented framework: a task taxonomy (T1--T29) and its corresponding query classes (Q1--Q13). The taxonomy offers designers a language to specify and prioritize capabilities, while the query mapping exposes concrete data-access patterns that must be engineered for speed and scale. Despite the prevalence of domains capable of generating billions of events~\cite{isaacs2014state}, most surveyed systems demonstrate performance on orders of magnitude fewer events, suggesting that data-access costs remain a limiting factor. The taxonomy--query bridge supplies a principled basis for selecting and optimizing data management strategies to sustain interactivity.
+
+In Chapter~\ref{chap:eseman}, we leverage this mapping to motivate and evaluate data management techniques tailored to event-sequence workloads, demonstrating how targeted query optimization enables interactive visual analytics even as datasets grow in number of events, tracks, and dependency complexity.

@@ -1,0 +1,330 @@
+%%% -*-LaTeX-*-
+
+\chapter{Traveler: Navigating Task Parallel Traces for Performance Analysis}
+\label{chap:traveler}
+
+The first step toward event sequence visualization is understanding the visual design challenges. To investigate the challenges, specifically for visualizing the vast scale differences and facilitating interactive navigation of the data, we collaborated with HPC researchers to understand their performance analysis needs. In the completed work, Traveler, we conducted a visualization design study and developed a highly linked multi-view coordinated visualization platform for analyzing task parallel traces. Primarily focused on Gantt charts, Traveler provides multiple linked auxiliary interfaces to help navigate from multiple contexts of the underlying performance data generated from parallel computing systems. This work provides a foundation for developing solutions for scalable Gantt charts by identifying the visual design needs of our collaborators. This work was published as a full paper~\cite{sakin2022traveler} at IEEE VIS 2022. The combined work was published at the Practice and Experience in Advanced Research Computing Conference 2020~\cite{brandt2020jetlag}, 2020 IEEE ACM 9th Workshop on Python for High-Performance and Scientific Computing~\cite{brandt2020distributed}, and Euro-Par 2022 Parallel Processing Workshops~\cite{tohid2022halide}. The published Traveler~\cite{sakin2022traveler} paper has been slightly modified and presented in this chapter.
+
+\begin{figure}[t!]
+  \centering
+  \includegraphics[width=\linewidth]{figs/traveler_teaser_new.jpg}
+  \caption{The Traveler interface. Traveler is a visualization platform supporting visual performance analysis of asynchronous task parallel programs. The Utilization View (a) shows that the selected primitive (task type) accounts for most of the utilization in the program. The Gantt View (b) shows how individual tasks are scheduled across the system, while the Aggregated Gantt View (c) shows utilization and extent due to groups of tasks. A Functional Box Plot View (d) summarizes performance metrics across resources and over time. Selection details are shown in the Selection Info View (e) and source code in the Source Code View (f). The Dependency Tree View (g) shows relations among task types. The distribution of task durations can be explored in the Interval Histogram View (h).
+  }
+  \label{fig:travelerteaser}
+\end{figure}
+
+\section{Introduction}
+Understanding the behavior of HPC programs in execution is essential in identifying performance bottlenecks, exploring opportunities for optimization, and planning for efficient resource utilization. Comprehending the execution behavior is difficult due to the complicated nature of the underlying hardware components, intermediate execution scheduling systems, and the HPC programs themselves. HPC program analysts collect and analyze execution trace\textemdash a chronological record of per-resource events captured during the program execution. Interactive visual analysis of program execution traces is a common approach in interpreting the runtime behavior and exploring performance opportunities~\cite{isaacs2014state}. 
+
+However, gaining insights related to what occurred during execution at varying levels of detail is challenging. Each individual event is orders of magnitude smaller than the total length of the trace. Identifying different events, tracking a sequence of events, and following event execution progression within the trace data requires visually navigating a large space where relevant details matter.
+
+Execution traces are typically visualized using a Gantt chart where the x-axis represents time, and the y-axis represents each computing resource location. Generally, each bar represents each individual event execution location, its start time, and its end time. Visualizing longer-running programs on a very high number of computing locations generally over-crowd the visual interface. Additionally, identifying the relation between events and their probable cause becomes difficult.
+
+\begin{figure}[t!]
+  \centering
+  \includegraphics[width=0.9\columnwidth]{figs/agg_gantt_depp.png}
+  \caption{Aggregated Gantt (Left) view shows one bar by combining all subsequent events initiated from a single event. Dependency Tree View (Right) shows the node-link diagram generated from the dependencies among the events.}
+  \label{fig:agg_depp}
+\end{figure}
+
+To facilitate visual navigation on larger trace data, we designed Traveler (\autoref{fig:travelerteaser}), a multiple-coordinated view system for execution traces with multiple levels of meaningful abstraction for parallel task programs. Traveler provides diverse and hierarchical ways to navigate and represent execution traces supporting their analysis tasks. With our collaborators, we integrated Traveler with Jetlag, an interactive asynchronous array computing environment based on Python Notebook, and published the combined work at ACM PEARC 2020 \cite{brandt2020jetlag} and IEEE PyHPC 2020 \cite{brandt2020distributed}.
+
+In Traveler, we introduced an aggregated Gantt view (\autoref{fig:agg_depp} left) and a linked dependency tree view (\autoref{fig:agg_depp} right) to assist in faster navigation and identification of program execution components, overcoming the irregular nature of asynchronous task scheduling. Also, our linked hardware performance counter summaries and interval histograms further aid in visual performance analysis tasks. This work helped our collaborators to better understand the performance behavior of their system and identify performance bugs for shorter programs. For longer-running programs, visual analysis of the performance behavior still remains difficult as it becomes harder to manage and process the scale of the data.
+
+% The chapter is organized as follows: \autoref{sec:tasktraces} introduces task parallel programs and their execution traces. \autoref{sec:travrelated} reviews related visualization approaches. \autoref{sec:travdesignmethod} describes the design study methodology employed in developing Traveler. \autoref{sec:travelerdesc} presents the detailed visualization design and its coordinated views. \autoref{sec:travevaluation} presents the evaluation, including expert use cases and findings. \autoref{sec:trav-reflection} discusses the broader implications and challenges of the system. \autoref{sec:trav-conclusion} concludes by summarizing contributions and positioning Traveler within the broader scope of event sequence visualization research.
+
+\section{Task Parallel Programs and Execution Traces}
+\label{sec:tasktraces}
+
+This section establishes the fundamental context for understanding task parallel programs managed by Asynchronous Tasking Runtimes (ATRs) and their associated execution traces, which form the primary data source for performance analysis.
+
+Parallel programs distribute computational work across multiple processing resources, such as CPUs or threads, with the overarching objective of improving efficiency and reducing time-to-solution. While the notion of “good performance” varies across domains and applications, a central concern remains the effective use of available computational resources. This dissertation focuses on programs that are executed under an \emph{Asynchronous Tasking Runtime} (ATR), which will hereafter be referred to as task parallel programs. In this model, the computational workload is decomposed into a large number of fine-grained tasks, often exceeding the number of physical resources. The ATR dynamically schedules these tasks, mapping them to different resources as they become available and potentially reassigning them to maintain balance. The key measure of performance in this setting is utilization, defined as the proportion of time that computational resources remain active rather than idle.
+
+This execution model stands in contrast to bulk synchronous parallel programs, where resources typically process equally sized partitions of data in synchronized stages. Bulk synchronous execution often suffers from load imbalance, as faster resources must wait idly for slower ones to complete their work. In contrast, the asynchronous tasking paradigm mitigates this inefficiency by distributing work dynamically, thereby leveraging idle resources more effectively. However, the increased flexibility comes at the cost of complexity: task parallel programs generate numerous short-lived and asynchronously scheduled tasks, making their runtime behavior considerably more difficult to interpret.
+
+To analyze the behavior and performance of such systems, researchers rely on execution traces. Execution traces are comprehensive temporal records of runtime activity that document the start and end times of tasks on specific resources. They may also include information about task dependencies, often captured through parent–child relationships that describe the creation of new tasks and their subsequent execution. Because tasks in an ATR are typically fine-grained, their durations are small relative to the total trace length, resulting in highly detailed data of significant volume and complexity.
+
+Execution traces are a form of event sequence data. They are inherently high-dimensional, as the diversity of task types—often defined by individual code methods—may number in the hundreds. They can be extremely dense when system utilization is high, and they are characteristically irregular due to the asynchronous scheduling of tasks. Moreover, they are parallel, capturing events that occur simultaneously across many computational resources. Importantly, unlike event sequence data derived from human activity (e.g., user interaction logs), execution traces originate entirely from computer programs. As such, the analytic focus is not on discovering frequent behavioral motifs but on correlating events with program structure and execution semantics in order to explain system behavior and evaluate performance.
+
+In summary, the execution trace of a task parallel program provides a detailed record of runtime dynamics, but its complexity and scale pose substantial challenges to visual and analytic interpretation. These challenges motivate the development of visualization methods that can capture the asynchronous, fine-grained, and parallel nature of execution traces while supporting meaningful performance analysis.
+
+\section{Related Work}
+\label{sec:travrelated}
+Visualization has long played an important role in performance analysis and debugging within high-performance computing (HPC) systems~\cite{isaacs2014state, ezzati2017multi}. Among the available visualization idioms, execution traces are most commonly represented using Gantt charts~\cite{nagel1996vampir, zaki1999toward, graham2004gprof, reinders2005vtune, adhianto2010hpctoolkit, drebes2014aftermath, zhukov2015scalasca, Pinto2016, xie2018visual}. In this representation, computing resources are arranged as parallel timelines along the vertical axis, while individual events, such as function calls, appear as rectangles spanning their duration across the horizontal time axis. When dependencies are included, they are typically represented as lines connecting the corresponding events.
+
+To extend the representational capacity of Gantt charts, researchers often combine them with additional statistical or structural views. For example, SmartTraces~\cite{Osmari2014SmartTraces} introduced a drag-and-drop system of linked views that includes a data-flow graph to contextualize event execution. Similarly, Traveler provides a configurable framework of auxiliary views designed to complement the Gantt chart. In particular, Traveler introduces two additional structural abstractions—an Aggregated Gantt View and a Dependency Tree View—that bridge the gap between high-level summaries and detailed traces by enabling exploration at multiple levels of abstraction.
+
+Despite their utility, Gantt charts face well-known challenges in scalability and interpretability. The extreme difference in scale between long-running traces and short-lived individual events can hinder readability, especially when dependencies are visualized. Approaches such as SyncTrace~\cite{Karran2013SyncTrace} attempt to mitigate this problem through a resource-centric perspective, where multiple levels of detail are presented for a single resource, with the most detailed view showing cross-resource connections. Ravel~\cite{isaacs2014combing}, by contrast, applies an idealized unit time axis to emphasize dependency patterns, although this method assumes a bulk-synchronous execution model not applicable to all workloads. Haugen et al.~\cite{Haugen2015} limit dependency visualization to selected intervals, while Traveler provides a more comprehensive interaction model by exposing the entire chain of dependencies associated with an event, rather than restricting users to immediate connections.
+
+Some visualization systems have moved away from timeline-based Gantt charts altogether, opting instead to encode events or aggregate metrics in shared visual spaces~\cite{muelder2009visual, muelder2016visual, fujiwara2018visual, li2019visual, kesavan2020visual}. While Traveler does incorporate aggregated metric views through preprocessing, these approaches typically discard the explicit preservation of dependencies, which is one of the central reasons Traveler continues to employ a Gantt-based representation.
+
+Alternative non-timeline strategies focus on summaries, animations, or network visualizations. For instance, Sigovan et al.~\cite{sigovan2013visualizing} animate events along a duration axis, while Sanderson et al.~\cite{sanderson2018coupling} present streaming data through statistical plots projected into simulation and machine-room layouts for performance steering. Chuimbuko~\cite{kelly2020chimbuko} similarly targets streaming performance data, combining statistical plots with call stack views. Of these, only Chuimbuko incorporates dependencies, but like SyncTrace, it is limited to a narrow time window and single-resource focus. In contrast, Traveler is designed for analytic tasks requiring higher fidelity in depicting how resources, events, and dependencies interact holistically.
+
+Another alternative is to represent task scheduling using per-event layered node-link diagrams derived from execution graphs~\cite{Huynh2015DAGViz, Muddukrishna2016GrainGraphs, Reissmann2017GrainGraphs}. While such methods provide useful abstractions, their scalability relies heavily on assumptions of fork-join parallelism, which do not align with the irregular task-parallel programs analyzed in Traveler.
+
+\section{Design Process}
+\label{sec:travdesignmethod}
+
+The design of Traveler followed an iterative, human-centered process grounded in the Design Study Methodology proposed by Sedlmair et al.~\cite{Sedlmair2012}. Traveler was developed as part of the multi-institutional Phylanx project, an open-source research effort aimed at enabling the distributed execution of a runtime system. Phylanx transpiles Python/NumPy programs into distributed HPX applications, leveraging HPX as an asynchronous task-based runtime system. Within this broader effort, performance analysis and visualization were identified as essential sub-goals, supporting not only the development of the Phylanx and HPX libraries but also advanced user analyses and communication of system behavior to potential adopters.
+
+Because both Phylanx and HPX evolved continuously throughout the collaboration, the requirements for visualization were never fixed but instead represented a ``moving target''~\cite{williams2020movingtarget}. This dynamic context required continuous engagement with collaborators and careful tracking of emerging needs. Previous work on Atria, another visualization developed in the same research ecosystem, documented similar challenges. While Atria was designed for profile data---where performance measurements are aggregated---Traveler addresses execution traces, a form of event sequence data that requires reasoning about events in time. This distinction had significant implications for task analysis and the resulting visualization design.
+
+\subsection{Collaboration Context}
+\label{sec:traveler-collaboration}
+
+The Phylanx project was organized into three interdependent teams: the \textit{Runtime Team}, responsible for HPX and Phylanx library development; the \textit{Performance Analysis Team}, responsible for collection tools, optimization methods, and regression infrastructure; and the \textit{Visualization Team}, responsible for performance visualization systems. In this structure, the Runtime Team lead acted as the primary gatekeeper, while students and post-doctoral researchers were often cast as frontline analysts. This organization shaped the communication and prioritization of visualization goals, with Traveler directly serving both development and analysis needs.
+
+\subsection{Data and Data Abstractions}
+\label{sec:traveler-data}
+
+Traveler’s design goals were tightly coupled to the structure of the underlying execution trace data, stored in Open Trace Format version 2 (OTF2)~\cite{OTF2}, a widely used HPC trace format. The fundamental abstraction for traces is the \textbf{interval}, a durational event defined by start and end times, a globally unique identifier (GUID), an execution location (such as a hardware thread), and a primitive name describing the executed operation. Parent–child relationships between intervals are expressed through GUID links, allowing hierarchical organization of events. These attributes were extended during the Phylanx collaboration itself, when GUID and Parent GUID data were added at the request of the visualization effort, illustrating how evolving data collection shaped visualization design.
+
+From these traces, Traveler derives an \textbf{execution tree} that aggregates intervals into primitive contexts, analogous to calling-context trees. Each node represents a primitive name and the aggregated duration of intervals sharing the same parent sequence. This abstraction differs from the directly collected execution graph used in Atria, but provides a more detailed view of execution behavior. Optional data sources, such as performance counters (e.g., CPU cycles, cache misses) and program source code, further extend the analytical possibilities.
+
+\subsection{Task Analysis and Goals}
+\label{sec:traveler-tasks}
+
+The design goals of Traveler were formalized through an extended task analysis that built upon and revised the earlier goal-task lattice from Atria~\cite{williams2020movingtarget}. This process incorporated data from full-team meetings, specialized visualization and performance meetings, email exchanges, and informal interviews, resulting in over 330 recorded artifacts. Two independent coders reviewed and refined the analysis, leading to a revised lattice structure. Unlike Atria, which primarily addressed aggregated network data, Traveler’s analysis applied Yi et al.’s taxonomy of interaction tasks~\cite{Yi2007} to better account for the prevalence of \textit{connect} tasks in execution trace visualization, while preserving network-oriented tasks where appropriate~\cite{Lee2006}.
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.8\linewidth]{figs/lattice3.pdf}
+  \caption{A goal-to-task lattice, showing relationships between high-level umbrella concerns, goals, sub-goals, tasks, and the task taxonomies in Lee et al.~\cite{Lee2006} and Yi et al.~\cite{Yi2007}. Additional goals, sub-goals, tasks, and frameworks, relative to prior work, are shown in \textbf{\textcolor{yellow}{yellow}}.}
+  \label{fig:taskanalysis}
+ \end{figure}
+
+The revised lattice retained three umbrella concerns: \textbf{U1: Program Comprehension}, \textbf{U2: Performance Analysis}, and \textbf{U3: Communication}. Seven design goals were articulated under these concerns:
+
+\begin{itemize}
+  \item \textbf{G1: Overview of Execution.} Provide a high-level sense of how code translates into execution, including task frequency, time allocation, and dependencies. This goal introduced abstract and explore tasks made possible by detailed trace data.  
+  \item \textbf{G2: Relate Code.} Support understanding of how execution behavior corresponds to code, enabling both runtime developers and application users to connect primitives and intervals back to source constructs. This goal emphasized Yi et al.’s connect tasks.  
+  \item \textbf{G3: Understanding Timing Information.} Facilitate detection of hotspots, timing anomalies, and cross-run comparisons. Execution traces motivated new sub-goals such as analyzing interval distributions, identifying extreme intervals, and correlating intervals, resources, and primitives with time.  
+  \item \textbf{G4: Understand Runtime Decisions.} Support analysis of scheduling and resource allocation decisions made by the HPX runtime, with cross-cutting connections to timing and utilization goals.  
+  \item \textbf{G5: Understand Utilization.} Enable evaluation of how effectively computational resources are used, including sub-goals correlating intervals with resource usage and comparing across resources.  
+  \item \textbf{G6: Export and Save.} Allow sharing of results and visual evidence to support communication within and beyond the project.  
+  \item \textbf{G7: Manage Datasets.} Provide mechanisms for handling multiple datasets, particularly in regression analysis and scaling studies, reflecting emerging needs during the project.  
+\end{itemize}
+
+Collectively, these goals illustrate how Traveler’s design was shaped by both the evolving requirements of the Phylanx collaboration and the unique analytical opportunities afforded by execution trace data. The resulting visualization system was thus not only a tool for immediate project needs but also a demonstration of how execution traces can be visualized in ways that simultaneously support program comprehension, performance analysis, and communication.
+
+The next section builds upon these articulated design goals to discuss how they informed Traveler’s visualization design and the specific techniques employed to address the challenges of execution trace analysis.
+
+\section{Traveler}
+\label{sec:travelerdesc}
+
+We now turn to the design of Traveler (\autoref{fig:travelerteaser}), a visualization platform created for the performance analysis of task parallel execution traces. This system embodies the design principles and methodological framing described in \autoref{sec:travdesignmethod}, extending them into a concrete implementation that supports diverse user tasks and complex data requirements. In what follows, we first provide an overview of Traveler’s multiple coordinated views and the rationale for their design (\autoref{sec:travelerstrategy}). We then describe the temporal and non-temporal views in detail, linking them to the task analysis outlined earlier. Finally, we discuss implementation choices and the underlying data structures that make the system responsive and scalable. This section therefore bridges the conceptual framing of the design process with its technical realization, establishing the foundation for the evaluation and discussion in later sections.
+
+\subsection{An Overview of Traveler Views}
+\label{sec:travelerstrategy}
+
+To support the heterogeneous data and numerous analytic tasks identified in \autoref{sec:travdesignmethod}, Traveler is designed as a configurable multiple coordinated view (MCV) system. The interface allows users to flexibly resize, arrange, hide, and close views as needed, enabling them to adapt the visualization workspace to their analysis goals.
+
+Traveler provides nine distinct types of views, with the possibility of instantiating several of them multiple times using different facets of the data. Of these, three can be considered the {\em native} representations of the four fundamental data item types in execution traces. Intervals and resource states are shown together in a Gantt View, following the most established idiom for execution traces. Primitives are represented within a node-link diagram that depicts the execution tree, a design informed by the Atria system~\cite{williams2020movingtarget}. Source code, as the fourth data type, is displayed in its native text format with syntax highlighting (\autoref{fig:travelerteaser}(d)).
+
+Complementing the detailed Gantt chart, Traveler includes two additional temporal views that present higher-level abstractions: a Utilization View and an Aggregated Gantt View. These provide summaries of behavior across groups of tasks, thereby enabling analyses that would otherwise be obscured by the fine granularity of individual events. Furthermore, Traveler incorporates two additional temporal metric views---a line chart and a functional box plot---to display interval- and resource-level attributes. Finally, a histogram view of interval durations provides both a distributional overview and a navigation mechanism into the trace data. 
+
+Information about selections made within any of these views is communicated through the Selection Info View (\autoref{fig:travelerteaser}(c)), which reports attributes and contextual details of selected intervals or primitives. In aggregate, this ensemble of coordinated views enables analysts to approach execution traces from multiple perspectives, transitioning fluidly between low-level details and high-level abstractions.
+
+\subsection{Temporal Views}
+\label{subsec:temporal_views}
+
+Five views in Traveler use time as the horizontal axis: the standard Gantt chart, the novel Aggregated Gantt chart, the Utilization View, and two metric-based visualizations (the Line Chart and the Functional Box Plot). Among these, the Utilization View provides a fixed overview of the entire execution trace, while all other temporal views support linked panning, zooming, and random access through brushing in the Utilization View. This design ensures that temporal exploration remains synchronized across representations, allowing users to correlate details with broader temporal patterns.
+
+\subsubsection{Utilization Overview} 
+\label{subsec:utilization}
+
+The Utilization View (\autoref{fig:travelerteaser}(a)) displays total resource utilization over time using an area chart. The vertical axis encodes the proportion of active resources, normalized by the maximum possible utilization. This design directly supports goal G5 (understanding utilization) and cross-cutting sub-goal CC.2 (correlating resource use with time). 
+
+Beyond providing an overview, the Utilization View functions as a navigation aid. An interactive rectangular brush controls the temporal domain shown in other views, thereby supporting abstract/elaborate and reconfigure tasks. Additionally, when intervals or groups of primitives are selected in other views, a secondary yellow area is drawn to represent the utilization attributable to those selections. This interaction supports CC.1 and CC.3, linking temporal utilization patterns to specific intervals and primitives.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=3.5in]{figs/gantt.jpg}
+    \caption{Gantt View representing parent-child dependency between two intervals. The highlighted yellow interval bar $b$ has parent $a$. Interval $b$ has three children\textemdash $c$, $d$, and $e$.}
+    \label{fig:gantt}
+\end{figure}
+
+\subsubsection{Gantt View} 
+
+The Gantt View (\autoref{fig:travelerteaser}(b)) represents resource states as rows and intervals as rectangular bars. Resources are labeled by CPU and thread identifiers, denoted as $core\ ID-thread\ ID$. The view supports panning and zooming both in time and across the resource axis. Selection of an interval highlights it in yellow and updates the Selection Info and Utilization Views. Parent-child relationships are shown on demand through yellow dependency lines (\autoref{fig:gantt}), enabling users to follow hot paths (G3.2) and reason about runtime scheduling decisions (G4). This selective strategy avoids visual clutter while maintaining interpretability.
+
+\subsubsection{Aggregated Gantt View} 
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\columnwidth]{figs/AggGanttExplainer20.png}
+    \caption{Selecting a primitive in the Dependency Tree View will highlight instances of that primitive's subtree in the Gantt View and create aggregated bars for the subtree in the Aggregated Gantt View.
+    }
+    \label{fig:agg_gantt}
+\end{figure}
+
+The \textbf{Aggregated Gantt View} (\autoref{fig:travelerteaser}(c)) provides a temporal layout to meaningful groups of intervals, as defined by the execution tree of the program. It is populated using the Dependency Tree View (\autoref{subsec:dependencytree}). The Aggregated Gantt View provides a simplified view at a higher level of abstraction than individual intervals of the Gantt View but a more detailed level of abstraction than the aggregated primitives of the execution tree, further supporting the correlation of primitives in time (cross-cut sub-goal CC3).
+
+Each bar in the Aggregated Gantt View represents a specific instance of a primitive created by a sequence of dependencies as shown in \autoref{fig:agg_gantt}. For example, consider a primitive \texttt{block} of code within a \texttt{for} loop. Though there are several \texttt{block}s throughout the program, the chain of dependencies leading to a particular \texttt{block} uniquely defines it in comparison to the others. Because it is in a \texttt{for} loop, it runs $k$ times. If shown in the Aggregated Gantt View, the \texttt{block} will generate $k$ bars, showing where each was executed in time. 
+
+Rather than showing only the \texttt{block} interval, new aggregated intervals are created from all the intervals originally spawned by that particular \texttt{block} instance, in other words, any interval the \texttt{block} was an ancestor of. The horizontal position and length of each bar shows the starting time of its first interval and the ending time of its last. Because the different intervals spawned by the \texttt{block} instance may occur on different resources, we cannot assign it to a single resource. Instead, we lay out the bars in a greedy fashion to avoid collision. Thus, the vertical position shows how many of these bars (e.g., loop iterations) run concurrently. 
+
+Within each aggregated bar, we draw a yellow area chart showing the utilization due to that instance of the subtree. The background of each bar is shaded in purple with the subsumed intervals in the main Gantt View colored the same shade, aiding users in correlating intervals with primitives (sub-goal G2.4).
+
+\subsubsection{Functional Box Plot and Line Chart Views} 
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=3.5in]{figs/line.JPG}
+    \caption{CPU Idle percentage shown in the Line Chart view.}
+    \label{fig:line_chart}
+\end{figure}
+
+As explained in \autoref{sec:traveler-data}, performance counter (metric) data can be collected along with the trace in one of two ways: sampled with the interval events or sampled in time. Performance counters describe some attribute of the resource on which they are sampled. Traveler offers two views to show these metrics in time, supporting cross-cut sub-goal CC.2, correlating resource use with time. Furthermore, since these views are linked with the Gantt View and multiple of each of these views may be opened with different performance counters, they also support correlating resource use with resource use, sub-goal G5.2.
+
+As performance counter data may be sampled irregularly, they are more meaningfully represented as a rate. For a consecutive $(time_1, value_1)$ and $(time_2, value_2)$ pairs where $time_1 > time_2$, the rate is calculated as, $rate=\frac{value_1-value_2}{time_1-time_2}$. We use this derived rate in our performance counter views.
+
+The Functional Box Plot view \autoref{fig:line_chart} summarizes performance counter rates across resources. We draw three lines representing the maximum value across resources, the minimum, and the average. A shaded gray area around the average shows a standard deviation. \autoref{fig:travelerteaser}(d) shows the Functional Box Plot view for the  PAPI (Performance Application Programming Interface)~\cite{browne2000portable} metric CPU cycles. 
+
+\subsection{Non-temporal Views}
+\label{subsec:non_temporal}
+
+Four views in Traveler are not directly temporal: the Dependency Tree View, the Interval Histogram View, the Source Code View, and the Selection Info View. The Source Code and Selection Info views were introduced above; here we discuss the two structural summaries.
+
+\subsubsection{Dependency Tree View} 
+\label{subsec:dependencytree}
+
+The Dependency Tree View (\autoref{fig:travelerteaser}(g)) is the native representation of primitives, following design precedents from Atria. Each node in the tree corresponds to a primitive call as defined by its dependency context, akin to a calling context tree but adapted to asynchronous parallel execution. The tree thus expresses how source code constructs are transformed into task types with dependencies. Nodes aggregate numerous intervals of the same primitive type, with a purple ramp encoding total execution time. Interaction is tightly linked: selecting a node highlights intervals in the Gantt chart, shows utilization contributions, and generates bars in the Aggregated Gantt View, thereby supporting CC3 and G2.4. To manage scale, Traveler displays five levels by default, with options to collapse or expand subtrees.
+
+\subsubsection{Interval Histogram View} 
+
+The Interval Histogram View (\autoref{fig:travelerteaser}(h)) displays intervals grouped by duration. Users may filter by primitive type and select bins via brushing. This interaction highlights corresponding intervals in the Gantt and Utilization Views, directly supporting goals G3.5 and G3.6 by enabling the analysis of distributional properties and the identification of extreme intervals.
+
+\subsection{Implementation}
+\label{subsec:implementation}
+
+Traveler is implemented as a web-based client-server system. The back-end, built on \texttt{fastapi} and served with Uvicorn, preprocesses OTF2 trace files into optimized data structures stored with DiskCache~\cite{diskcache}. The server generates bitmaps for temporal and histogram views, rendered on the client using HTML5 Canvas. Axes and brushes are implemented with D3~\cite{bostock2011d3}. This division allows heavy computation to remain server-side while ensuring fluid interactivity client-side.
+
+\subsubsection{Data Structures}
+
+To achieve scalability and responsiveness, Traveler employs two key data structures. First, {\em summed area tables} are precomputed for utilization, hardware counters, and interval duration counts across cores and primitives. These tables allow the server to generate pixel-level aggregates for arbitrary time windows efficiently, enabling responsive temporal rendering. Second, an {\em interval tree} supports fast lookup of attributes for selections, powering the Selection Info View. Together, these structures are generated in a preprocessing stage called {\em bundling}, which is performed once per dataset and cached for reuse. This strategy minimizes latency and supports interactive navigation across large traces.
+
+
+
+\begin{figure}[ht]
+    \begin{subfigure}[t]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{figs/blaze.JPG}
+        \caption*{Phylanx-Blaze interval distribution}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{figs/halide.JPG}
+        \caption*{Phylanx-Halide interval distribution}
+    \end{subfigure}
+    \caption{The distribution of intervals Phylanx-Blaze (left) and Phylanx-Halide (right). The Selection Info View (a) shows the exact duration of the selected bars while the Gantt View (b) shows where they occur in time and on what resources. The Utilization View (c) shows their impact compared to the whole program, which is much higher in Phylanx-Blaze. The Interval Histogram View (d) shows the longest intervals in both have been brushed, thereby selecting them.
+    }
+    \label{fig:casestudy1}
+\end{figure}
+
+
+\section{Evaluation}
+\label{sec:travevaluation}
+
+To assess the effectiveness and utility of Traveler, we conducted a multi-faceted evaluation comprising a case study, expert user feedback, and structured sessions with novice users. The case study demonstrates Traveler's ability to reveal performance inefficiencies and inform meaningful changes to a real-world code base. Feedback from an experienced Runtime Team member provides insight into Traveler's deployment in ongoing research workflows, while structured sessions with novice users shed light on the learnability and usability of the system for new adopters. Together, these complementary perspectives provide a well-rounded understanding of Traveler’s practical impact and limitations.
+
+\subsection{Case Study}
+\label{subsec:casestudy}
+
+We first present a case study demonstrating Traveler's ability to identify and help address a real performance issue in Phylanx. This case study was conducted collaboratively between a Runtime Team member (RTM), a postdoctoral researcher with several years of experience in Phylanx, and a Visualization Team member (VTM), a graduate student researcher. The collaborative analysis spanned approximately four months, interleaved with other ongoing priorities. In this period, performance analysis represented only one aspect of the RTM’s overall research responsibilities. The iterative and domain-centered nature of the collaboration reflects a realistic evaluation setting for Traveler.
+
+\subsubsection{Analysis Problem and Data}
+\label{subsubsec:analysis_problem}
+
+The RTM investigated the potential benefits of integrating {\em Halide}~\cite{ragan2017halide} into Phylanx, in comparison with the existing {\em Blaze}~\cite{Blaze} backend. {\em Halide} is a domain-specific framework for automatically generating efficient parallel code with explicit scheduling and data management strategies. By contrast, {\em Blaze} is an open-source C++ library optimized for high-performance linear algebra computations. For clarity, we refer to the implementations as Phylanx-Halide and Phylanx-Blaze, respectively. 
+
+To evaluate the two approaches, the RTM employed the \texttt{dgemm}~\cite{dgemm} kernel, a canonical benchmark for matrix-matrix operations. Initial benchmarks revealed that Phylanx-Halide was nearly twice as fast as Phylanx-Blaze. To better understand this performance disparity, the RTM collected execution traces, which were subsequently analyzed by the VTM using Traveler. Results and insights were exchanged iteratively between the RTM and VTM through textual reports, screenshots, and recorded videos.
+
+\subsubsection{Investigation with Traveler}
+\label{subsubsec:investigation}
+Viewing both execution traces in Traveler, we opened the Interval Histogram View (\autoref{fig:casestudy1}) to compare (Goal G3.4) the distributions in interval durations (G3.5). The Phylanx-Blaze distribution is much wider, with many intervals longer than the longest ones in Phylanx-Halide, indicating some tasks are taking much longer in Phylanx-Blaze. We select the long intervals in both traces (G3.6). The highlighted intervals in the Gantt show us the tasks are shorter and more evenly distributed in Phylanx-Halide. The Selection Info View reveals the extreme Phylanx-Blaze interval is six times longer than the longest one in Phylanx-Halide, contributing to the longer execution time. {\em Insight:} Phylanx-Blaze intervals require more time for the same work and are more unbalanced.
+
+The RTM suspects that there may be data movement differences because data management is a feature of Halide. We open multiple Functional Box Plot views to check the L1 and L2 Cache miss rates (Sub-goal CC.2). (Figures are available in the supplemental material.) A higher miss rate suggests more time is being spent reading from slower memory. We brush over the Utilization View to focus on the second area of high activity in the computation. We see that while the fluctuations in L1 cache misses are similar, the Phylanx-Blaze version has a steadily increasing rate of L2 cache misses while the Phylanx-Halide version remains flat. {\em Insight:} the Phylanx-Halide version is managing data more effectively as suspected.
+
+\begin{figure}[t]
+    \begin{subfigure}[t]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{figs/halide_a1.JPG}
+        \caption*{}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{figs/halide_p1.JPG}
+        \caption*{}
+    \end{subfigure}
+    \caption{Traveler helped us identify a performance bug related to serialization of variable instantiation (left) leading to a fix that shortens execution time (right) and was merged into the Phylanx repository. On the left, we select a primitive $A$ in the Dependency Tree View (d) that it is executing alone as show in all temporal views (a, b, c). After we identified and fixed this bug, we are able to create multiple variables concurrently (right).
+    }
+    \label{fig:casestudy3}
+\end{figure}
+
+During the previous analyses, we noted the long low-utilization periods between the two high-utilization phases of the program in the Utilization View (Goal G5). We used the Dependency Tree View to understand the mapping between primitives near the root (high level operations) and utilization (Sub-goal CC.3). As shown in \autoref{fig:casestudy3}(left), some of the low utilization can be attributed solely to the declaration of the variable $A$, as seen with the yellow area in the utilization view. We repeated the process with neighboring nodes for variables $B$ and $C$---each was the only active primitive in a separate area of low utilization. {\em Insight:} The declarations are serialized.
+
+In the source code view, we saw that each declaration was of the form \texttt{variable = np.ones((N, N))}. {\em Insight:} The declarations could be executed concurrently. The RTM was not sure why this was happening, so we brought it to the attention of the Runtime Team lead. The Runtime lead explained it was a performance error because the way in which the \texttt{dgemm} was implemented did not indicate the operations could be parallelized safely. He suggested a way that takes advantage of Phylanx's expression tree parallelization.  
+
+After updating the code, we regenerated the OTF2 data, resulting in \autoref{fig:casestudy3}(right). The smaller gap between the two peaks in the utilization view verifies that 
+the declaration of the variables $A$, $B$, and $C$ occurred in parallel. This bug fix was merged into the Phylanx repository.
+
+\subsection{Feedback from Runtime Team}
+\label{subsec:runtime_feedback}
+
+To complement the case study, we gathered structured feedback from members of the Runtime Team who used Traveler in their daily work. This evaluation included (i) a retrospective interview with an expert user and (ii) structured feedback sessions with novice users.
+
+\subsubsection{Feedback from an Expert User}
+
+One expert Runtime Team member (R1) used Traveler for seven months as part of their ongoing research. R1 reported that they had switched from Vampir~\cite{nagel1996vampir} to Traveler primarily because Traveler was freely available, stating that Traveler was ``as satisfying as Vampir.'' Their workflow involved annotating code, collecting traces, and using Traveler to verify that the annotated intervals were scheduled as expected. This aligns with goals G5.1 and G4 from our task analysis (\autoref{sec:traveler-tasks}). R1 made extensive use of the Gantt, Utilization, and Selection Info Views to support this workflow.
+
+Over time, R1 shifted focus from verification to performance analysis, concentrating on the distribution of tasks across cores and dependency patterns. This again relates to G5.1 and G4 in the task analysis. R1 noted that although the Interval Histogram and Dependency Tree Views were not yet available during their usage, Traveler already provided sufficient functionality: \emph{``Traveler was giving us everything we needed.''} While R1 reported encountering occasional bugs and expressed reservations about the in-development dataset tagging system, they generally found Traveler reliable and useful.
+
+\subsubsection{Novice Team Member Sessions}
+
+We also conducted structured evaluation sessions with four novice Runtime Team members (P1--P4). Each participant completed a one-hour remote session consisting of a tutorial, hands-on tasks with a \texttt{kmeans} dataset, and a follow-up interview. Tasks were designed to exercise key goals from the task analysis, ranging from exploratory overviews (G1) to identifying the longest intervals (G3, G4) and analyzing cache utilization (G5).
+
+Participants showed a range of engagement and proficiency. P1 and P3, both with little to no prior experience in performance visualization, struggled with basic navigation and completed only partial tasks. In contrast, P2 successfully completed all assigned tasks, demonstrating the ability to leverage the Dependency Tree, Interval Histogram, and Functional Box Plot Views effectively. P4, with prior experience using VTune, completed most tasks with occasional facilitator support.
+
+During the interviews, both P2 and P4 highlighted the Dependency Tree View as particularly useful. They also emphasized the importance of coordinated multiple views, noting that the linkage between Gantt and Dependency Tree Views facilitated deeper insights. Requested features included multi-selection of intervals in the Gantt View (P2) and interval coloring by performance metrics (P4). However, usability issues were also identified, particularly with brushing interactions and the visual representation of dense intervals.
+
+\subsection{Limitations and Threats to Validity}
+\label{subsec:limitations}
+
+While our evaluation demonstrates Traveler’s utility, several limitations must be acknowledged. First, in the case study, the primary analysis was conducted by the Visualization Team member rather than the Runtime Team expert. Although the findings were verified and acted upon by Runtime Team members, the usability of Traveler by domain experts was not directly tested in this scenario. Moreover, the case study focused solely on the \texttt{dgemm} kernel; broader coverage of applications would provide stronger generalizability.
+
+Second, feedback from the expert user (R1) was retrospective and occurred several months after their last active use of Traveler. Their analysis also did not involve very large datasets, limiting insights into scalability. Furthermore, some of Traveler’s views (e.g., Dependency Tree, Interval Histogram) were not available during their usage.
+
+Third, the novice sessions were limited in scope, involving only four participants, of whom three had less than one year of experience with the Runtime Team. This restricted their ability to fully engage with advanced analysis tasks. Additionally, our collaboration with the Runtime Team may have introduced bias toward positive feedback.
+
+Taken together, these limitations suggest that while Traveler shows promise and has already demonstrated practical impact in identifying and resolving performance issues, further large-scale and longitudinal evaluations are necessary to fully establish its usability, scalability, and adoption potential in broader HPC contexts.
+
+
+\section{Reflections and Lessons Learned}
+\label{sec:trav-reflection}
+
+In this section, we reflect on the design and evaluation of Traveler, with particular attention to (a) the challenges of conducting a design study within an ongoing collaboration marked by rapidly evolving concerns, and (b) the opportunities and difficulties of employing multi-scale, configurable designs for execution trace data. Our reflections highlight both the practical lessons learned in developing Traveler and broader insights that inform the design of visualization systems for large-scale, asynchronous task parallel execution traces.
+
+\noindent\textbf{Leveraging an existing task analysis while adapting to shifting data.}  
+The task analysis presented in \autoref{sec:traveler-tasks} builds upon an earlier effort conducted at the beginning of the collaboration, when our focus was on execution tree profile data---data aggregated by primitive context. As before, we tracked tasks longitudinally, reinforcing those that recurred over time while de-emphasizing tasks of limited relevance. The higher-level umbrella concerns and goals remained largely stable, but numerous new sub-goals emerged. This relative stability at the goal level gave us confidence in the prioritization of design features, particularly those that expanded support for existing goals when new data became available. Moreover, the persistence of prior goals enabled us to transfer components of earlier visualization designs into Traveler, guiding decisions about which features to port and which to modify.  
+
+Nevertheless, difficulties arose when the underlying data abstraction shifted from execution tree graphs to parallel execution traces. The earlier analysis had leveraged the network task taxonomy of Lee et al.~\cite{Lee2006}, which did not sufficiently capture the characteristics of trace data. We therefore employed the taxonomy of Yi et al.~\cite{Yi2007}, yet found it less productive than in our earlier project, where tasks more directly aligned with visual idioms. These challenges raise questions about whether sub-goals alone may suffice, whether finer granularity of sub-goals is needed, or whether alternative analytic frameworks are necessary to better describe performance analysis processes.
+
+\noindent\textbf{Designing for diverse experience levels remains an open challenge.}  
+The evaluation revealed clear differences in how users at various experience levels engaged with Traveler. Novice Runtime Team members struggled to complete many tasks, while intermediate users were able to perform most analyses, albeit sometimes with assistance. The expert collaborator transitioned seamlessly from a commercial trace visualization tool to Traveler but did not explore newer or more experimental views. These results suggest that integrating forms of structured training, interactive tutorials, or guided onboarding into Traveler may improve usability across experience levels. Although we provided documentation, example analyses, and even a short demonstration video, the limited uptake and continued difficulties highlight the need for scalable, embedded training mechanisms.
+
+\noindent\textbf{Immersive practices during the case study refined the tool.}  
+Traveler’s early development relied on synthetic and heterogeneous data sets, which were useful for testing performance and feature correctness but lacked real-world analytic context. The case study supplied concrete analysis goals, and this immersion in a live problem space exposed bugs, bottlenecks, and workflow issues that were otherwise invisible. Such immersive practices~\cite{Hall2019} proved essential for refining both the system and its interaction model. However, collaboration with a rapidly evolving open-source runtime brought additional complications. Although we automated much of our internal pipeline from runtime updates to trace data processing and visualization, we underestimated the challenges faced by collaborators in keeping their installations synchronized. This disconnect limited timely feedback and highlights the importance of supporting not only visualization pipelines but also integration into the broader ecosystem of collaborative workflows.
+
+\noindent\textbf{Multi-level abstraction was critical for navigating scale.}  
+The disparity between the entire execution length of a trace and the fine granularity of individual intervals is immense. Traveler mitigates this challenge by providing multiple levels of abstraction: high-level utilization views for overall execution, aggregated Gantt views for grouped interval analysis, and dependency views that reflect code structures. This multi-level scaffolding allowed users to meaningfully transition between overview and detail. Indeed, the discovery of a variable instantiation performance bug during the case study exemplifies the value of such intermediary abstractions.
+
+\noindent\textbf{Configurable views empowered users, with utilization as the common anchor.}  
+Evaluation participants consistently customized the arrangement and sizing of views, tailoring the interface to the task at hand. This adaptability was by design, as Traveler offers many views that vary in their relevance to different sub-goals. While no single layout emerged as dominant, one pattern was consistent: the Utilization View was always retained. It served both as a navigational overview and as a representation of one of the highest-level analytic goals---understanding overall resource utilization (G5). This observation reinforces the dual role of utilization: simultaneously a central metric and a practical navigational feature.
+
+\section{Conclusion}
+\label{sec:trav-conclusion}
+
+In this chapter, we presented the design and evaluation of Traveler, a coordinated multi-view visualization system for the exploration of task parallel execution traces. Traveler addresses the dual challenges of scale and irregularity in asynchronous execution by integrating multiple complementary views. In particular, the linked execution tree and aggregated Gantt views enable users to bridge raw execution detail with higher-level program structure. Additional linked views, such as performance counter summaries and interval histograms, provide flexible support for a wide range of analytic tasks.  
+
+Through a case study, we demonstrated Traveler’s capacity to explain runtime performance behavior and to uncover a performance bug that was subsequently fixed and integrated into the collaborator’s codebase. Beyond these specific results, our design study contributes broader insights about the evolving nature of collaborative visualization design, the adaptation of task analyses in response to shifting data abstractions, and the role of configurable multi-scale views in enabling effective exploration of execution traces.  
+
+Ultimately, Traveler illustrates how visualization design can adapt to the complexities of task parallel execution, offering both practical analytic benefits and lessons for the design of visualization systems in rapidly changing collaborative environments.

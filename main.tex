@@ -1,0 +1,88 @@
+% !TEX program = lualatex
+
+\documentclass[american]{u_template}
+
+
+\author                 {Sayef Azad Sakin}
+\title                  {Event Sequence Visualization \\Design Considerations \\and \\Data Management Techniques}
+% \include{abstract}
+\abstract{
+Exploratory visual analysis of event sequences is prevalent in domains such as manufacturing, healthcare, and computing to make decisions that are difficult to make from individual events. However, as the data size grows, visualizing a large number of events makes decision-making harder and the visual interface increasingly less useful. Specifically, there is a tension between designing a representative visual interface of the events and managing the large volume of events for the visual interface while maintaining interactivity. Addressing only one side of the tension often results in systems that are less useful.
+\\
+The aim of this dissertation is to ease this tension by treating the visual design considerations and data management techniques as interdependent components rather than separate concerns. The central thesis of this dissertation is that useful event sequence visualization requires connecting visual design considerations with data management strategies, and demonstrates that such an interconnected approach enables useful visualization that is both interactive and representative of the events.
+\\
+To substantiate the central thesis, this dissertation presents three main contributions that provide specific ways to connect visual design considerations with data management strategies by (1) understanding design considerations to visualize the vast scale differences in data that are useful, (2) identifying visual tasks and relevant data management techniques to achieve interactivity, and (3) determining the data management strategies that can ensure both interactivity and proper representation of large event sequence data. These contributions advance the design of event sequence visualization systems that balance interactivity and responsiveness, thereby improving the usefulness of exploratory visual analysis of event sequences.
+}
+% \include{acknowledge}
+\preface{Here is the preface.} % For new paragraphs use \\ instead of blank line here; fill in "none" or delete / comment out this line to omit
+
+\adddedicationpage{To my late father Mohammed Abul Kashem} % For new paragraphs use \\ instead of blank line here; For no dedication page/s just delete or comment out this line or fill in "none"
+
+% Graduation Date
+
+\december % choose "\may" or "\august" or "\december"
+\year{2025}
+
+
+% Degree
+
+\diss % "\thesis" for Thesis or "\diss" for Dissertation
+\phd % "\phd" for Doctor of Philosophy, "\ms" for Master of Science, "\ma" for Master of Arts
+\emphasis{Computing} % in case degree requires an emphasis; fill in "none" or delete / comment out this line to omit
+
+
+% Graduate School and Specific Department/School/College
+
+\department % options are "\department," "\school" and "\college"
+\departmentname{Kahlert School of Computing} % e. g. fill in "Philosophy" for department/school/college of philosophy
+\chair % options are "\chair", "\dean" and "\director"
+\departmentchair{Mary W. Hall} % name of chair/dean/direcor of department/school/college
+\nameofdean{Darryl P. Butt} % dean of the graduate school
+
+
+% Committee
+
+\onechair % "\onechair" for a single committee chair, "\cochairs" for two co-chairs
+
+\addcommitteemember{Katherine Eve Isaacs}{01/12/2025} % add all committee members; first member/s is/are committee chair/s
+\addcommitteemember{Alexander Lex}{01/12/2025}
+\addcommitteemember{Paul Andrew Rosen}{01/12/2025}
+\addcommitteemember{Prashant Pandey}{01/12/2025}
+\addcommitteemember{Kevin Huck}{01/12/2025}
+
+
+
+% Sectioning
+
+\mainheadingsnumbered % "\usechapters" for chapters, "\mainheadingsnumbered" for numbered main headings, "\mainheadingsunnumbered" for unnumbered main headings
+
+\localnumbering % "\localnumbering" for subheadings/figures/tables/etc. numbered within chapters, "\nolocalnumbering" for unnumbered subheadings and continuous numbering of figures/tables/etc. (Will automatically be turned off with option "\mainheadingsunnumbered".)
+
+\appendixaspart % "\appendixaschapter" for chapter style appendix headings, "\appendixaspart" for part style appendix headings
+
+
+% Figures and Tables
+
+\withouttext % "\chapterend" for placing all figures/tables at the end of the chapter, "\withouttext" for placement on a page without accompanying text that follows the page where they are first mentioned, "\intext" for placement at top/bottom of text pages
+
+\setlength{\tabcolsep}{.1in} % separation between table columns
+\renewcommand*{\arraystretch}{1.5} % vertical stretch factor in tables
+\setlength{\arrayrulewidth}{0.4pt} % table rule width
+
+\notablecolors % "\tablecolors" for alternating background color of table rows, "\notablecolors" to deactivate
+
+
+
+\begin{document}
+
+\include{chap1}
+\include{chap2}
+\include{chap3}
+% \include{chap4}
+% \include{chap5}
+% \include{chap6}
+\include{chap7}
+
+\printbibliography
+
+\end{document}

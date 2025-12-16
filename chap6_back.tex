@@ -1,0 +1,51 @@
+\chapter{Discussion}
+\label{chap:discussion}
+
+\section{Introduction}
+This chapter synthesizes the findings from the three major contributions of this dissertation: Traveler, the Gantt Chart Task Taxonomy, and ESeMan. Each contribution addressed a different facet of event sequence visualization, but together they illustrate the benefits of coupling visual design considerations with data management techniques. This discussion reflects on the lessons learned, identifies cross-cutting insights, acknowledges limitations, and outlines implications for the design of future visualization systems, before considering broader impacts and opportunities for generalization.
+
+\section{General Themes}
+
+Although the three contributions addressed different aspects of event sequence visualization, they converged on several themes. The interplay between linear and hierarchical structures emerged as a recurring motif. Traveler demonstrated the utility of layered task abstractions, while ESeMan employed KD-trees to organize event data. Hierarchy alone was not always sufficient, but combining hierarchical and linear structures suggested a path toward more flexible and generalized designs. This duality allows users to maintain a sense of sequence while navigating aggregated views, a balance that is critical for interpretability in large-scale event visualizations.
+
+Another important cross-cutting challenge lies in integrating process mining techniques with information visualization approaches. Across the projects, recurring bottlenecks appeared when analysts attempted to bridge raw event logs with meaningful analytic abstractions. Incorporating methods from process mining could provide automatic structuring of logs, offering analysts a higher-level foundation for exploration. Furthermore, emerging AI-based techniques such as large language models may offer the ability to infer latent structures in event sequences. While promising, these approaches raise questions about interpretability, trust, and reproducibility that visualization research is well positioned to address.
+
+When viewed in light of broader visualization literature, the contributions of this dissertation resonate with established strategies such as zoomable interfaces, progressive analytics, and multiscale visualization. The findings emphasize that scalability should be understood as more than technical optimization. It involves aligning perceptual, cognitive, and computational constraints to enable effective analysis. In this respect, the contributions extend prior literature by treating scalability as a multidimensional construct.
+
+\section{Lessons Learned from the Contributions}
+
+The design and deployment of Traveler revealed both expected and unexpected insights from collaboration with HPC researchers. One of the most striking outcomes was the way participants gravitated toward the utilization view during interviews, despite the initial assumption that the dependency tree view would serve as the primary navigational aid. This highlighted a key lesson: overview representations remain indispensable even when more specialized views are available. Interestingly, when participants were encouraged to use the dependency tree, they began to recognize its benefits. This suggests that user education and subtle interface nudges may be as important as the views themselves in shaping analytic behavior. Traveler reinforced the importance of designing systems that foreground overviews while offering smooth pathways to more specialized perspectives.
+
+The Gantt Chart Task Taxonomy provided another critical lens, drawing attention to gaps in existing visual taxonomies. A particularly surprising observation was the limited support in the literature for pattern-recognition tasks. While such tasks are intuitively valuable for identifying trends and anomalies in sequential data, evidence showed they are underutilized or insufficiently supported in practice. This observation suggests that visualization systems may be too heavily optimized for straightforward retrieval and filtering tasks at the expense of supporting more cognitively complex activities such as pattern detection and hypothesis formation.
+
+ESeMan underscored the complexity of data management trade-offs. Evaluations revealed that memory consumption remained unexpectedly high, and quantifying it posed challenges. More sophisticated measurement techniques will be required to provide meaningful comparisons across data management strategies. Another lesson emerged from the performance of the naive approach. While inefficient in many respects, it suggested that database tuning could substantially affect outcomes. This finding raises the possibility that the performance gap between advanced data structures and baseline implementations might be narrowed through careful configuration, warranting further study.
+
+\section{Limitations}
+
+The three contributions also have limitations that qualify their findings. Traveler, though successful in supporting HPC trace analysis, was tailored to the needs of a specific collaboration and may not generalize directly to other domains where event semantics or user priorities differ. The Gantt Chart Task Taxonomy, while providing a structured account of tasks, does not capture the full spectrum of activities across emerging domains such as cybersecurity, IoT, or machine learning trace analysis. The taxonomy must be revisited and updated as event sequence visualization expands into these areas. ESeMan, though rigorously evaluated, was tested primarily on datasets that were highly left-skewed. Other distribution types could unbalance the KD-tree structure and affect query performance under different splitting rules. Addressing these edge cases will require further exploration of adaptive partitioning strategies.
+
+\section{Implications for Future Visualization Systems}
+
+The collective findings of this dissertation point toward several implications for future system design. Chief among them is the value of the overview-detail paradigm. Analysts consistently benefited from overview representations, and future systems should strive to identify unified data abstractions that can generate both high-level summaries and fine-grained details. Such abstractions would facilitate seamless transitions across scales of analysis, a property essential for reasoning about large event sequences.
+
+Another implication concerns the order of design decisions. The results of this dissertation suggest that system builders must begin with an understanding of user tasks, followed by specification of design requirements and data abstractions, and only then select appropriate data structures. Inverting this order risks producing efficient but underutilized systems. By reframing interactivity as the outcome of aligning tasks, representations, and data management, this dissertation argues for a task-first orientation in system design.
+
+\section{A Framework for Coupling Design and Data Management}
+
+The synthesis of these findings suggests a conceptual framework for event sequence visualization that integrates design considerations with data management strategies. The framework is not intended as a rigid set of prescriptions but as a flexible set of guiding principles.
+
+First, visualization systems should adopt an \textit{overview-to-detail orientation}, ensuring that high-level summaries are always accessible while offering pathways to fine-grained exploration. This principle acknowledges the consistent user preference for overview views, as demonstrated in Traveler, while preserving the value of specialized perspectives.
+
+Second, systems should prioritize a \textit{task-first design process}, beginning with the identification of analytic tasks and user goals. Only once these are clarified should designers define data abstractions and select data structures. This ordering ensures that computational strategies serve analytic purposes rather than dictating them.
+
+Third, visualization systems should explore the integration of \textit{linear and hierarchical structures}. Purely linear representations preserve sequence and temporal order, while hierarchical organizations enable aggregation and scalability. Their combination, as seen in Traveler’s task abstractions and ESeMan’s indexing structures, supports both interpretability and efficiency.
+
+Together, these principles constitute a framework that emphasizes the co-evolution of design and data management. By applying this framework, future systems can better align computational efficiency with human cognitive needs, advancing the state of event sequence visualization.
+
+\section{Broader Impact and Generalization}
+
+Although grounded in HPC and Gantt chart visualization, the contributions of this dissertation are not domain-specific. Manufacturing, in particular, appears poised to benefit from these approaches, as its workflows and task contexts closely mirror those observed in HPC traces. Beyond this, healthcare and software debugging present natural extensions where event sequence data is abundant and decision-making is time-sensitive.
+
+The broader impact of this work lies in the insight that full automation rarely suffices. Human intervention at early stages of system design and analysis remains essential for robustness and interpretability. Visualization systems should therefore be designed to augment human judgment rather than replace it. Automated techniques, including AI-based summarization and pattern detection, can reduce cognitive load and improve responsiveness, but the analyst’s role remains central in shaping questions, interpreting results, and validating insights.
+
+The key takeaway for practitioners in other domains is that effective event sequence visualization requires treating interactivity, scalability, and interpretability as mutually reinforcing goals. By balancing these factors through careful integration of design and data management, systems can better support human reasoning across diverse and complex event datasets.

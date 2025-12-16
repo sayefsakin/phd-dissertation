@@ -1,0 +1,386 @@
+% !TEX program = lualatex
+
+%This example uses unnumbered main headings in place of chapters without locally numbered subheadings, figures, tables, etc. Appendices have chapter-style headings. References appear at the end of the document. The figures and tables appear on a separate page after being first mentioned in the text. This file also shows examples of a long table and landscape pages.
+
+\documentclass[american]{u_template}
+
+
+
+% Your Name, Title of your Work, Preliminary Texts
+
+\author{Alan Thomas Patterson}
+\title{Maximizing the Efficiency of a  \\ Master-Planned Community}
+\abstract{There is some confusion as to exactly what nature writing is. It usually is
+associated with essays such as “Walden,” but there is nature fiction, nature poetry,
+nature reporting, even nature drama, if television documentary narrations are
+literature. All these have something in common: They are appreciative esthetic
+responses to a scientific view of nature, and I think this trait defines the genre. Of
+course, there was much writing that concerned nature before Linnaeus developed
+scientific classification in the mid-18th century, but the fascination with nature itself
+that science evoked was new. Before Linnaeus, there were hunting stories, fables,
+herbals, bestiaries, pastorals, lyrics and traveler’s tales, but nature generally was seen in
+only two dimensions. It was a backdrop to a historical cosmos, or a veneer over a
+religious one. Whether it was admired or scorned, the human figure stood in strong
+relief against it. After Linnaeus began to give even insects impressive Greco-Latinate
+names, nature rapidly acquired a new substantiality, and became a subject as well as a
+setting. By the 1790s, an English country clergyman who a century or two before might
+have been writing theological treatises or metaphysical poems produced a book (Gilbert
+White’s “The Natural History of Selborne”) wherein history and religion were
+interwoven with, sometimes overshadowed by, beech trees and earthworms.} % For new paragraphs use \\ instead of blank line here
+\acknowledgments{Here are some sample acknowledgments.} % For new paragraphs use \\ instead of blank line here; fill in "none" or delete / comment out this line to omit
+\preface{Here is the preface.} % For new paragraphs use \\ instead of blank line here; fill in "none" or delete / comment out this line to omit
+
+\adddedicationpage{Gratefully dedicated to John Muir} % For new paragraphs use \\ instead of blank line here; For no dedication page/s just delete or comment out this line or fill in "none"
+
+
+% Graduation Date
+
+\may % choose "\may" or "\august" or "\december"
+\year{2020}
+
+
+% Degree
+
+\thesis % "\thesis" for Thesis or "\diss" for Dissertation
+\ms % "\phd" for Doctor of Philosophy, "\ms" for Master of Science, "\ma" for Master of Arts
+\emphasis{Biology} % in case degree requires an emphasis; fill in "none" or delete / comment out this line to omit
+
+
+% Graduate School and Specific Department/School/College
+
+\school % other options are "\school" and "\college"
+\departmentname{Biological Sciences} % e. g. fill in "Philosophy" for department/school/college of philosophy
+\director % other options are "\dean" and "\director"
+\departmentchair{Seth Milchik} % name of chair/dean/direcor of department/school/college
+\nameofdean{Darryl P. Butt} % dean of the graduate school
+
+
+% Committee
+
+\onechair % "\onechair" for a single committee chair, "\cochairs" for two co-chairs
+
+\addcommitteemember{Perry Cox}{01/02/2019} % add all committee members; first member/s is/are committee chair/s
+\addcommitteemember{Robert Kelso}{01/05/2019}
+\addcommitteemember{John Michael Dorian}{01/06/2019}
+
+
+
+% Sectioning
+
+\mainheadingsunnumbered % "\usechapters" for chapters, "\mainheadingsnumbered" for numbered main headings, "\mainheadingsunnumbered" for unnumbered main headings
+
+\nolocalnumbering % "\localnumbering" for subheadings/figures/tables/etc. numbered within chapters, "\nolocalnumbering" for unnumbered subheadings and continuous numbering of figures/tables/etc. (Will automatically be turned off with option "\mainheadingsunnumbered".)
+
+\appendixaschapter % "\appendixaschapter" for chapter style appendix headings, "\appendixaspart" for part style appendix headings
+
+
+% Figures and Tables
+
+\withouttext % "\chapterend" for placing all figures/tables at the end of the chapter, "\withouttext" for placement on a page without accompanying text that follows the page where they are first mentioned, "\intext" for placement at top/bottom of text pages
+
+\setlength{\tabcolsep}{.1in} % separation between table columns
+\renewcommand*{\arraystretch}{1.5} % vertical stretch factor in tables
+\setlength{\arrayrulewidth}{0.4pt} % table rule width
+
+\tablecolors % "\tablecolors" for alternating background color of table rows, "\notablecolors" to deactivate
+
+
+
+% QUICK GUIDE
+
+
+% 1. Sectioning
+
+% There are nine subheading levels (levels within chapters) available. Use standard latex commands "\section", "\subsection" and "\subsubsection" for the the first three and "\levelfoursubheading", "\levelfivesubheading", and so on for the others.
+
+
+% 2. Block Quotes
+
+% Both standard environments ("quote" and "quotation") can be used.
+
+
+% 3. Lists
+
+% Use the standard environments "itemize" and "enumerate".
+
+
+% 4. Equations
+
+% All standard environments can be used: "equation" (includes numbering), "displaymath" and "\[" + "\]".
+
+
+% 5. Figures
+
+% To insert figures use the "\addfigure" command. The syntax is as follows:
+% \addfigure[<options>]{<filename>}{<caption>}{<label>}
+% Options are those of "\includegraphics" (width, height, scale).
+% Full example:
+% \addfigure[width=.5\textwidth]{figsamp.pdf}{A general description of the figure as a whole.}{samplefigure}
+%
+% If the caption is to appear on a separate page preceding the figure, use "\addpagefigure".
+
+
+% 6. Tables
+
+% To insert tables use the "\addtable" command. The syntax is as follows:
+% \addtable[<option>]{<caption>}{<label>}{<table specs>}{<content>}
+% When "\tablecolors" is activated you can use option "switch" to change the background color that appears first.
+% Table specs: Use "l", "c", "r" for variable width columns with left aligned, centered and right aligned text. Use "L{<width>}", "C{<width>}", "R{<width>}" for fixed width columns with left aligned, centered and right aligned text. Use "|" for vertical lines.
+% Content: "\\" to end rows, "&" as separator between columns, "HLINE" for a horizontal line, "BOLD" before text to set in boldface.
+% Full example:
+% \addtable[switch]{This is your table caption.}{sampletable}{L{1.5in}|L{2in}}{%
+%    HLINE
+%    BOLD First name & BOLD Last name\\
+%    HLINE
+%    Galileo & Galilei\\
+%    Isaac & Newton\\
+%    Albert & Einstein\\
+%    HLINE
+% }
+%
+% For multi-page tables use "\addlongtable". This command has an additional argument. Then syntax is as follows:
+% \addlongtable[<option>]{<caption>}{<label>}{<table specs>}{<table head>}{<content>}
+% Full example:
+% \addlongtable[switch]{This is your table caption.}{sampletable}{L{1.5in}|L{2in}}{BOLD First name & BOLD Last name\\}{%
+%    Galileo & Galilei\\
+%    Isaac & Newton\\
+%    Albert & Einstein\\
+%    HLINE
+% }
+
+
+% 6. Insertion of Articles
+
+% To insert entire PDF files as chapters use the "\articleaschapter" command. The syntax is as follows:
+% \articleaschapter[<options>]{<title of article>}{<filename>}{<full citation for the article>}{<any other relevant copyright information>}
+% Dummy section headings and figure + table captions can be defined as options "addtotoc" and "addtolist". Options have to separated by commas. The syntax is as follows:
+% Dummy section headings:
+% addtotoc={<page number>,<section>,<section level>,<heading>,<label>}
+% Section level of chapters is 0. So \section -> 1, \subsection -> 2, and so on.
+% Dummy figure/table captions:
+% addtolist={<page number>,<type: figure or table>,<caption>,<label>}
+% Labels work like standard LaTeX labels.
+% Multiple dummy entries have to be separated by commas.
+% Full example:
+% \articleaschapter[%
+%    addtotoc={9, section, 1, This is a dummy section heading, p9},
+%    addtolist={4, figure, This is a dummy figure caption, p4, 19, table, This is a dummy table caption, p19}
+% ]{Conformal Cyclic Cosmology}{paper.pdf}{Penrose, Roger. 2014. On the Gravitization of Quantum Mechanics 2: Conformal Cyclic Cosmology. \textit{Foundations of Physics} 44: 873-890.}{}
+
+
+% 7. Landscape Pages
+
+% Use commands "\landscapestart" and "\landscapestop". All content between these commands is output on pages in landscape format.
+
+
+
+\begin{document}
+
+\chapter{Why Nature Writing}
+
+\section{Introduction}
+
+Nature writing has been particularly prevalent in America, for an obvious
+reason. European colonists found here a world which was for them (if not for the
+Indians they displaced) empty of historical or religious association. In this world, they
+ignored nature itself at their own risk. The early Jamestown and Boston colonists
+succeeded in ignoring it to some degree, which perhaps is one reason they clung
+precariously to the coast for the first hundred years, but by Linnaeus’s time, Americans
+had begun to observe nature closely, and to venture into the wilderness with
+appreciation.
+
+\subsection{First Observations}
+
+They observed in a piecemeal fashion at first, and ventured without too much
+appreciation. Early naturalists, such as Cadwallader Colden and John Bartram, were
+more interested in extracting rare, valuable plants and animals from the wilderness
+than in perceiving it as a whole, an attitude in keeping with the Linnaean bias for
+individual organisms over ecological systems (ecology not having been invented yet).
+Bartram, a Philadelphia Quaker who collected Venus’ flytraps and other curiosities for
+wealthy English patrons’ gardens, saw the wolves and swamps of the wilderness as
+uncomfortable obstacles, and his descriptions of Florida and upstate New York in the
+1750s and 60s reflect this. They are robust and accurate, but utilitarian.
+
+\subsubsection{Not quite nature writing}
+
+They are not quite nature writing as we understand it today, because an element
+of poetic sensibility is lacking from their genuine scientific interest.
+
+\levelfoursubheading{This is a 4th-level subheading}
+
+\levelfivesubheading{This is your 5th-level subheading}
+
+\levelsixsubheading{This is your 6th-level subheading}
+
+\levelsevensubheading{This is your 7th-level subheading}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+\leveleightsubheading{This is your 8th-level subheading}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+\levelninesubheading{This is your 9th-level subheading}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+\section{1st-level subheading at top of page}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Tortor posuere ac ut consequat semper viverra nam libero justo. Sem et tortor consequat id porta nibh venenatis. Sed libero enim sed faucibus. Viverra justo nec ultrices dui sapien eget mi. Cum sociis natoque penatibus et magnis dis. Vitae suscipit tellus mauris a diam maecenas sed enim ut. Turpis egestas pretium aenean pharetra magna ac. Eget nunc scelerisque viverra mauris in. Vitae justo eget magna fermentum. Feugiat in ante metus dictum at tempor commodo ullamcorper a. Enim diam vulputate ut pharetra.
+
+\begin{quotation}
+    Here is a sample quotation. Senectus et netus et malesuada. In tellus integer feugiat scelerisque varius morbi enim. Quis imperdiet massa tincidunt nunc pulvinar sapien et ligula. Ut placerat orci nulla pellentesque dignissim enim. Id eu nisl nunc mi ipsum faucibus. Nisl nisi scelerisque eu ultrices vitae auctor eu augue. Auctor eu augue ut lectus arcu bibendum at varius. Consectetur adipiscing elit duis tristique sollicitudin nibh. Auctor urna nunc id cursus metus aliquam eleifend mi. Sed velit dignissim sodales ut eu sem integer vitae justo. Lectus mauris ultrices eros in cursus turpis. Lectus mauris ultrices eros in cursus turpis.
+\end{quotation}
+
+Interdum posuere lorem ipsum dolor. Venenatis lectus magna fringilla urna porttitor rhoncus dolor purus non.
+
+\section[This is a 1st-level subheading that is very very very very very very very very long]{This is a 1st-level subheading that is very \\ very very very very very very very long}
+
+Faucibus purus in massa tempor nec feugiat nisl pretium. Volutpat sed cras ornare arcu dui. Mollis nunc sed id semper risus. Amet risus nullam eget felis eget. Aenean vel elit scelerisque mauris. Volutpat maecenas volutpat blandit aliquam etiam erat. Cras fermentum odio eu feugiat. Egestas sed sed risus pretium quam vulputate dignissim suspendisse. Ut eu sem integer vitae justo eget. Lectus sit amet est placerat in. Nunc non blandit massa enim nec dui nunc mattis. Ipsum dolor sit amet consectetur adipiscing elit ut aliquam. Urna et pharetra pharetra massa massa ultricies mi. At varius vel pharetra vel turpis nunc eget. Tincidunt arcu non sodales neque sodales ut etiam. Amet risus nullam eget felis eget nunc lobortis. In est ante in nibh mauris cursus mattis molestie a.
+
+Consectetur adipiscing elit pellentesque habitant. Semper risus in hendrerit gravida rutrum. Ullamcorper a lacus vestibulum sed arcu non odio euismod lacinia. Placerat duis ultricies lacus sed. Porttitor leo a diam sollicitudin tempor id eu. Enim facilisis gravida neque convallis a cras semper. Rhoncus mattis rhoncus urna neque. Arcu dictum varius duis at consectetur lorem donec massa. Euismod nisi porta lorem mollis aliquam. Eleifend donec pretium vulputate sapien nec sagittis aliquam malesuada. Egestas purus viverra accumsan in nisl nisi scelerisque eu ultrices.
+
+\begin{itemize}
+    \item List entries start with the \verb|\item| command.
+    \item The text in the entries may be of any length. The text in the entries may be of any length.
+    \item Individual entries are indicated with a black dot, a so-called bullet.
+\end{itemize}
+
+Feugiat in ante metus dictum at tempor commodo ullamcorper a. Enim diam vulputate ut pharetra. Quam lacus suspendisse faucibus interdum posuere lorem ipsum dolor sit. Phasellus vestibulum lorem sed risus ultricies tristique nulla aliquet. Donec pretium vulputate sapien nec sagittis aliquam malesuada bibendum arcu.
+
+\begin{enumerate}
+    \item Items are numbered automatically.
+    \item The numbers start at 1 with each use of the \texttt{enumerate} environment. The text in the entries may be of any length.
+    \item Another entry in the list
+\end{enumerate}
+
+Ac feugiat sed lectus vestibulum mattis ullamcorper velit sed. Lectus arcu bibendum at varius vel pharetra. Tellus id interdum velit laoreet id donec ultrices. Interdum posuere lorem ipsum dolor. Venenatis lectus magna fringilla urna porttitor rhoncus dolor purus non.
+
+Faucibus purus in massa tempor nec feugiat nisl pretium. Volutpat sed cras ornare arcu dui. Mollis nunc sed id semper risus. Amet risus nullam eget felis eget. Aenean vel elit scelerisque mauris. Volutpat maecenas volutpat blandit aliquam etiam erat. Cras fermentum odio eu feugiat. Egestas sed sed risus pretium quam vulputate dignissim suspendisse. Ut eu sem integer vitae justo eget. Lectus sit amet est placerat in. Nunc non blandit massa enim nec dui nunc mattis. Ipsum dolor sit amet consectetur adipiscing elit ut aliquam.
+
+Consectetur adipiscing elit pellentesque habitant. Semper risus in hendrerit gravida rutrum. Ullamcorper a lacus vestibulum sed arcu non odio euismod.
+
+\begin{equation}
+    5 + 7 = 12
+\end{equation}
+
+Consectetur adipiscing elit pellentesque habitant. Semper risus in hendrerit gravida rutrum. Ullamcorper a lacus vestibulum sed arcu non odio euismod \cite{kimmel1994}.
+
+\begin{displaymath}
+    5 + 7 = 12
+\end{displaymath}
+
+Consectetur adipiscing elit pellentesque habitant. Semper risus in hendrerit gravida rutrum. Ullamcorper a lacus vestibulum sed arcu non odio euismod \cite{atencio2009}.
+
+Placerat duis ultricies lacus sed. Porttitor leo a diam sollicitudin tempor id eu \cite{coontz1992}. Enim facilisis gravida neque convallis a cras semper. Rhoncus mattis rhoncus urna neque \cite{giesler2012}. Arcu dictum varius duis at consectetur lorem donec massa. Euismod nisi porta lorem mollis aliquam \cite{bernard2014}. Eleifend donec pretium vulputate sapien nec sagittis aliquam malesuada. Egestas purus viverra accumsan in nisl nisi scelerisque eu ultrices.
+
+\chapter[Second Chapter Title that is very very very very very very very very very very long]{Second Chapter Title that is very very very \\ very very very very very very very long}
+
+This chapter shows examples of how to properly embed figures/tables alongside text. Do note that we have highly constrained rules for this process and this is the most difficult of the placement options. Please refer to the Handbook for specifics. 
+
+Faucibus purus in massa tempor nec feugiat nisl pretium. Volutpat sed cras ornare arcu dui. Mollis nunc sed id semper risus. Amet risus nullam eget felis eget. Aenean vel elit scelerisque mauris. Volutpat maecenas volutpat blandit aliquam etiam erat. Cras fermentum odio eu feugiat. Egestas sed sed risus pretium quam vulputate dignissim suspendisse. Ut eu sem integer vitae justo eget. Lectus sit amet est placerat in. Nunc non blandit massa enim nec dui nunc mattis. Ipsum dolor sit amet consectetur adipiscing elit ut aliquam. Urna et pharetra pharetra massa massa ultricies mi. At varius vel pharetra vel turpis nunc eget. Tincidunt arcu non sodales neque sodales ut etiam. Amet risus nullam eget felis eget nunc lobortis. In est ante in nibh mauris cursus mattis molestie a.
+
+
+Consectetur adipiscing elit pellentesque habitant. Semper risus in hendrerit gravida rutrum.  Placerat duis ultricies lacus sed. See Figure \ref{labells}. Senectus et netus 
+
+\landscapestart
+
+\addfigure[width=.925\textwidth]{figsamp}{This first sentence of your figure caption must be a general description of the figure as a whole. The second sentence could be something else.}{labells}
+
+\landscapestop
+
+
+\noindent et malesuada. In tellus integer feugiat scelerisque varius morbi enim. Quis imperdiet massa tincidunt nunc pulvinar sapien et ligula. Ut placerat orci nulla pellentesque dignissim enim. Id eu nisl nunc mi ipsum faucibus. Nisl nisi scelerisque eu ultrices vitae auctor eu augue. Auctor eu augue ut lectus arcu bibendum at varius. Consectetur adipiscing elit duis tristique sollicitudin nibh. Auctor urna nunc id cursus metus aliquam eleifend mi. Sed  velit dignissim sodales ut eu sem integer vitae justo. Lectus mauris ultrices eros in cursus turpis. Sed ullamcorper morbi tincidunt ornare massa eget egestas purus. See Figure \ref{labelone}.
+
+\addfigure{figsamp}{This first sentence of your figure caption must be a general description of the figure 
+as a whole. The second sentence could be something else.}{labelone}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Tortor posuere ac ut consequat semper viverra nam libero justo. Sem et tortor consequat id porta nibh venenatis. Sed libero enim sed faucibus. Viverra justo nec ultrices dui sapien eget mi. Cum sociis natoque penatibus et magnis dis. Vitae suscipit tellus mauris a diam maecenas sed enim ut. Turpis egestas pretium aenean pharetra magna ac. Eget nunc scelerisque viverra mauris in. Vitae justo eget magna fermentum. Feugiat in ante metus dictum at tempor commodo ullamcorper a. Enim diam vulputate ut pharetra. Quam lacus suspendisse faucibus interdum posuere lorem ipsum dolor sit. Phasellus vestibulum lorem sed risus ultricies tristique nulla aliquet. Donec pretium vulputate sapien nec sagittis aliquam malesuada bibendum arcu. Ac feugiat sed lectus vestibulum mattis ullamcorper velit sed. Lectus arcu bibendum at varius vel pharetra. Tellus id interdum velit laoreet id donec ultrices. Interdum posuere lorem ipsum dolor. Venenatis lectus magna fringilla urna porttitor rhoncus dolor purus non.
+
+Faucibus purus in massa tempor nec feugiat nisl pretium. Volutpat sed cras ornare arcu dui. Mollis nunc sed id semper risus. Amet risus nullam eget felis eget. Aenean vel elit scelerisque mauris. Volutpat maecenas volutpat blandit aliquam etiam erat. Cras fermentum odio eu feugiat. Egestas sed sed risus pretium quam vulputate dignissim suspendisse. Ut eu sem integer vitae justo eget. Lectus sit amet est placerat in. Nunc non blandit massa enim nec dui nunc mattis. Ipsum dolor sit amet consectetur adipiscing elit ut aliquam. Urna et pharetra pharetra massa massa ultricies mi. At varius vel pharetra vel turpis nunc eget. Tincidunt arcu non sodales neque sodales ut etiam. Amet risus nullam eget felis eget nunc lobortis. In est ante in nibh mauris cursus mattis molestie a.
+
+Consectetur adipiscing elit pellentesque habitant. Semper risus in hendrerit gravida rutrum. Ullamcorper a lacus vestibulum sed arcu non odio euismod lacinia. Placerat duis ultricies lacus sed. Porttitor leo a diam sollicitudin tempor id eu. Enim facilisis gravida neque convallis a cras semper. Rhoncus mattis rhoncus urna neque. Arcu dictum varius duis at consectetur lorem donec massa. Euismod nisi porta lorem mollis aliquam. Eleifend donec pretium vulputate sapien nec sagittis aliquam malesuada. Egestas purus viverra accumsan in nisl nisi scelerisque eu ultrices. See Table \ref{tablelabelone}.
+
+\addtable{This is your table caption.}{tablelabelone}{L{1.8in}L{1.1in}L{.7in}L{1.6in}}{%
+    HLINE
+    BOLD Page & BOLD Required & BOLD Counted & BOLD Visible Page Number\\
+    HLINE
+    BOLD Title Page & Mandatory & Yes & No\\
+    BOLD Copyright Page & Mandatory & No & No\\
+    BOLD Statment of Thesis/Dissertation Approval & Mandatory & Yes & No\\
+    BOLD Abstract & Mandatory & Yes & First page no, additional pages yes\\
+    BOLD Dedication & Optional & Yes & No\\
+    BOLD Frontispiece & Optional & Yes & No\\
+    BOLD Epigraph & Optional & Yes & No\\
+    BOLD Table of Contents & Mandatory & Yes & First page no, additional pages yes\\
+    BOLD List of Tables & Mandatory if between 5-25 & Yes & First page no, additional pages yes\\
+    BOLD List of Figures & Mandatory if between 5-25 & Yes & First page no, additional pages yes\\
+    BOLD List of Symbols/List of Abbreviations & Optional & Yes & First page no, additional pages yes\\
+    BOLD Acknowledgments & Optional & Yes & First page no, additional pages yes\\
+    BOLD Preface (includes Acknowledgments) & Optional & Yes & First page no, additional pages yes\\
+    HLINE
+}
+
+Consectetur adipiscing elit pellentesque habitant. Semper risus in hendrerit gravida rutrum. Ullamcorper a lacus vestibulum sed arcu non odio euismod lacinia. Placerat duis ultricies lacus sed. Porttitor leo a diam sollicitudin tempor id eu. Enim facilisis gravida neque convallis a cras semper. Rhoncus mattis rhoncus urna neque. Arcu dictum varius duis at consectetur lorem donec massa. Euismod nisi porta lorem mollis aliquam. Eleifend donec pretium vulputate sapien nec sagittis aliquam malesuada. Egestas purus viverra accumsan in nisl nisi scelerisque eu ultrices.
+
+Consectetur adipiscing elit pellentesque habitant. Semper risus in hendrerit gravida rutrum. Ullamcorper a lacus vestibulum sed arcu non odio euismod lacinia. Placerat duis ultricies lacus sed. Porttitor leo a diam sollicitudin tempor id eu. Enim facilisis gravida neque convallis a cras semper. Rhoncus mattis rhoncus urna neque. Arcu dictum varius duis at consectetur lorem donec massa. Euismod nisi porta lorem mollis aliquam. Eleifend donec pretium vulputate sapien nec sagittis aliquam malesuada. Egestas purus viverra accumsan in nisl nisi scelerisque eu ultrices.
+
+Senectus et netus et malesuada. In tellus integer feugiat scelerisque varius morbi enim. Quis imperdiet massa tincidunt nunc pulvinar sapien et ligula. Ut placerat orci nulla pellentesque dignissim enim. Id eu nisl nunc mi ipsum faucibus. Nisl nisi scelerisque eu ultrices vitae auctor eu augue. Auctor eu augue ut lectus arcu bibendum at varius. Consectetur adipiscing elit duis tristique sollicitudin nibh. Auctor urna nunc id cursus metus aliquam eleifend mi. Sed  velit dignissim sodales ut eu sem integer vitae justo. Lectus mauris ultrices eros in cursus turpis. Sed ullamcorper morbi tincidunt ornare massa eget egestas purus.
+
+
+
+\appendix
+%\vspace*{\fill}
+\chapter{This is the Title of the First Appendix}
+%\vspace*{\fill}
+%\pagebreak
+
+Consectetur adipiscing elit pellentesque habitant. Semper risus in hendrerit gravida rutrum. Ullamcorper a lacus vestibulum sed arcu non odio euismod lacinia. Placerat duis ultricies lacus sed. Porttitor leo a diam sollicitudin tempor id eu. Enim facilisis gravida neque convallis a cras semper. Rhoncus mattis rhoncus urna neque. Arcu dictum varius duis at consectetur lorem donec massa. Euismod nisi porta lorem mollis aliquam. Eleifend donec pretium vulputate sapien nec sagittis aliquam malesuada. Egestas purus viverra accumsan in nisl nisi scelerisque eu ultrices.
+
+\section{This is a 1st-level subheading}
+
+Senectus et netus et malesuada. In tellus integer feugiat scelerisque varius morbi enim. Quis imperdiet massa tincidunt nunc pulvinar sapien et ligula. Ut placerat orci nulla pellentesque dignissim enim. Id eu nisl nunc mi ipsum faucibus. Nisl nisi scelerisque eu ultrices vitae auctor eu augue. Auctor eu augue ut lectus arcu bibendum at varius. Consectetur adipiscing elit duis tristique sollicitudin nibh. Auctor urna nunc id cursus metus aliquam eleifend mi. Sed  velit dignissim sodales ut eu sem integer vitae justo. Lectus mauris ultrices eros in cursus turpis. See Table \ref{tablelabletwo}.
+
+\section{This is another 1st-level subheading}
+
+\addtable[switch]{This is your table caption.}{tablelabletwo}{ll}{%
+    HLINE
+    BOLD Hello & BOLD World\\
+    HLINE
+    Car & Bike\\
+    House & Boat\\
+    Figure & Float\\
+    HLINE
+}
+
+Senectus et netus et malesuada. In tellus integer feugiat scelerisque varius morbi enim. Quis imperdiet massa tincidunt nunc pulvinar sapien et ligula. Ut placerat orci nulla pellentesque dignissim enim. Id eu nisl nunc mi ipsum faucibus. Nisl nisi scelerisque eu ultrices vitae auctor eu augue. Auctor eu augue ut lectus arcu bibendum at varius. Consectetur adipiscing elit duis tristique sollicitudin nibh. Auctor urna nunc id cursus metus aliquam eleifend mi. Sed  velit dignissim sodales ut eu sem integer vitae justo. Lectus mauris ultrices eros in cursus turpis. Sed ullamcorper morbi tincidunt ornare massa eget egestas purus.
+
+\chapter{This is the Title of the Second Appendix}
+%\pagebreak
+
+Consectetur adipiscing elit pellentesque habitant. Semper risus in hendrerit gravida rutrum. Ullamcorper a lacus vestibulum sed arcu non odio euismod lacinia. Placerat duis ultricies lacus sed. Porttitor leo a diam sollicitudin tempor id eu. Enim facilisis gravida neque convallis a cras semper. Rhoncus mattis rhoncus urna neque. Arcu dictum varius duis at consectetur lorem donec massa. Euismod nisi porta lorem mollis aliquam. Eleifend donec pretium vulputate sapien nec sagittis aliquam malesuada. Egestas purus viverra accumsan in nisl nisi scelerisque eu ultrices.
+
+\section{This is another 1st-level subheading}
+
+\addfigure{figsamp}{This first sentence of your figure caption must be a general description of the figure 
+as a whole. The second sentence could be something else.}{labeltwo}
+
+Senectus et netus et malesuada. See Figure \ref{labeltwo}. Quis imperdiet massa tincidunt nunc pulvinar sapien et ligula. Ut placerat orci nulla pellentesque dignissim enim. Id eu nisl nunc mi ipsum faucibus. Nisl nisi scelerisque eu ultrices vitae auctor eu augue. Auctor eu augue ut lectus arcu bibendum at varius. Consectetur adipiscing elit duis tristique sollicitudin nibh. Auctor urna nunc id cursus metus aliquam eleifend mi. Sed  velit dignissim sodales ut eu sem integer vitae justo. Lectus mauris ultrices eros in cursus turpis. Sed ullamcorper morbi tincidunt ornare massa eget egestas purus. See Figure \ref{labelthree}.
+
+\addfigure{figsamp}{This first sentence of your figure caption must be a general description of the figure 
+as a whole. The second sentence could be something else.}{labelthree}
+
+Senectus et netus et malesuada. In tellus integer feugiat scelerisque varius morbi enim. Quis imperdiet massa tincidunt nunc pulvinar sapien et ligula. Ut placerat orci nulla pellentesque dignissim enim. Id eu nisl nunc mi ipsum faucibus. Nisl nisi scelerisque eu ultrices vitae auctor eu augue. Auctor eu augue ut lectus arcu bibendum at varius. Consectetur adipiscing elit duis tristique sollicitudin nibh. Auctor urna nunc id cursus metus aliquam eleifend mi. Sed  velit dignissim sodales ut eu sem integer vitae justo. Lectus mauris ultrices eros in cursus turpis. Sed ullamcorper morbi tincidunt ornare massa eget egestas purus. See Figure \ref{labelfour}.
+
+\addfigure{figsamp}{This first sentence of your figure caption must be a general description of the figure 
+as a whole.}{labelfour}
+
+Senectus et netus et malesuada. In tellus integer feugiat scelerisque varius morbi enim. Quis imperdiet massa tincidunt nunc pulvinar sapien et ligula. Ut placerat orci nulla pellentesque dignissim enim. Id eu nisl nunc mi ipsum faucibus. Nisl nisi scelerisque eu ultrices vitae auctor eu augue. Auctor eu augue ut lectus arcu bibendum at varius. Consectetur adipiscing elit duis tristique sollicitudin nibh. Auctor urna nunc id cursus metus aliquam eleifend mi. Sed  velit dignissim sodales ut eu sem integer vitae justo. Lectus mauris ultrices eros in cursus turpis. Sed ullamcorper morbi tincidunt ornare massa eget egestas purus. See Figure \ref{labelfive}.
+
+\addfigure{figsamp}{This is a figure caption.}{labelfive}
+
+Senectus et netus et~\cite{bernard2014} malesuada. In tellus integer feugiat scelerisque varius morbi enim. Quis imperdiet massa tincidunt nunc pulvinar sapien et ligula. Ut placerat orci nulla pellentesque dignissim enim. Id eu nisl nunc mi ipsum faucibus. Nisl nisi scelerisque eu ultrices vitae auctor eu augue. Auctor eu augue ut lectus arcu bibendum at varius. Consectetur adipiscing elit duis tristique sollicitudin nibh. Auctor urna nunc id cursus metus aliquam eleifend mi. Sed  velit dignissim sodales ut eu sem integer vitae justo. Lectus mauris ultrices eros in cursus turpis. Sed ullamcorper morbi tincidunt ornare massa eget egestas purus.
+
+\printbibliography
+
+\end{document}
