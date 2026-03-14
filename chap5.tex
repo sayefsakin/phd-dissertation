@@ -13,12 +13,15 @@ This chapter presents a descriptive summary of \textit{ESeMan} (Event SEquence M
 
 In order to situate the contributions of our data management solution, this section first reviews the foundations of parallel timeline charts and their role in visualizing large-scale event sequence data. We then survey related approaches to managing scalability and interactivity, including the use of databases, summarization and reduction techniques, and open-source and commercial visualization platforms.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=1.0\columnwidth]{figs/ganttoverview.png}
-  \caption{Illustration of a parallel timeline chart showing three tracks of event sequences across a selected time window.}
-  \label{fig:eseman_gantt_desc}
-\end{figure}
+\addfigure[width=1.0\columnwidth]{figs/ganttoverview.png}{Illustration of a parallel timeline chart showing three tracks of event sequences across a selected time window.}{fig:eseman_gantt_desc}
+
+
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=1.0\columnwidth]{figs/ganttoverview.png}
+%   \caption{Illustration of a parallel timeline chart showing three tracks of event sequences across a selected time window.}
+%   \label{fig:eseman_gantt_desc}
+% \end{figure}
 
 \subsection{Parallel Timeline Charts}
 Parallel timeline charts are a fundamental visualization idiom for depicting multiple event sequences in relation to one another. Time is typically mapped along the horizontal axis, while the vertical axis partitions events into \textit{tracks}, each representing an entity or resource of interest. Individual events are drawn as bars spanning their temporal extent, from start time to end time, on their assigned track. Beyond the temporal information, events can also carry attribute-value pairs that enrich the analysis context. The partitioning of data into tracks can correspond to computational resources in execution traces, users in activity logs, or patients in medical records~\cite{isaacs2014state, ezzati2017multi, wilson2003gantt, jo2014livegantt, antweiler2022uncovering, sakin2024gantttaxonomy}.
@@ -72,7 +75,7 @@ Two deployment patterns are supported: a \emph{forest} of per-track trees (usefu
 
 \textbf{One-dimensional KD-Tree to summarize events per track.}
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=0.8\columnwidth]{figs/agglokdt.png}
   \caption{Hierarchical organizations for a single track. During queries, once a node corresponds to the spatial-temporal footprint of a pixel window, the node's summary (not its individual events) is returned, yielding a resolution-appropriate depiction.}
