@@ -9,14 +9,14 @@ The problem this dissertation addresses is the persistent tension between repres
 \label{sec:intro-event}
 Event sequence data captures the relationships between events as they occur over time. This type of data is commonly found in fields such as healthcare, manufacturing, and computing. Analyzing event progression and relationships helps in decision-making that is difficult to make from individual events. One notable example of event sequence data analysis arises in High Performance Computing (HPC), where understanding the behavior of HPC applications in execution is essential in identifying performance bottlenecks, exploring opportunities for optimization, and planning for efficient resource utilization~\cite{isaacs2014state, davidson2023qualitative}. In healthcare, the health progression (events) of different patients are recorded, and clinicians analyze the data to make decisions on patient treatments and drug prescriptions~\cite{antweiler2022uncovering, bernard2018using}. Another example of event sequence data analysis is found in manufacturing, where project managers monitor different stages (events) of product development progress in multiple facilities.~\cite{lee2022linear, undozerov2021spring}. These examples highlight the importance of large and complex event sequence analysis for decision-making in diverse domains.
 
-% \addfigure[width=0.9\textwidth]{figs/gantt_depp.png}{Visualizing interdependent event sequences using a Gantt chart (left) and a node-link diagram (right). Events are visualized using rectangular boxes placed over time (on the x-axis) and grouped by their location (on the y-axis) in parallel timelines. Event A initiates event B, which subsequently initiates three other events C, D, E that make these events interdependent.}{fig:gantt_basics}
+\addfigure[width=0.9\textwidth]{figs/gantt_depp.png}{Visualizing interdependent event sequences using a Gantt chart (left) and a node-link diagram (right). Events are visualized using rectangular boxes placed over time (on the x-axis) and grouped by their location (on the y-axis) in parallel timelines. Event A initiates event B, which subsequently initiates three other events C, D, E that make these events interdependent.}{fig:gantt_basics}
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.9\textwidth]{figs/gantt_depp.png}
-  \caption{Visualizing interdependent event sequences using a Gantt chart (left) and a node-link diagram (right). Events are visualized using rectangular boxes placed over time (on the x-axis) and grouped by their location (on the y-axis) in parallel timelines. Event \textit{A} initiates event \textit{B}, which subsequently initiates three other events \textit{C, D, E} that make these events interdependent.}
-  \label{fig:gantt_basics}
-\end{figure}
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=0.9\textwidth]{figs/gantt_depp.png}
+%   \caption{Visualizing interdependent event sequences using a Gantt chart (left) and a node-link diagram (right). Events are visualized using rectangular boxes placed over time (on the x-axis) and grouped by their location (on the y-axis) in parallel timelines. Event \textit{A} initiates event \textit{B}, which subsequently initiates three other events \textit{C, D, E} that make these events interdependent.}
+%   \label{fig:gantt_basics}
+% \end{figure}
 
 Interactive visualization of event sequences plays an essential role in the exploratory analysis process. Raw event logs are visualized in interactive interfaces that allow users to identify patterns, detect anomalies, and reason about underlying events that inform the decision-making process. For example, execution traces generated from HPC applications contain a sequence of interdependent events. Interactive visual analysis of program execution traces generated from HPC applications makes it easier to understand runtime behavior and explore opportunities for achieving better execution performance. 
 

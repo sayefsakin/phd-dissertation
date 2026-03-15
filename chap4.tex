@@ -28,12 +28,14 @@ To better understand strategies and barriers to using Gantt charts with large nu
 
 This section formalizes the data model and visual encodings underlying Gantt charts and situates our scope within the broader literature on time-oriented and event-sequence visualization. We adopt precise terminology (e.g., \emph{event}, \emph{track}, \emph{dependency}) to reduce ambiguity across domains and to prepare the ground for the task--query mapping developed later in this chapter.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=1.0\columnwidth]{figs/ganttoverview.pdf}
-  \caption{Gantt chart showing a window of time and three tracks.}
-  \label{fig:gantt_desc}
-\end{figure}
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=1.0\columnwidth]{figs/ganttoverview.pdf}
+%   \caption{Gantt chart showing a window of time and three tracks.}
+%   \label{fig:gantt_desc}
+% \end{figure}
+
+\addfigure[width=1.0\columnwidth]{figs/ganttoverview.pdf}{Gantt chart showing a window of time and three tracks.}{fig:gantt_desc}
 
 \subsection{Data Model}
 \label{subsec:gantt-data}
@@ -57,12 +59,14 @@ Comprehensive surveys of time-oriented visualization~\cite{aigner2011visualizati
 \label{sec:task_taxonomy}
 We conduct a survey of Gantt charts used in visualizations with an emphasis on the visual tasks supported. We present our methodology, the derived tasks, and a translation of the tasks discovered into a set of data queries. \autoref{fig:gantt_heatmap} presents a heatmap of our visualization tasks and their mapping to data queries, where each cell indicates in how many papers the task was observed.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\textwidth]{figs/Gantt-heatmap-v8.pdf}
-  \caption{Mapping between data queries and interactive visualization tasks for Gantt charts. Each heatmap cell denotes in how many papers we observed the given visualization task. Tasks observed in each paper are included in the supplemental materials. These counts suggest common tasks to support and possibilities for handling scale, and indicate which queries are most common and may be considered for optimization.}
-  \label{fig:gantt_heatmap}
-\end{figure}
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=\textwidth]{figs/Gantt-heatmap-v8.pdf}
+%   \caption{Mapping between data queries and interactive visualization tasks for Gantt charts. Each heatmap cell denotes in how many papers we observed the given visualization task. Tasks observed in each paper are included in the supplemental materials. These counts suggest common tasks to support and possibilities for handling scale, and indicate which queries are most common and may be considered for optimization.}
+%   \label{fig:gantt_heatmap}
+% \end{figure}
+
+\addfigure[width=\textwidth]{figs/Gantt-heatmap-v8.pdf}{Mapping between data queries and interactive visualization tasks for Gantt charts. Each heatmap cell denotes in how many papers we observed the given visualization task. Tasks observed in each paper are included in the supplemental materials. These counts suggest common tasks to support and possibilities for handling scale, and indicate which queries are most common and may be considered for optimization.}{fig:gantt_heatmap}
 
 \subsection{Methodology}
 \label{subsec:task_methods}

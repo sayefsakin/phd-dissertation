@@ -5,13 +5,15 @@
 
 The first step toward event sequence visualization is understanding the visual design challenges. To investigate the challenges, specifically for visualizing the vast scale differences and facilitating interactive navigation of the data, we collaborated with HPC researchers to understand their performance analysis needs. In the completed work, Traveler, we conducted a visualization design study and developed a highly linked multi-view coordinated visualization platform for analyzing task parallel traces. Primarily focused on Gantt charts, Traveler provides multiple linked auxiliary interfaces to help navigate from multiple contexts of the underlying performance data generated from parallel computing systems. This work provides a foundation for developing solutions for scalable Gantt charts by identifying the visual design needs of our collaborators. This work was published as a full paper~\cite{sakin2022traveler} at IEEE VIS 2022. The combined work was published at the Practice and Experience in Advanced Research Computing Conference 2020~\cite{brandt2020jetlag}, 2020 IEEE ACM 9th Workshop on Python for High-Performance and Scientific Computing~\cite{brandt2020distributed}, and Euro-Par 2022 Parallel Processing Workshops~\cite{tohid2022halide}. The published Traveler~\cite{sakin2022traveler} paper has been slightly modified and presented in this chapter.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\linewidth]{figs/traveler_teaser_new.jpg}
-  \caption{The Traveler interface. Traveler is a visualization platform supporting visual performance analysis of asynchronous task parallel programs. The Utilization View (a) shows that the selected primitive (task type) accounts for most of the utilization in the program. The Gantt View (b) shows how individual tasks are scheduled across the system, while the Aggregated Gantt View (c) shows utilization and extent due to groups of tasks. A Functional Box Plot View (d) summarizes performance metrics across resources and over time. Selection details are shown in the Selection Info View (e) and source code in the Source Code View (f). The Dependency Tree View (g) shows relations among task types. The distribution of task durations can be explored in the Interval Histogram View (h).
-  }
-  \label{fig:travelerteaser}
-\end{figure}
+\addfigure[width=\linewidth]{figs/traveler_teaser_new.jpg}{The Traveler interface. Traveler is a visualization platform supporting visual performance analysis of asynchronous task parallel programs. The Utilization View (a) shows that the selected primitive (task type) accounts for most of the utilization in the program. The Gantt View (b) shows how individual tasks are scheduled across the system, while the Aggregated Gantt View (c) shows utilization and extent due to groups of tasks. A Functional Box Plot View (d) summarizes performance metrics across resources and over time. Selection details are shown in the Selection Info View (e) and source code in the Source Code View (f). The Dependency Tree View (g) shows relations among task types. The distribution of task durations can be explored in the Interval Histogram View (h).}{fig:travelerteaser}
+
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=\linewidth]{figs/traveler_teaser_new.jpg}
+%   \caption{The Traveler interface. Traveler is a visualization platform supporting visual performance analysis of asynchronous task parallel programs. The Utilization View (a) shows that the selected primitive (task type) accounts for most of the utilization in the program. The Gantt View (b) shows how individual tasks are scheduled across the system, while the Aggregated Gantt View (c) shows utilization and extent due to groups of tasks. A Functional Box Plot View (d) summarizes performance metrics across resources and over time. Selection details are shown in the Selection Info View (e) and source code in the Source Code View (f). The Dependency Tree View (g) shows relations among task types. The distribution of task durations can be explored in the Interval Histogram View (h).
+%   }
+%   \label{fig:travelerteaser}
+% \end{figure}
 
 \section{Introduction}
 Understanding the behavior of HPC programs in execution is essential in identifying performance bottlenecks, exploring opportunities for optimization, and planning for efficient resource utilization. Comprehending the execution behavior is difficult due to the complicated nature of the underlying hardware components, intermediate execution scheduling systems, and the HPC programs themselves. HPC program analysts collect and analyze execution trace\textemdash a chronological record of per-resource events captured during the program execution. Interactive visual analysis of program execution traces is a common approach in interpreting the runtime behavior and exploring performance opportunities~\cite{isaacs2014state}. 
@@ -20,12 +22,14 @@ However, gaining insights related to what occurred during execution at varying l
 
 Execution traces are typically visualized using a Gantt chart where the x-axis represents time, and the y-axis represents each computing resource location. Generally, each bar represents each individual event execution location, its start time, and its end time. Visualizing longer-running programs on a very high number of computing locations generally over-crowd the visual interface. Additionally, identifying the relation between events and their probable cause becomes difficult.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.9\columnwidth]{figs/agg_gantt_depp.png}
-  \caption{Aggregated Gantt (Left) view shows one bar by combining all subsequent events initiated from a single event. Dependency Tree View (Right) shows the node-link diagram generated from the dependencies among the events.}
-  \label{fig:agg_depp}
-\end{figure}
+\addfigure[width=0.9\columnwidth]{figs/agg_gantt_depp.png}{Aggregated Gantt (Left) view shows one bar by combining all subsequent events initiated from a single event. Dependency Tree View (Right) shows the node-link diagram generated from the dependencies among the events.}{fig:agg_depp}
+
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=0.9\columnwidth]{figs/agg_gantt_depp.png}
+%   \caption{Aggregated Gantt (Left) view shows one bar by combining all subsequent events initiated from a single event. Dependency Tree View (Right) shows the node-link diagram generated from the dependencies among the events.}
+%   \label{fig:agg_depp}
+% \end{figure}
 
 To facilitate visual navigation on larger trace data, we designed Traveler (\autoref{fig:travelerteaser}), a multiple-coordinated view system for execution traces with multiple levels of meaningful abstraction for parallel task programs. Traveler provides diverse and hierarchical ways to navigate and represent execution traces supporting their analysis tasks. With our collaborators, we integrated Traveler with Jetlag, an interactive asynchronous array computing environment based on Python Notebook, and published the combined work at ACM PEARC 2020 \cite{brandt2020jetlag} and IEEE PyHPC 2020 \cite{brandt2020distributed}.
 
@@ -87,12 +91,14 @@ From these traces, Traveler derives an \textbf{execution tree} that aggregates i
 
 The design goals of Traveler were formalized through an extended task analysis that built upon and revised the earlier goal-task lattice from Atria~\cite{williams2020movingtarget}. This process incorporated data from full-team meetings, specialized visualization and performance meetings, email exchanges, and informal interviews, resulting in over 330 recorded artifacts. Two independent coders reviewed and refined the analysis, leading to a revised lattice structure. Unlike Atria, which primarily addressed aggregated network data, Traveler's analysis applied Yi et al.'s taxonomy of interaction tasks~\cite{Yi2007} to better account for the prevalence of \textit{connect} tasks in execution trace visualization, while preserving network-oriented tasks where appropriate~\cite{Lee2006}.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.5\columnwidth]{figs/lattice3.pdf}
-  \caption{A goal-to-task lattice, showing relationships between high-level umbrella concerns, goals, sub-goals, tasks, and the task taxonomies in Lee et al.~\cite{Lee2006} and Yi et al.~\cite{Yi2007}. Additional goals, sub-goals, tasks, and frameworks, relative to prior work, are shown in \textbf{\textcolor{yellow}{yellow}}.}
-  \label{fig:taskanalysis}
- \end{figure}
+\addfigure[width=0.7\columnwidth]{figs/lattice3.pdf}{A goal-to-task lattice, showing relationships between high-level umbrella concerns, goals, sub-goals, tasks, and the task taxonomies. Additional goals, sub-goals, tasks, and frameworks, relative to prior work, are shown in yellow.}{fig:taskanalysis}
+
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=0.5\columnwidth]{figs/lattice3.pdf}
+%   \caption{A goal-to-task lattice, showing relationships between high-level umbrella concerns, goals, sub-goals, tasks, and the task taxonomies in Lee et al.~\cite{Lee2006} and Yi et al.~\cite{Yi2007}. Additional goals, sub-goals, tasks, and frameworks, relative to prior work, are shown in \textbf{\textcolor{yellow}{yellow}}.}
+%   \label{fig:taskanalysis}
+%  \end{figure}
 
 The revised lattice (\autoref{fig:taskanalysis}) retained three umbrella concerns: \textbf{U1: Program Comprehension}, \textbf{U2: Performance Analysis}, and \textbf{U3: Communication}. Seven design goals were articulated under these concerns:
 
@@ -136,12 +142,14 @@ Five views in Traveler use time as the horizontal axis: the standard Gantt chart
 
 The Utilization View (\autoref{fig:travelerteaser}(a)) displays total resource utilization over time using an area chart. The vertical axis encodes the proportion of active resources, normalized by the maximum possible utilization. This design directly supports goal G5 (understanding utilization) and cross-cutting sub-goal CC.2 (correlating resource use with time). 
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=\columnwidth]{figs/gantt.jpg}
-    \caption{Gantt View representing parent-child dependency between two intervals. The highlighted yellow interval bar $b$ has parent $a$. Interval $b$ has three children\textemdash $c$, $d$, and $e$.}
-    \label{fig:gantt}
-\end{figure}
+\addfigure[width=\columnwidth]{figs/gantt.jpg}{Gantt View representing parent-child dependency between two intervals. The highlighted yellow interval bar $b$ has parent $a$. Interval $b$ has three children\textemdash $c$, $d$, and $e$.}{fig:gantt}
+
+% \begin{figure}[t]
+%     \centering
+%     \includegraphics[width=\columnwidth]{figs/gantt.jpg}
+%     \caption{Gantt View representing parent-child dependency between two intervals. The highlighted yellow interval bar $b$ has parent $a$. Interval $b$ has three children\textemdash $c$, $d$, and $e$.}
+%     \label{fig:gantt}
+% \end{figure}
 
 Beyond providing an overview, the Utilization View functions as a navigation aid. An interactive rectangular brush controls the temporal domain shown in other views, thereby supporting abstract/elaborate and reconfigure tasks. Additionally, when intervals or groups of primitives are selected in other views, a secondary yellow area is drawn to represent the utilization attributable to those selections. This interaction supports CC.1 and CC.3, linking temporal utilization patterns to specific intervals and primitives.
 
@@ -151,13 +159,15 @@ The Gantt View (\autoref{fig:travelerteaser}(b)) represents resource states as r
 
 \subsubsection{Aggregated Gantt View} 
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=\columnwidth]{figs/AggGanttExplainer20.png}
-    \caption{Selecting a primitive in the Dependency Tree View will highlight instances of that primitive's subtree in the Gantt View and create aggregated bars for the subtree in the Aggregated Gantt View.
-    }
-    \label{fig:agg_gantt}
-\end{figure}
+\addfigure[width=\columnwidth]{figs/AggGanttExplainer20.png}{Selecting a primitive in the Dependency Tree View will highlight instances of that primitive's subtree in the Gantt View and create aggregated bars for the subtree in the Aggregated Gantt View.}{fig:agg_gantt}
+
+% \begin{figure}[t]
+%     \centering
+%     \includegraphics[width=\columnwidth]{figs/AggGanttExplainer20.png}
+%     \caption{Selecting a primitive in the Dependency Tree View will highlight instances of that primitive's subtree in the Gantt View and create aggregated bars for the subtree in the Aggregated Gantt View.
+%     }
+%     \label{fig:agg_gantt}
+% \end{figure}
 
 The \textbf{Aggregated Gantt View} (\autoref{fig:travelerteaser}(c)) provides a temporal layout to meaningful groups of intervals, as defined by the execution tree of the program. It is populated using the Dependency Tree View (\autoref{subsec:dependencytree}). The Aggregated Gantt View provides a simplified view at a higher level of abstraction than individual intervals of the Gantt View but a more detailed level of abstraction than the aggregated primitives of the execution tree, further supporting the correlation of primitives in time (cross-cut sub-goal CC3).
 
@@ -216,21 +226,23 @@ The RTM investigated the potential benefits of integrating {\em Halide}~\cite{ra
 
 To evaluate the two approaches, the RTM employed the \texttt{dgemm}~\cite{dgemm} kernel, a canonical benchmark for matrix-matrix operations. Initial benchmarks revealed that Phylanx-Halide was nearly twice as fast as Phylanx-Blaze. To better understand this performance disparity, the RTM collected execution traces, which were subsequently analyzed by the VTM using Traveler. Results and insights were exchanged iteratively between the RTM and VTM through textual reports, screenshots, and recorded videos.
 
+\addfigure[width=\textwidth]{figs/blaze.JPG}{The distribution of intervals in Phylanx-Blaze. The Selection Info View (a) shows the exact duration of the selected bars while the Gantt View (b) shows where they occur in time and on what resources. The Utilization View (c) shows their impact compared to the whole program. The Interval Histogram View (d) shows the longest intervals which are selected via brush.}{fig:casestudy11}
 
-\begin{figure}[t]
-    \includegraphics[width=\textwidth]{figs/blaze.JPG}
-    \caption{The distribution of intervals in Phylanx-Blaze. The Selection Info View (a) shows the exact duration of the selected bars while the Gantt View (b) shows where they occur in time and on what resources. The Utilization View (c) shows their impact compared to the whole program. The Interval Histogram View (d) shows the longest intervals which are selected via brush.
-    }
-    \label{fig:casestudy11}
-\end{figure}
+% \begin{figure}[t]
+%     \includegraphics[width=\textwidth]{figs/blaze.JPG}
+%     \caption{The distribution of intervals in Phylanx-Blaze. The Selection Info View (a) shows the exact duration of the selected bars while the Gantt View (b) shows where they occur in time and on what resources. The Utilization View (c) shows their impact compared to the whole program. The Interval Histogram View (d) shows the longest intervals which are selected via brush.
+%     }
+%     \label{fig:casestudy11}
+% \end{figure}
 
+\addfigure[width=\textwidth]{figs/halide.JPG}{The distribution of intervals in Phylanx-Halide. The Selection Info View (a) shows the exact duration of the selected bars while the Gantt View (b) shows where they occur in time and on what resources. The Utilization View (c) shows their impact compared to the whole program. The Interval Histogram View (d) shows the longest intervals which are selected via brush.}{fig:casestudy12}
 
-\begin{figure}[t]
-    \includegraphics[width=\textwidth]{figs/halide.JPG}
-    \caption{The distribution of intervals in Phylanx-Halide. The Selection Info View (a) shows the exact duration of the selected bars while the Gantt View (b) shows where they occur in time and on what resources. The Utilization View (c) shows their impact compared to the whole program. The Interval Histogram View (d) shows the longest intervals which are selected via brush.
-    }
-    \label{fig:casestudy12}
-\end{figure}
+% \begin{figure}[t]
+%     \includegraphics[width=\textwidth]{figs/halide.JPG}
+%     \caption{The distribution of intervals in Phylanx-Halide. The Selection Info View (a) shows the exact duration of the selected bars while the Gantt View (b) shows where they occur in time and on what resources. The Utilization View (c) shows their impact compared to the whole program. The Interval Histogram View (d) shows the longest intervals which are selected via brush.
+%     }
+%     \label{fig:casestudy12}
+% \end{figure}
 
 \subsubsection{Investigation with Traveler}
 \label{subsubsec:investigation}
@@ -238,19 +250,23 @@ Viewing both execution traces in Traveler, we opened the Interval Histogram View
 
 The RTM suspects that there may be data movement differences because data management is a feature of Halide. We open multiple Functional Box Plot views to check the L1 and L2 Cache miss rates (Sub-goal CC.2). (Figures are available in the supplemental material.) A higher miss rate suggests more time is being spent reading from slower memory. We brush over the Utilization View to focus on the second area of high activity in the computation. We see that while the fluctuations in L1 cache misses are similar, the Phylanx-Blaze version has a steadily increasing rate of L2 cache misses while the Phylanx-Halide version remains flat. {\em Insight:} the Phylanx-Halide version is managing data more effectively as suspected.
 
-\begin{figure}[t]
-    \includegraphics[width=\textwidth]{figs/halide_a1.JPG}
-    \caption{Traveler helped us identify a performance bug related to serialization of variable instantiation leading to a fix that shortens execution time. We select a primitive $A$ in the Dependency Tree View (d) that it is executing alone as show in all temporal views (a, b, c).
-    }
-    \label{fig:casestudy31}
-\end{figure}
+\addfigure[width=\textwidth]{figs/halide_a1.JPG}{Traveler helped us identify a performance bug related to serialization of variable instantiation leading to a fix that shortens execution time. We select a primitive $A$ in the Dependency Tree View (d) that it is executing alone as show in all temporal views (a, b, c).}{fig:casestudy31}
 
-\begin{figure}[t]
-    \includegraphics[width=\textwidth]{figs/halide_p1.JPG}
-    \caption{Traveler helped us identify a performance bug related to serialization of variable instantiation leading to a fix that shortens execution time. We select a primitive $A$ in the Dependency Tree View (d) that it is executing alone as show in all temporal views (a, b). After we identified and fixed this bug, we are able to create multiple variables concurrently.
-    }
-    \label{fig:casestudy32}
-\end{figure}
+% \begin{figure}[t]
+%     \includegraphics[width=\textwidth]{figs/halide_a1.JPG}
+%     \caption{Traveler helped us identify a performance bug related to serialization of variable instantiation leading to a fix that shortens execution time. We select a primitive $A$ in the Dependency Tree View (d) that it is executing alone as show in all temporal views (a, b, c).
+%     }
+%     \label{fig:casestudy31}
+% \end{figure}
+
+\addfigure[width=\textwidth]{figs/halide_p1.JPG}{Traveler helped us identify a performance bug related to serialization of variable instantiation leading to a fix that shortens execution time. We select a primitive $A$ in the Dependency Tree View (d) that it is executing alone as show in all temporal views (a, b). After we identified and fixed this bug, we are able to create multiple variables concurrently.}{fig:casestudy32}
+
+% \begin{figure}[t]
+%     \includegraphics[width=\textwidth]{figs/halide_p1.JPG}
+%     \caption{Traveler helped us identify a performance bug related to serialization of variable instantiation leading to a fix that shortens execution time. We select a primitive $A$ in the Dependency Tree View (d) that it is executing alone as show in all temporal views (a, b). After we identified and fixed this bug, we are able to create multiple variables concurrently.
+%     }
+%     \label{fig:casestudy32}
+% \end{figure}
 
 During the previous analyses, we noted the long low-utilization periods between the two high-utilization phases of the program in the Utilization View (Goal G5). We used the Dependency Tree View to understand the mapping between primitives near the root (high level operations) and utilization (Sub-goal CC.3). As shown in \autoref{fig:casestudy31}, some of the low utilization can be attributed solely to the declaration of the variable $A$, as seen with the yellow area in the utilization view. We repeated the process with neighboring nodes for variables $B$ and $C$---each was the only active primitive in a separate area of low utilization. {\em Insight:} The declarations are serialized.
 

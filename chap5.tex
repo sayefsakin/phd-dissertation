@@ -26,7 +26,7 @@ In order to situate the contributions of our data management solution, this sect
 \subsection{Parallel Timeline Charts}
 Parallel timeline charts are a fundamental visualization idiom for depicting multiple event sequences in relation to one another. Time is typically mapped along the horizontal axis, while the vertical axis partitions events into \textit{tracks}, each representing an entity or resource of interest. Individual events are drawn as bars spanning their temporal extent, from start time to end time, on their assigned track. Beyond the temporal information, events can also carry attribute-value pairs that enrich the analysis context. The partitioning of data into tracks can correspond to computational resources in execution traces, users in activity logs, or patients in medical records~\cite{isaacs2014state, ezzati2017multi, wilson2003gantt, jo2014livegantt, antweiler2022uncovering, sakin2024gantttaxonomy}.
 
-Because datasets often cover wide temporal or categorical ranges, analysts rely on zooming and panning to maintain legibility, ensuring that events remain visible above the pixel threshold. At different scales, sub-pixel events must be addressed either by rendering as minimal single-pixel marks, omitting them entirely, or aggregating them into summary representations. The latter, often referred to as \textit{event summarization}~\cite{guo2021survey}, creates reduced forms of event sequences that preserve analytical value. As illustrated in \ref{fig:eseman_gantt_desc}, even a small excerpt of a dataset may require careful handling of partially visible or densely overlapping events.
+Because datasets often cover wide temporal or categorical ranges, analysts rely on zooming and panning to maintain legibility, ensuring that events remain visible above the pixel threshold. At different scales, sub-pixel events must be addressed either by rendering as minimal single-pixel marks, omitting them entirely, or aggregating them into summary representations. The latter, often referred to as \textit{event summarization}~\cite{guo2021survey}, creates reduced forms of event sequences that preserve analytical value. As illustrated in \autoref{fig:eseman_gantt_desc}, even a small excerpt of a dataset may require careful handling of partially visible or densely overlapping events.
 
 The need for aggregation introduces significant challenges for interactivity. Studies such as Davidson et al.~\cite{davidson2023qualitative} highlight how data quality and multi-level aggregation remain persistent obstacles in distributed trace analysis. Broader surveys of software visualization~\cite{isaacs2014state, ezzati2017multi} emphasize that scalable data management is essential to preserve interactive responsiveness when navigating large event sequences.
 
@@ -57,14 +57,9 @@ This section details the design of \emph{ESeMan} (\textit{Event SEquence MANager
 \subsection{ESeMan Overview}
 \label{subsec:overview}
 
-\ref{fig:pipeline} sketches the intended workflow. Visualization authors ingest a raw event sequence into ESeMan, which performs (i) schema-aware cleaning and serialization into a compact internal format; (ii) construction of multi-resolution indices over time and tracks; and (iii) persistence of summaries to a storage backend. A lightweight query server mediates between the visualization frontend and the storage layer. Each view request sends a \emph{time range}, a \emph{track selection and order}, optional \emph{filters}, and a \emph{pixel window} (the target accuracy in pixels). ESeMan responds with summaries that are sufficient to draw what is actually resolvable on screen. Pixel-accurate summaries (window $=1$) approximate a raw, per-event depiction, whereas larger windows coarsen the returned representation and reduce query depth and payload size.
+\autoref{fig:pipeline} sketches the intended workflow. Visualization authors ingest a raw event sequence into ESeMan, which performs (i) schema-aware cleaning and serialization into a compact internal format; (ii) construction of multi-resolution indices over time and tracks; and (iii) persistence of summaries to a storage backend. A lightweight query server mediates between the visualization frontend and the storage layer. Each view request sends a \emph{time range}, a \emph{track selection and order}, optional \emph{filters}, and a \emph{pixel window} (the target accuracy in pixels). ESeMan responds with summaries that are sufficient to draw what is actually resolvable on screen. Pixel-accurate summaries (window $=1$) approximate a raw, per-event depiction, whereas larger windows coarsen the returned representation and reduce query depth and payload size.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\columnwidth]{figs/framework.png}
-  \caption{ESeMan pipeline. Raw events are cleaned and serialized, then indexed hierarchically across time and tracks. A query server responds to requests from the visualization, returning summarized events that are sufficient to render at the current scale. The pixel window parameter adjusts the visual accuracy and latency.}
-  \label{fig:pipeline}
-\end{figure}
+\addfigure[width=\columnwidth]{figs/framework.png}{ESeMan pipeline. Raw events are cleaned and serialized, then indexed hierarchically across time and tracks. A query server responds to requests from the visualization, returning summarized events that are sufficient to render at the current scale. The pixel window parameter adjusts the visual accuracy and latency.}{fig:pipeline}
 
 \subsection{Hierarchical Spatial Indexing}
 \label{subsec:hierarchy}
@@ -75,28 +70,18 @@ Two deployment patterns are supported: a \emph{forest} of per-track trees (usefu
 
 \textbf{One-dimensional KD-Tree to summarize events per track.}
 
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=0.8\columnwidth]{figs/agglokdt.png}
-  \caption{Hierarchical organizations for a single track. During queries, once a node corresponds to the spatial-temporal footprint of a pixel window, the node's summary (not its individual events) is returned, yielding a resolution-appropriate depiction.}
-  \label{fig:hierarchy}
-\end{figure}
+\addfigure[width=0.8\columnwidth]{figs/agglokdt.png}{Hierarchical organizations for a single track. During queries, once a node corresponds to the spatial-temporal footprint of a pixel window, the node's summary (not its individual events) is returned, yielding a resolution-appropriate depiction.}{fig:hierarchy}
 
-Starting from a track-level root, we recursively split any node whose time span covers more than two events. We adopt a \emph{fair} splitting rule that partitions the node's events into two children with (as nearly as possible) equal counts, ordered temporally. The \emph{fair} splitting rule yields a balanced search depth and, in our preliminary testing, strong pixel-level accuracy when summarization is set to one pixel. Internal nodes store a concise summary of their covered events; leaves store individual events. See \ref{fig:hierarchy} for an illustration.
+Starting from a track-level root, we recursively split any node whose time span covers more than two events. We adopt a \emph{fair} splitting rule that partitions the node's events into two children with (as nearly as possible) equal counts, ordered temporally. The \emph{fair} splitting rule yields a balanced search depth and, in our preliminary testing, strong pixel-level accuracy when summarization is set to one pixel. Internal nodes store a concise summary of their covered events; leaves store individual events. See \autoref{fig:hierarchy} for an illustration.
 
 \textbf{Two-dimensional KD-Tree to summarize all events.}
-To simultaneously partition time and tracks, we construct a two-dimensional KD-tree whose root spans the full chart. Splits alternate between the temporal and track axes. For time splits, we use the midpoint between the earliest start and latest end within the parent; if that midpoint intersects events, those events are split across children; if not, child bounds are snapped to the nearest event extents to avoid empty regions. For track splits, we divide the current track set as evenly as possible; once a node contains a single track, splitting reverts to the 1D fair rule. \ref{fig:twodkdt} shows the resulting partitioning, with boundary-defining events highlighted.
+To simultaneously partition time and tracks, we construct a two-dimensional KD-tree whose root spans the full chart. Splits alternate between the temporal and track axes. For time splits, we use the midpoint between the earliest start and latest end within the parent; if that midpoint intersects events, those events are split across children; if not, child bounds are snapped to the nearest event extents to avoid empty regions. For track splits, we divide the current track set as evenly as possible; once a node contains a single track, splitting reverts to the 1D fair rule. \autoref{fig:twodkdt} shows the resulting partitioning, with boundary-defining events highlighted.
 
 \textbf{Agglomerative clustering to summarize events per track.}
 
-As a bottom-up alternative, we cluster events along a track using single-linkage on the temporal gap between events. Clusters merge greedily by proximity, producing compact temporal groups; each cluster's summary is defined by the earliest start and latest end of its members. The resulting dendrogram provides a hierarchical basis analogous to the KD-tree, but formed by data-driven cohesion rather than axis-aligned partitioning; \ref{fig:hierarchy} depicts the structure.
+As a bottom-up alternative, we cluster events along a track using single-linkage on the temporal gap between events. Clusters merge greedily by proximity, producing compact temporal groups; each cluster's summary is defined by the earliest start and latest end of its members. The resulting dendrogram provides a hierarchical basis analogous to the KD-tree, but formed by data-driven cohesion rather than axis-aligned partitioning; \autoref{fig:hierarchy} depicts the structure.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\columnwidth]{figs/2dkdt-02.png}
-  \caption{Two-dimensional KD-tree spanning time and tracks. Internal nodes summarize multi-track regions; when a pixel window maps to a node containing multiple events, only the node's temporal (and track) bounds are returned, forming a faithful summary mark.}
-  \label{fig:twodkdt}
-\end{figure}
+\addfigure[width=\columnwidth]{figs/2dkdt-02.png}{Two-dimensional KD-tree spanning time and tracks. Internal nodes summarize multi-track regions; when a pixel window maps to a node containing multiple events, only the node's temporal (and track) bounds are returned, forming a faithful summary mark.}{fig:twodkdt}
 
 \subsection{Summarizing Event Attribute Data}
 \label{subsec:attributes}
@@ -140,23 +125,18 @@ Experiments were conducted from June 17, 2025, to June 26, 2025, on the Spartacu
 
 The source code containing the ESeMan library is available in \href{https://github.com/sayefsakin/eseman}{this git repository}. All the materials related to our experiments are available in \href{https://osf.io/vdcwx/?view_only=99748e7f1ac14886814ffb5404e82c60}{this OSF Project Link}.
 
-\begin{table}[t]
-\centering
-\caption{Characteristics of datasets used in the evaluation.}
-\label{tab:datasets}
-\begin{tabular}{|l|c|c|c|}
-\hline
-\textbf{Dataset} & \textbf{Distribution} & \textbf{\# Tracks} & \textbf{\# of Events} \\
-\hline
-DGEMM           & Clustered   & 16   & 1.3K \\
-K-Means         & Sparse      & 16   & 29.4K \\
-LULESH          & Dense       & 49   & 160K \\
-LRA             & Sparse      & 160  & 1.1M \\
-Fibonacci       & Dense       & 8    & 2.3M \\
-Synthesized     & Sparse      & 496  & 3.6M \\
-\hline
-\end{tabular}
-\end{table}
+\addtable{Characteristics of datasets used in the evaluation.}{tab:datasets}{|l|c|c|c|}{
+  HLINE
+  BOLD Dataset & BOLD Distribution & BOLD \# Tracks & BOLD \# of Events \\
+  HLINE
+  DGEMM           & Clustered   & 16   & 1.3K \\
+  K-Means         & Sparse      & 16   & 29.4K \\
+  LULESH          & Dense       & 49   & 160K \\
+  LRA             & Sparse      & 160  & 1.1M \\
+  Fibonacci       & Dense       & 8    & 2.3M \\
+  Synthesized     & Sparse      & 496  & 3.6M \\
+  HLINE
+}
 
 \subsection{Datasets}
 The evaluation used six datasets of execution traces collected from HPX applications~\cite{Kaiser2020HPX}, each with distinct densities, distributions, and event volumes. Table~\ref{tab:datasets} summarizes the datasets, which range from the small DGEMM dataset with 1.3K events to a synthesized dataset containing 3.6M events. All but the synthesized dataset were collected with APEX~\cite{diehl2022distributed} in the OTF2 format~\cite{eschweiler2012open}. The synthesized dataset was derived by extending the K-Means dataset to increase scale.
@@ -164,12 +144,7 @@ The evaluation used six datasets of execution traces collected from HPX applicat
 \subsection{Query Types and Metrics}
 Two query types were tested, both representative of common interaction tasks in parallel timeline charts~\cite{sakin2024gantttaxonomy}: (1) range queries, which retrieve all events within a temporal interval across all tracks, and (2) conditional range queries, which apply an additional filter on event attributes.  
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.9\columnwidth]{figs/window_stacked_chart.png}
-    \caption{Percentage breakdown of total time spent on data fetching (dark bars) and chart rendering (light bars) across seven data management configurations for range queries. Except for the LRA and Synthesized dataset, data fetch time dominates total time for the Non-ESeMan configurations. ESeMan configurations substantially lowers the data fetch percentage.}
-    \label{fig:rangeqa}
-\end{figure}
+\addfigure[width=0.9\columnwidth]{figs/window_stacked_chart.png}{Percentage breakdown of total time spent on data fetching (dark bars) and chart rendering (light bars) across seven data management configurations for range queries. Except for the LRA and Synthesized dataset, data fetch time dominates total time for the Non-ESeMan configurations. ESeMan configurations substantially lowers the data fetch percentage.}{fig:rangeqa}
 
 For each query, we measured (a) data fetch time, defined as the time from query initiation to receipt of results, (b) chart rendering time, defined as the time between the completion of an interaction task (such as brushing) and the point at which the visualization has finished rendering on the screen, (c) memory consumption after all queries completed, and (d) visual accuracy, assessed using the Structural Similarity Index Measure (SSIM)~\cite{wang2004image}. SSIM captures human-perceived structural similarity between rendered results, where the \texttt{Naive} configuration served as the baseline.
 
@@ -178,109 +153,54 @@ For each query, we measured (a) data fetch time, defined as the time from query 
 
 \subsubsection{Range Query Performance}
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.9\columnwidth]{figs/window_data_fetch_comparison.png}
-    \caption{Comparison of average fetch time (top) and visual accuracy (bottom) across seven data management configurations for range queries. The dashed line marks the 100ms interactivity threshold. ESeMan configurations reduce average fetch time while preserving high visual accuracy.}
-    \label{fig:rangeqb}
-\end{figure}
+\addfigure[width=0.9\columnwidth]{figs/window_data_fetch_comparison.png}{Comparison of average fetch time (top) and visual accuracy (bottom) across seven data management configurations for range queries. The dashed line marks the 100ms interactivity threshold. ESeMan configurations reduce average fetch time while preserving high visual accuracy.}{fig:rangeqb}
 The percentage breakdown of total time between data fetching and chart rendering across datasets and configurations is presented in~\autoref{fig:rangeqa} for range queries. Comparatively darker bars represent data fetch time and comparatively lighter bars depict chart rendering time for each configuration. The non-ESeMan configurations spend a dominant portion of time on data fetching for DGEMM, K-Means, LULESH, and Fibonacci dataset. ESeMan configurations consistently reduce the data fetch percentage accross datasets, except for Fibonacci dataset. Next, individual results for average data fetch and chart rendering time are presented.
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.9\columnwidth]{figs/window_total_drawing_relative_increase.png}
-    \caption{Comparison of avergage rendering time (top) and percent increase from the lowest rendering time (bottom) across seven data management configurations for range queries. ESeMan configurations outperform alternatives in rendering time.}
-    \label{fig:rangeqc}
-\end{figure}
+\addfigure[width=0.9\columnwidth]{figs/window_total_drawing_relative_increase.png}{Comparison of avergage rendering time (top) and percent increase from the lowest rendering time (bottom) across seven data management configurations for range queries. ESeMan configurations outperform alternatives in rendering time.}{fig:rangeqc}
 
 \autoref{fig:rangeqb} presents the average data fetch times (top) and visual accuracy (bottom) for range queries. The ESeMan variants consistently achieved latency below the 100ms interactivity threshold~\cite{battle2019role}, except on the largest synthesized dataset where times reached 400ms. The \texttt{Agg} variant exhibited similar behavior, except for on the Fibonacci dataset where it crashed due to a memory allocation error. The naive SQL and approximate methods frequently exceeded the threshold, particularly for dense or large traces.
 
 In terms of accuracy, ESeMan maintained near-perfect similarity with the naive baseline, whereas sub-sampling and M4 optimization introduced visible distortions. Among ESeMan\'s variants, \texttt{1DKDT} achieved the fastest performance, while both \texttt{1DKDT} and \texttt{Agg} provided the highest fidelity.
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.9\columnwidth]{figs/cond_stacked_chart.png}
-    \caption{Percentage breakdown of total time spent on data fetching (dark bars) and chart rendering (light bars) across seven data management configurations for conditional range queries. Except for the LULESH, LRA, and Synthesized dataset, data fetch time dominates time for the Non-ESeMan configurations. ESeMan configurations substantially lowers the data fetch percentage.}
-    \label{fig:crangeqa}
-\end{figure}
+\addfigure[width=0.9\columnwidth]{figs/cond_stacked_chart.png}{Percentage breakdown of total time spent on data fetching (dark bars) and chart rendering (light bars) across seven data management configurations for conditional range queries. Except for the LULESH, LRA, and Synthesized dataset, data fetch time dominates time for the Non-ESeMan configurations. ESeMan configurations substantially lowers the data fetch percentage.}{fig:crangeqa}
 
 \autoref{fig:rangeqc} presents the average chart rendering times (top) and percent increase from the lowest rendering time per dataset (bottom) for range queries. The chart rendering time remains comparatively stable across configurations for similar SSIM values where the rendering workload remains similar (\autoref{fig:rangeqc}(bottom)). Except for the LULESH dataset, at least one EseMan configurations achieves the lowest rendering time across dataset, whereas for LULESH the Naive remains the fastest. For fibonacci dataset, ESeMan configurations have the fastest rendering time which is also lower than the data fetch time (\autoref{fig:rangeqb}(top)) that results into higher data fetch percentage in \autoref{fig:rangeqa}.
 
 \subsubsection{Conditional Range Query Performance}
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.9\columnwidth]{figs/cond_data_fetch_comparison.png}
-    \caption{Comparison of average fetch time (top) and visual accuracy (bottom) across seven data management configurations for conditional range queries. The dashed line marks the 100ms interactivity threshold. ESeMan configurations reduce average fetch time while preserving high visual accuracy.}
-    \label{fig:crangeqb}
-\end{figure}
+\addfigure[width=0.9\columnwidth]{figs/cond_data_fetch_comparison.png}{Comparison of average fetch time (top) and visual accuracy (bottom) across seven data management configurations for conditional range queries. The dashed line marks the 100ms interactivity threshold. ESeMan configurations reduce average fetch time while preserving high visual accuracy.}{fig:crangeqb}
 
 For conditional range queries, \autoref{fig:crangeqa} presents the percentage breakdown of total time between data fetching and chart rendering across datasets and configurations. Similarly, comparatively darker and lighter bars are utilized to present data fetch and chart rendering time respectively. The non-ESeMan configurations spend a dominant portion of time on data fetching for DGEMM, K-Means, and Fibonacci dataset. ESeMan configurations consistently reduce the data fetch percentage accross datasets, except for Fibonacci dataset. Next, individual average data fetch and chart rendering results are presented.
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.9\columnwidth]{figs/cond_total_drawing_relative_increase.png}
-    \caption{Comparison of avergage rendering time (top) and percent increase from the lowest rendering time (bottom) across seven data management configurations for conditional range queries. ESeMan configurations outperform alternatives in rendering time.}
-    \label{fig:crangeqc}
-\end{figure}
+\addfigure[width=0.9\columnwidth]{figs/cond_total_drawing_relative_increase.png}{Comparison of avergage rendering time (top) and percent increase from the lowest rendering time (bottom) across seven data management configurations for conditional range queries. ESeMan configurations outperform alternatives in rendering time.}{fig:crangeqc}
 
 Data fetch Performance for conditional queries is shown in \autoref{fig:crangeqb}. ESeMan again maintained latency within the interactivity threshold across all datasets, while alternative approaches often exceeded it by large margins (top). Similarly, The \texttt{Agg} variant also crashed on the Fibonacci dataset for this query due to a memory allocation error. Visual accuracy results (bottom) similarly favored ESeMan, with SSIM values approaching one, confirming that the ESeManc configurations preserve both efficiency and visual accuracy for conditional range queries.
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.8\columnwidth]{figs/window_memory_comparison.png}
-    \caption{Total memory consumption across datasets. ESeMan configurations remain efficient, while DuckDB-based approaches show higher usage.}
-    \label{fig:memory}
-\end{figure}
+\addfigure[width=0.8\columnwidth]{figs/window_memory_comparison.png}{Total memory consumption across datasets. ESeMan configurations remain efficient, while DuckDB-based approaches show higher usage.}{fig:memory}
 
 \autoref{fig:crangeqc} shows chart rendering times for the conditional range query. Though the ESeMan configurations exceed the interactivity threshold for larger datasets in terms of chart rendering time (top), they still have similar performance compared to other configurations while maintaining high visual accuracy. However, the \texttt{Agg} variant crashed on the Synthesized dataset while rendering the chart due to a memory error. The percent increase of average rendering time relative to the lowest (bottom) shows similar trends to range queries, with ESeMan configurations exhibiting lower percent increase compared to others. Faster rendering time for fibonacci dataset using ESeMan configurations, lower than the data fetch time (\autoref{fig:crangeqb}(top)), contributes toward higher data fetch percentage in \autoref{fig:crangeqa}.
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.8\columnwidth]{figs/ssim_fetch_combined.png}
-    \caption{Accuracy-latency trade-off in \texttt{ESeMan-1DKDT}. Increasing the pixel window reduces fetch time but decreases SSIM.}
-    \label{fig:ssim}
-\end{figure}
+\addfigure[width=0.8\columnwidth]{figs/ssim_fetch_combined.png}{Accuracy-latency trade-off in ESeMan-1DKDT. Increasing the pixel window reduces fetch time but decreases SSIM.}{fig:ssim}
 
 \subsubsection{Memory Consumption}
 Memory consumption across all configurations is shown in \autoref{fig:memory}. The summed-area table exhibited the lowest footprint, while DuckDB-based configurations consumed the most. ESeMan\'s LMDB-backed variants maintained low and predictable usage, confirming their suitability for interactive workloads at scale.
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=\columnwidth]{figs/esemanteaser.png}
-    \caption{Parallel timeline charts constructed from 160K events distributed across 49 processors (rows) of a parallel program. Gray boxes with dark borders represent single event. (a) shows a naive rendering of all data, (b - d) show renderings using ESeMan with varying summarization levels. The naive solution requires 499 milliseconds (ms) for the data fetch, which is outside best practices for interactivity. ESeMan retrieves data for an equivalent chart in one tenth the time and can be tuned to trade off accuracy for fetch time. In (c), a 16-pixel summarization window reduces fetch time by half with noticeable visual differences (quantified by the SSIM score). In (d), a 32-pixel window further decreases fetch time with further degradation to accuracy.}
-    \label{fig:teasers}
-\end{figure}
+\addfigure[width=\columnwidth]{figs/esemanteaser.png}{Parallel timeline charts constructed from 160K events distributed across 49 processors (rows) of a parallel program. Gray boxes with dark borders represent single event. (a) shows a naive rendering of all data, (b - d) show renderings using ESeMan with varying summarization levels. The naive solution requires 499 milliseconds (ms) for the data fetch, which is outside best practices for interactivity. ESeMan retrieves data for an equivalent chart in one tenth the time and can be tuned to trade off accuracy for fetch time. In (c), a 16-pixel summarization window reduces fetch time by half with noticeable visual differences (quantified by the SSIM score). In (d), a 32-pixel window further decreases fetch time with further degradation to accuracy.}{fig:teasers}
 
 \subsection{Accuracy and Latency Trade-offs}
 
 To explore tunability, we varied pixel window sizes for \texttt{ESeMan-1DKDT}. \autoref{fig:ssim} illustrates the trade-off between fetch time and SSIM across the three largest datasets. Narrower windows preserved perfect accuracy but incurred longer latencies, while wider windows reduced latency at the cost of structural fidelity. \autoref{fig:teasers} further shows rendered outputs for the LRA dataset, highlighting the effect of summarization window sizes. These results demonstrate that ESeMan allows users to balance responsiveness and accuracy according to analytic needs.
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=\columnwidth]{figs/listings51.png}
-    \caption{C3 - Naive Range Query}
-    \label{fig:listings51}
-\end{figure}
+\addfigure[width=\columnwidth]{figs/listings51.png}{C3 - Naive Range Query}{fig:listings51}
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=\columnwidth]{figs/listings52.png}
-    \caption{C4 - Statistical Sub-sampling Query}
-    \label{fig:listings52}
-\end{figure}
+\addfigure[width=\columnwidth]{figs/listings52.png}{C4 - Statistical Sub-sampling Query}{fig:listings52}
 
 \subsection{Comparison with Perfetto}
 We qualitatively compared ESeMan with Google\'s \emph{Perfetto}~\cite{Perfetto} using the K-Means dataset. Summarization in Perfetto omits fine-grained events at low zoom levels to achieve responsiveness, potentially concealing short-duration events crucial for anomaly detection~\cite{guo2021survey}. ESeMan, in contrast, preserves pixel-level accuracy across zoom levels.
 
 In addition with better visual accuracy, ESeMan demonstrated comparable responsiveness, with interaction-to-next-paint (INP~\cite{inp_webdev}) values of 23ms, closely matching 20ms of Perfetto. ESeMan's comparable responsiveness to Perfetto highlights that high accuracy need not come at the cost of interactive performance.
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=\columnwidth]{figs/listings53.png}
-    \caption{C5 - M4 Optimization Query}
-    \label{fig:listings53}
-\end{figure}
+\addfigure[width=\columnwidth]{figs/listings53.png}{C5 - M4 Optimization Query}{fig:listings53}
 
 \section{DuckDB configurations}
 In DuckDB, we created a table $intervals$ with all the event sequences. Then we conduct the following queries over the specified range $(begin, end)$ on the track $Location$ with a predefined number of $bins$, which is set to the visible number of pixels $(4236)$.
@@ -299,41 +219,31 @@ Finally, query in \autoref{fig:listings53} uses aggregation over fixed-size time
 
 \section{Dataset Indexing Time}
 
-\begin{table}[t]
-\centering
-\caption{Indexing time for each dataset across data management configurations.}
-\label{tab:indexing-results1}
-\begin{tabular}{|l|c|c|c|c|}
-\hline
-& \textbf{ESeMan-1DKDT} & \textbf{ESeMan-KDT}& \textbf{Summed Area Table} & \textbf{DuckDB} \\
-\hline
-DGEMM & 0.7s & 0.8s & 0.2s & 0.2s \\
-K-Means & 5.9s & 8s & 2.4s & 3.2s \\
-LULESH & 47.8s & 70s & 80s & 157s \\
-LRA & 652.8s & 315s & 504s & 147.5s \\
-Fibonacci & 788.1s & 1129s & 196.5s & 251.3s \\
-Synthesized & 2971.5s & 1113s & - & - \\
-\hline
-\end{tabular}
-\end{table}
+\addtable{Indexing time for each dataset across data management configurations.}{tab:indexing-results1}{|l|c|c|p{2.5cm}|c|}{
+  HLINE
+  BOLD  & BOLD ESeMan-1DKDT & BOLD ESeMan-KDT & BOLD Summed Area Table & BOLD DuckDB \\
+  HLINE
+  DGEMM & 0.7s & 0.8s & 0.2s & 0.2s \\
+  K-Means & 5.9s & 8s & 2.4s & 3.2s \\
+  LULESH & 47.8s & 70s & 80s & 157s \\
+  LRA & 652.8s & 315s & 504s & 147.5s \\
+  Fibonacci & 788.1s & 1129s & 196.5s & 251.3s \\
+  Synthesized & 2971.5s & 1113s & - & - \\
+  HLINE
+}
 
-\begin{table}[t]
-\centering
-\caption{Indexed file size for each dataset across data management configurations.}
-\label{tab:indexing-results}
-\begin{tabular}{|l|c|c|c|c|}
-\hline
-& \textbf{ESeMan-1DKDT} & \textbf{ESeMan-KDT}& \textbf{Summed Area Table} & \textbf{DuckDB} \\
-\hline
-DGEMM & 0.6M & 0.5M & 0.9M & 3M \\
-K-Means  & 15M & 9M & 35M & 8M \\
-LULESH & 63M & 64M & 50M & 50M \\
-LRA & 357M & 327M & 213M & 235M \\
-Fibonacci  & 2.6G & 1.2G & 453M & 482M \\
-Synthesized & 1.1G & 1.3G & 674M & 650M \\
-\hline
-\end{tabular}
-\end{table}
+\addtable{Indexed file size for each dataset across data management configurations.}{tab:indexing-results}{|l|c|c|p{2.5cm}|c|}{
+  HLINE
+  BOLD  & BOLD ESeMan-1DKDT & BOLD ESeMan-KDT & BOLD Summed Area Table & BOLD DuckDB \\
+  HLINE
+  DGEMM & 0.6M & 0.5M & 0.9M & 3M \\
+  K-Means & 15M & 9M & 35M & 8M \\
+  LULESH & 63M & 64M & 50M & 50M \\
+  LRA & 357M & 327M & 213M & 235M \\
+  Fibonacci  & 2.6G & 1.2G & 453M & 482M \\
+  Synthesized & 1.1G & 1.3G & 674M & 650M \\
+  HLINE
+}
 
 Dataset indexing refers to the time required to ingest and preprocess trace data before the data becomes available for interactive use within the Traveler ecosystem. The dataset indexing step includes parsing the trace file, extracting event metadata, and storing it in the appropriate backend (LMDB, MySQL, or DuckDB), depending on the configuration.
 
@@ -341,12 +251,7 @@ Table~\ref{tab:indexing-results1} presents the dataset indexing time. For the da
 
 Table~\ref{tab:indexing-results} presents the indexed dataset size. The indexed dataset size is lower with the smaller datasets for the ESeMan configurations compared to others, and the dataset size is larger for the large dataset sizes compared to the other configurations.
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=\columnwidth]{figs/window_data_fetch_first_comparison.png}
-    \caption{Initial average data fetch time across datasets}
-    \label{fig:initial-render-time}
-\end{figure}
+\addfigure[width=\columnwidth]{figs/window_data_fetch_first_comparison.png}{Initial average data fetch time across datasets}{fig:initial-render-time}
 
 Note that, DuckDB-based configurations share identical indexing pipelines, including the JSON conversion, and thus report the same values. ESeMan-Agg is in-memory; therefore, it is not reported in Table~\ref{tab:indexing-results1} and Table~\ref{tab:indexing-results}. Synthesized data followed a different pipeline to construct the Summed area table and DuckDB. Therefore, its construction time is also not reported in Table~\ref{tab:indexing-results1} as it will not be a fair comparison.
 
@@ -356,20 +261,15 @@ Initial data fetch time measures how long it takes to fetch the data for the fir
 
 \autoref{fig:initial-render-time} presents the average data fetch time for the initial rendering. Although for the smaller datasets DGEMM and K-Means, the data fetch time is within the interactivity threshold limit of 100 milliseconds, all configurations take a very long time to render the visualization with a larger dataset. However, we notice ESeMan-Agg constantly requires less time to load across all datasets. Due to the sparse distribution of data, ESeMan-KDT takes comparatively longer time with the Synthesized dataset. For visual accuracy, ESeMan-1DKDT and ESeMan-Agg consistently performed best compared to others across all datasets. The statistical subsampling has the worst accuracy among the configurations.
 
-\begin{table}[t]
-\centering
-\caption{SSIM comparison across different configurations visualizing D2. SSIM values are calculated considering C3 as the baseline. Pixel-wise differences are highlighted using a colormap.}
-\label{tab:ssim-results}
-\begin{tabular}{|c|c|}
-\hline
-\textbf{Generated Visualization} & \textbf{Configuration} (SSIM) \\
-\hline
-\includegraphics[width=0.6\columnwidth]{figs/faf17535-2f66-4621-995f-49c7dbd84e8b_window_summed_area_table_1_gantt_diff.png} & Summed Area Table (0.9996) \\ \hline
-\includegraphics[width=0.6\columnwidth]{figs/faf17535-2f66-4621-995f-49c7dbd84e8b_window_db_duck_sketch_1_gantt_diff.png} & Statistical subsampling (0.9915) \\ \hline
-\includegraphics[width=0.6\columnwidth]{figs/faf17535-2f66-4621-995f-49c7dbd84e8b_window_db_duck_min_max_1_gantt_diff.png} & M4 Optimization (0.8908) \\ \hline
-\includegraphics[width=0.6\columnwidth]{figs/hotmap.png} & \\ \hline
-\end{tabular}
-\end{table}
+\addtable{SSIM comparison across different configurations visualizing D2. SSIM values are calculated considering C3 as the baseline. Pixel-wise differences are highlighted using a colormap.}{tab:ssim-results}{|c|p{4cm}|}{
+  HLINE
+  BOLD Generated Visualization & BOLD Configuration (SSIM) \\
+  HLINE
+  \includegraphics[width=0.6\columnwidth]{figs/faf17535-2f66-4621-995f-49c7dbd84e8b_window_summed_area_table_1_gantt_diff.png} & Summed Area Table (0.9996) \\ HLINE
+  \includegraphics[width=0.6\columnwidth]{figs/faf17535-2f66-4621-995f-49c7dbd84e8b_window_db_duck_sketch_1_gantt_diff.png} & Statistical subsampling (0.9915) \\ HLINE
+  \includegraphics[width=0.6\columnwidth]{figs/faf17535-2f66-4621-995f-49c7dbd84e8b_window_db_duck_min_max_1_gantt_diff.png} & M4 Optimization (0.8908) \\ HLINE
+  \includegraphics[width=0.6\columnwidth]{figs/hotmap.png} & \\ HLINE
+}
 
 \section{Summarization Quality Analysis}
 
