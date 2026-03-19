@@ -35,8 +35,6 @@ This section formalizes the data model and visual encodings underlying Gantt cha
 %   \label{fig:gantt_desc}
 % \end{figure}
 
-\addfigure[width=1.0\columnwidth]{figs/ganttoverview.pdf}{Gantt chart showing a window of time and three tracks.}{fig:gantt_desc}
-
 \subsection{Data Model}
 \label{subsec:gantt-data}
 Gantt charts depict discrete \emph{events} that admit a partial order, typically induced by a temporal attribute that we simply call \emph{time}. In the canonical use, events have \emph{duration} (distinct start and end times), placing Gantt charts squarely within the wider family of \emph{event-sequence} visualizations.
@@ -44,6 +42,9 @@ Gantt charts depict discrete \emph{events} that admit a partial order, typically
 Events are partitioned into parallel sequences by an attribute indicating the responsible agent or resource. The literature variously names this partitioning attribute as \emph{schedule}, \emph{location}, \emph{resource}, \emph{person}, \emph{process}, or \emph{task}. To avoid overloading and to remain domain-agnostic, we use the term \emph{track} to denote the categorical attribute that groups events into parallel sequences. Unlike time, which is intrinsically ordered, tracks may admit zero or multiple meaningful orderings (e.g., alphabetical, by utilization, by geography).
 
 Cross-track relationships often matter as much as per-track activity. We use \emph{dependency} to mean a directed relation in which one event constrains another (e.g., a message receipt enabling a computation). The collection of events and their dependencies forms a \emph{dependency graph}; depending on the application, graph nodes may represent individual events or aggregates thereof. Events and tracks can bear additional attributes (e.g., provenance labels, categorical codes, or resource capacities), which are frequently leveraged for filtering, highlighting, and summarization in analysis workflows.
+
+
+\addfigure[width=1.0\columnwidth]{figs/ganttoverview.pdf}{Gantt chart showing a window of time and three tracks.}{fig:gantt_desc}
 
 \subsection{Visual Encoding Assumptions}
 \label{subsec:gantt-encoding}

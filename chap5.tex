@@ -13,9 +13,6 @@ This chapter presents a descriptive summary of \textit{ESeMan} (Event SEquence M
 
 In order to situate the contributions of our data management solution, this section first reviews the foundations of parallel timeline charts and their role in visualizing large-scale event sequence data. We then survey related approaches to managing scalability and interactivity, including the use of databases, summarization and reduction techniques, and open-source and commercial visualization platforms.
 
-\addfigure[width=1.0\columnwidth]{figs/ganttoverview.png}{Illustration of a parallel timeline chart showing three tracks of event sequences across a selected time window.}{fig:eseman_gantt_desc}
-
-
 % \begin{figure}[t]
 %   \centering
 %   \includegraphics[width=1.0\columnwidth]{figs/ganttoverview.png}
@@ -25,6 +22,8 @@ In order to situate the contributions of our data management solution, this sect
 
 \subsection{Parallel Timeline Charts}
 Parallel timeline charts are a fundamental visualization idiom for depicting multiple event sequences in relation to one another. Time is typically mapped along the horizontal axis, while the vertical axis partitions events into \textit{tracks}, each representing an entity or resource of interest. Individual events are drawn as bars spanning their temporal extent, from start time to end time, on their assigned track. Beyond the temporal information, events can also carry attribute-value pairs that enrich the analysis context. The partitioning of data into tracks can correspond to computational resources in execution traces, users in activity logs, or patients in medical records~\cite{isaacs2014state, ezzati2017multi, wilson2003gantt, jo2014livegantt, antweiler2022uncovering, sakin2024gantttaxonomy}.
+
+\addfigure[width=1.0\columnwidth]{figs/ganttoverview.png}{Illustration of a parallel timeline chart showing three tracks of event sequences across a selected time window.}{fig:eseman_gantt_desc}
 
 Because datasets often cover wide temporal or categorical ranges, analysts rely on zooming and panning to maintain legibility, ensuring that events remain visible above the pixel threshold. At different scales, sub-pixel events must be addressed either by rendering as minimal single-pixel marks, omitting them entirely, or aggregating them into summary representations. The latter, often referred to as \textit{event summarization}~\cite{guo2021survey}, creates reduced forms of event sequences that preserve analytical value. As illustrated in \autoref{fig:eseman_gantt_desc}, even a small excerpt of a dataset may require careful handling of partially visible or densely overlapping events.
 
@@ -68,9 +67,11 @@ ESeMan organizes events into a hierarchy whose leaves correspond to individual d
 
 Two deployment patterns are supported: a \emph{forest} of per-track trees (useful when track ordering is frequently reconfigured or filtered) and a \emph{single 2D tree} over the joint time-track domain (appropriate when track order is fixed or reordering is not a common interaction). Across these patterns, ESeMan offers KD-tree variants and an agglomerative clustering option; their comparative behaviors are analyzed in \ref{sec:eval}.
 
-\textbf{One-dimensional KD-Tree to summarize events per track.}
-
 \addfigure[width=0.8\columnwidth]{figs/agglokdt.png}{Hierarchical organizations for a single track. During queries, once a node corresponds to the spatial-temporal footprint of a pixel window, the node's summary (not its individual events) is returned, yielding a resolution-appropriate depiction.}{fig:hierarchy}
+
+\addfigure[width=\columnwidth]{figs/2dkdt-02.png}{Two-dimensional KD-tree spanning time and tracks. Internal nodes summarize multi-track regions; when a pixel window maps to a node containing multiple events, only the node's temporal (and track) bounds are returned, forming a faithful summary mark.}{fig:twodkdt}
+
+\textbf{One-dimensional KD-Tree to summarize events per track.}
 
 Starting from a track-level root, we recursively split any node whose time span covers more than two events. We adopt a \emph{fair} splitting rule that partitions the node's events into two children with (as nearly as possible) equal counts, ordered temporally. The \emph{fair} splitting rule yields a balanced search depth and, in our preliminary testing, strong pixel-level accuracy when summarization is set to one pixel. Internal nodes store a concise summary of their covered events; leaves store individual events. See \autoref{fig:hierarchy} for an illustration.
 
@@ -80,8 +81,6 @@ To simultaneously partition time and tracks, we construct a two-dimensional KD-t
 \textbf{Agglomerative clustering to summarize events per track.}
 
 As a bottom-up alternative, we cluster events along a track using single-linkage on the temporal gap between events. Clusters merge greedily by proximity, producing compact temporal groups; each cluster's summary is defined by the earliest start and latest end of its members. The resulting dendrogram provides a hierarchical basis analogous to the KD-tree, but formed by data-driven cohesion rather than axis-aligned partitioning; \autoref{fig:hierarchy} depicts the structure.
-
-\addfigure[width=\columnwidth]{figs/2dkdt-02.png}{Two-dimensional KD-tree spanning time and tracks. Internal nodes summarize multi-track regions; when a pixel window maps to a node containing multiple events, only the node's temporal (and track) bounds are returned, forming a faithful summary mark.}{fig:twodkdt}
 
 \subsection{Summarizing Event Attribute Data}
 \label{subsec:attributes}
@@ -176,9 +175,9 @@ For conditional range queries, \autoref{fig:crangeqa} presents the percentage br
 
 Data fetch Performance for conditional queries is shown in \autoref{fig:crangeqb}. ESeMan again maintained latency within the interactivity threshold across all datasets, while alternative approaches often exceeded it by large margins (top). Similarly, The \texttt{Agg} variant also crashed on the Fibonacci dataset for this query due to a memory allocation error. Visual accuracy results (bottom) similarly favored ESeMan, with SSIM values approaching one, confirming that the ESeManc configurations preserve both efficiency and visual accuracy for conditional range queries.
 
-\addfigure[width=0.8\columnwidth]{figs/window_memory_comparison.png}{Total memory consumption across datasets. ESeMan configurations remain efficient, while DuckDB-based approaches show higher usage.}{fig:memory}
-
 \autoref{fig:crangeqc} shows chart rendering times for the conditional range query. Though the ESeMan configurations exceed the interactivity threshold for larger datasets in terms of chart rendering time (top), they still have similar performance compared to other configurations while maintaining high visual accuracy. However, the \texttt{Agg} variant crashed on the Synthesized dataset while rendering the chart due to a memory error. The percent increase of average rendering time relative to the lowest (bottom) shows similar trends to range queries, with ESeMan configurations exhibiting lower percent increase compared to others. Faster rendering time for fibonacci dataset using ESeMan configurations, lower than the data fetch time (\autoref{fig:crangeqb}(top)), contributes toward higher data fetch percentage in \autoref{fig:crangeqa}.
+
+\addfigure[width=0.8\columnwidth]{figs/window_memory_comparison.png}{Total memory consumption across datasets. ESeMan configurations remain efficient, while DuckDB-based approaches show higher usage.}{fig:memory}
 
 \addfigure[width=0.8\columnwidth]{figs/ssim_fetch_combined.png}{Accuracy-latency trade-off in ESeMan-1DKDT. Increasing the pixel window reduces fetch time but decreases SSIM.}{fig:ssim}
 

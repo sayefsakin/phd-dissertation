@@ -5,8 +5,6 @@
 
 The first step toward event sequence visualization is understanding the visual design challenges. To investigate the challenges, specifically for visualizing the vast scale differences and facilitating interactive navigation of the data, we collaborated with HPC researchers to understand their performance analysis needs. In the completed work, Traveler, we conducted a visualization design study and developed a highly linked multi-view coordinated visualization platform for analyzing task parallel traces. Primarily focused on Gantt charts, Traveler provides multiple linked auxiliary interfaces to help navigate from multiple contexts of the underlying performance data generated from parallel computing systems. This work provides a foundation for developing solutions for scalable Gantt charts by identifying the visual design needs of our collaborators. This work was published as a full paper~\cite{sakin2022traveler} at IEEE VIS 2022. The combined work was published at the Practice and Experience in Advanced Research Computing Conference 2020~\cite{brandt2020jetlag}, 2020 IEEE ACM 9th Workshop on Python for High-Performance and Scientific Computing~\cite{brandt2020distributed}, and Euro-Par 2022 Parallel Processing Workshops~\cite{tohid2022halide}. The published Traveler~\cite{sakin2022traveler} paper has been slightly modified and presented in this chapter.
 
-\addfigure[width=\linewidth]{figs/traveler_teaser_new.jpg}{The Traveler interface. Traveler is a visualization platform supporting visual performance analysis of asynchronous task parallel programs. The Utilization View (a) shows that the selected primitive (task type) accounts for most of the utilization in the program. The Gantt View (b) shows how individual tasks are scheduled across the system, while the Aggregated Gantt View (c) shows utilization and extent due to groups of tasks. A Functional Box Plot View (d) summarizes performance metrics across resources and over time. Selection details are shown in the Selection Info View (e) and source code in the Source Code View (f). The Dependency Tree View (g) shows relations among task types. The distribution of task durations can be explored in the Interval Histogram View (h).}{fig:travelerteaser}
-
 % \begin{figure}[t]
 %   \centering
 %   \includegraphics[width=\linewidth]{figs/traveler_teaser_new.jpg}
@@ -19,6 +17,8 @@ The first step toward event sequence visualization is understanding the visual d
 Understanding the behavior of HPC programs in execution is essential in identifying performance bottlenecks, exploring opportunities for optimization, and planning for efficient resource utilization. Comprehending the execution behavior is difficult due to the complicated nature of the underlying hardware components, intermediate execution scheduling systems, and the HPC programs themselves. HPC program analysts collect and analyze execution trace\textemdash a chronological record of per-resource events captured during the program execution. Interactive visual analysis of program execution traces is a common approach in interpreting the runtime behavior and exploring performance opportunities~\cite{isaacs2014state}. 
 
 However, gaining insights related to what occurred during execution at varying levels of detail is challenging. Each individual event is orders of magnitude smaller than the total length of the trace. Identifying different events, tracking a sequence of events, and following event execution progression within the trace data requires visually navigating a large space where relevant details matter.
+
+\addfigure[width=\linewidth]{figs/traveler_teaser_new.jpg}{The Traveler interface. Traveler is a visualization platform supporting visual performance analysis of asynchronous task parallel programs. The Utilization View (a) shows that the selected primitive (task type) accounts for most of the utilization in the program. The Gantt View (b) shows how individual tasks are scheduled across the system, while the Aggregated Gantt View (c) shows utilization and extent due to groups of tasks. A Functional Box Plot View (d) summarizes performance metrics across resources and over time. Selection details are shown in the Selection Info View (e) and source code in the Source Code View (f). The Dependency Tree View (g) shows relations among task types. The distribution of task durations can be explored in the Interval Histogram View (h).}{fig:travelerteaser}
 
 Execution traces are typically visualized using a Gantt chart where the x-axis represents time, and the y-axis represents each computing resource location. Generally, each bar represents each individual event execution location, its start time, and its end time. Visualizing longer-running programs on a very high number of computing locations generally over-crowd the visual interface. Additionally, identifying the relation between events and their probable cause becomes difficult.
 
@@ -142,8 +142,6 @@ Five views in Traveler use time as the horizontal axis: the standard Gantt chart
 
 The Utilization View (\autoref{fig:travelerteaser}(a)) displays total resource utilization over time using an area chart. The vertical axis encodes the proportion of active resources, normalized by the maximum possible utilization. This design directly supports goal G5 (understanding utilization) and cross-cutting sub-goal CC.2 (correlating resource use with time). 
 
-\addfigure[width=\columnwidth]{figs/gantt.jpg}{Gantt View representing parent-child dependency between two intervals. The highlighted yellow interval bar $b$ has parent $a$. Interval $b$ has three children\textemdash $c$, $d$, and $e$.}{fig:gantt}
-
 % \begin{figure}[t]
 %     \centering
 %     \includegraphics[width=\columnwidth]{figs/gantt.jpg}
@@ -155,11 +153,11 @@ Beyond providing an overview, the Utilization View functions as a navigation aid
 
 \subsubsection{Gantt View} 
 
+\addfigure[width=\columnwidth]{figs/gantt.jpg}{Gantt View representing parent-child dependency between two intervals. The highlighted yellow interval bar $b$ has parent $a$. Interval $b$ has three children\textemdash $c$, $d$, and $e$.}{fig:gantt}
+
 The Gantt View (\autoref{fig:travelerteaser}(b)) represents resource states as rows and intervals as rectangular bars. Resources are labeled by CPU and thread identifiers, denoted as $core\ ID-thread\ ID$. The view supports panning and zooming both in time and across the resource axis. Selection of an interval highlights it in yellow and updates the Selection Info and Utilization Views. Parent-child relationships are shown on demand through yellow dependency lines (\autoref{fig:gantt}), enabling users to follow hot paths (G3.2) and reason about runtime scheduling decisions (G4). This selective strategy avoids visual clutter while maintaining interpretability.
 
 \subsubsection{Aggregated Gantt View} 
-
-\addfigure[width=\columnwidth]{figs/AggGanttExplainer20.png}{Selecting a primitive in the Dependency Tree View will highlight instances of that primitive's subtree in the Gantt View and create aggregated bars for the subtree in the Aggregated Gantt View.}{fig:agg_gantt}
 
 % \begin{figure}[t]
 %     \centering
@@ -170,6 +168,8 @@ The Gantt View (\autoref{fig:travelerteaser}(b)) represents resource states as r
 % \end{figure}
 
 The \textbf{Aggregated Gantt View} (\autoref{fig:travelerteaser}(c)) provides a temporal layout to meaningful groups of intervals, as defined by the execution tree of the program. It is populated using the Dependency Tree View (\autoref{subsec:dependencytree}). The Aggregated Gantt View provides a simplified view at a higher level of abstraction than individual intervals of the Gantt View but a more detailed level of abstraction than the aggregated primitives of the execution tree, further supporting the correlation of primitives in time (cross-cut sub-goal CC3).
+
+\addfigure[width=\columnwidth]{figs/AggGanttExplainer20.png}{Primitive subtree highlighting. Selecting a primitive in the Dependency Tree View will highlight instances of that primitive's subtree in the Gantt View and create aggregated bars for the subtree in the Aggregated Gantt View.}{fig:agg_gantt}
 
 Each bar in the Aggregated Gantt View represents a specific instance of a primitive created by a sequence of dependencies as shown in \autoref{fig:agg_gantt}. For example, consider a primitive \texttt{block} of code within a \texttt{for} loop. Though there are several \texttt{block}s throughout the program, the chain of dependencies leading to a particular \texttt{block} uniquely defines it in comparison to the others. Because it is in a \texttt{for} loop, it runs $k$ times. If shown in the Aggregated Gantt View, the \texttt{block} will generate $k$ bars, showing where each was executed in time. 
 
