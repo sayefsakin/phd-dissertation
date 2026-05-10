@@ -1,0 +1,504 @@
+{
+  "title": "Balancing Representativeness and Interactivity",
+  "create_time": 1777078835.209551,
+  "update_time": 1777079358.987213,
+  "moderation_results": [],
+  "plugin_ids": null,
+  "conversation_id": "69ec10e9-bdac-83e8-a9bc-3e3c588da530",
+  "conversation_template_id": "g-p-68d4ec9e34b4819192a95711760fdda1",
+  "gizmo_id": "g-p-68d4ec9e34b4819192a95711760fdda1",
+  "gizmo_type": "snorlax",
+  "is_archived": false,
+  "is_starred": null,
+  "safe_urls": [],
+  "blocked_urls": [],
+  "default_model_slug": "auto",
+  "atlas_mode_enabled": null,
+  "conversation_origin": null,
+  "is_read_only": null,
+  "voice": null,
+  "async_status": null,
+  "disabled_tool_ids": [],
+  "is_temporary_chat": false,
+  "is_do_not_remember": false,
+  "memory_scope": "global_enabled",
+  "context_scopes": [],
+  "sugar_item_id": null,
+  "sugar_item_visible": false,
+  "pinned_time": null,
+  "is_study_mode": false,
+  "owner": null,
+  "mapping": {
+    "client-created-root": {
+      "id": "client-created-root",
+      "message": null,
+      "parent": null,
+      "children": [
+        "3bcc895f-aabb-49fd-823e-c61f5e025c5f"
+      ]
+    },
+    "3bcc895f-aabb-49fd-823e-c61f5e025c5f": {
+      "id": "3bcc895f-aabb-49fd-823e-c61f5e025c5f",
+      "message": {
+        "id": "3bcc895f-aabb-49fd-823e-c61f5e025c5f",
+        "author": {
+          "role": "system",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": null,
+        "update_time": null,
+        "content": {
+          "content_type": "text",
+          "parts": [
+            ""
+          ]
+        },
+        "status": "finished_successfully",
+        "end_turn": true,
+        "weight": 0,
+        "metadata": {
+          "is_visually_hidden_from_conversation": true,
+          "can_save": false
+        },
+        "recipient": "all",
+        "channel": null
+      },
+      "parent": "client-created-root",
+      "children": [
+        "9d2e16fb-dd74-466d-a5a7-d039f2bae2d5"
+      ]
+    },
+    "9d2e16fb-dd74-466d-a5a7-d039f2bae2d5": {
+      "id": "9d2e16fb-dd74-466d-a5a7-d039f2bae2d5",
+      "message": {
+        "id": "9d2e16fb-dd74-466d-a5a7-d039f2bae2d5",
+        "author": {
+          "role": "system",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": null,
+        "update_time": null,
+        "content": {
+          "content_type": "text",
+          "parts": [
+            ""
+          ]
+        },
+        "status": "finished_successfully",
+        "end_turn": true,
+        "weight": 0,
+        "metadata": {
+          "rebase_developer_message": true,
+          "is_visually_hidden_from_conversation": true,
+          "can_save": false
+        },
+        "recipient": "all",
+        "channel": null
+      },
+      "parent": "3bcc895f-aabb-49fd-823e-c61f5e025c5f",
+      "children": [
+        "e9376ff0-1165-46e9-920d-1ad04dcd0986"
+      ]
+    },
+    "e9376ff0-1165-46e9-920d-1ad04dcd0986": {
+      "id": "e9376ff0-1165-46e9-920d-1ad04dcd0986",
+      "message": {
+        "id": "e9376ff0-1165-46e9-920d-1ad04dcd0986",
+        "author": {
+          "role": "system",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": 1777078506.973863,
+        "update_time": null,
+        "content": {
+          "content_type": "text",
+          "parts": [
+            ""
+          ]
+        },
+        "status": "finished_successfully",
+        "end_turn": null,
+        "weight": 1,
+        "metadata": {
+          "attachments": [],
+          "is_visually_hidden_from_conversation": true,
+          "can_save": false
+        },
+        "recipient": "all",
+        "channel": null
+      },
+      "parent": "9d2e16fb-dd74-466d-a5a7-d039f2bae2d5",
+      "children": [
+        "1189a0d9-8b47-45c0-9900-37e5c8def2db"
+      ]
+    },
+    "1189a0d9-8b47-45c0-9900-37e5c8def2db": {
+      "id": "1189a0d9-8b47-45c0-9900-37e5c8def2db",
+      "message": {
+        "id": "1189a0d9-8b47-45c0-9900-37e5c8def2db",
+        "author": {
+          "role": "system",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": 1777078834.938782,
+        "update_time": null,
+        "content": {
+          "content_type": "text",
+          "parts": [
+            ""
+          ]
+        },
+        "status": "finished_successfully",
+        "end_turn": null,
+        "weight": 0,
+        "metadata": {
+          "request_id": "4d79e776-e721-4fd2-91ec-a7a524e76636",
+          "message_source": null,
+          "turn_exchange_id": "50a4ac32-0870-45e4-89df-fa9663b70338",
+          "is_visually_hidden_from_conversation": true,
+          "can_save": false
+        },
+        "recipient": "all",
+        "channel": null
+      },
+      "parent": "e9376ff0-1165-46e9-920d-1ad04dcd0986",
+      "children": [
+        "ddfc3a90-b6a5-4fe4-95d4-6965c26c0426"
+      ]
+    },
+    "ddfc3a90-b6a5-4fe4-95d4-6965c26c0426": {
+      "id": "ddfc3a90-b6a5-4fe4-95d4-6965c26c0426",
+      "message": {
+        "id": "ddfc3a90-b6a5-4fe4-95d4-6965c26c0426",
+        "author": {
+          "role": "user",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": 1777078834.32,
+        "update_time": 1777079358.986595,
+        "content": {
+          "content_type": "text",
+          "parts": [
+            "Check the following paragraphs that I used in the discussion section\n\n```\n\r\nThe challenges of balancing representativeness and interactivity have been observed and characterized across the visualization literature. Progressive visualization research~\\cite{zgraggen2016progressive} characterizes the challenge as a tradeoff between result accuracy (representativeness) and computation speed (interactivity), showing that completely blocking strategies (maximal representativeness but zero interactivity) significantly hinder user exploration compared to instantaneous or progressive approaches. Scalability studies~\\cite{richer2022scalability} model this challenge as competing effort functions that system designers must explicitly balance. An optimistic visualization system, proposed by Moritz et al.~\\cite{moritz2017trust}, showed that users can extract valid insights from approximate, progressively refined results as long as the approximation quality (representativeness) remains above a minimum threshold and system latency (interactivity) remains low enough to maintain user engagement. Together, these studies suggest to manage the balance between representativeness and interactivity based on the context and analysis task.\r\n\r\nIn the context of exploratory analysis using event sequence visualizations, balancing between representativeness and interactivity remains a difficult challenge. Our developed system, ESeMan, demonstrates that maintaining a balance is possible for event sequences. However, in practice, designers often need to balance between representativeness and interactivity depending on user needs. One promising strategy is to provide options that allow users to control the balance explicitly. In our visual design, users control the data accuracy with the zoom level by scrolling and panning. Data queries are therefore designed to fetch specific data based on the zoom level and panning window. Although we didn't implement full progressive refinement~\\cite{stolper2014progressive}, our system is designed to render an initial view quickly with approximate or partial data, and then refine the visualization with more accurate data as computation and data transfer complete. Our design ensures that the user receives immediate feedback, even if initially approximate, while progressively improving the representation. Visualizing all data at once is rarely useful for exploratory analysis; instead, we aim to present data that is useful for exploration while maintaining interactive responsiveness.\r\n\r\n% modify the following paragraph\r\nBased on relevant works in the literature and our implementation experience, we recommmend to identify first the minimum level of representativeness needed for trustworthy analysis and the maximum delay users can tolerate before exploration is disrupted. Then choose an appropriate tradeoff depending on task requirements and the context in which the visualization will be used. Finally, the level of representativeness and interactivity should be made user-controllable, allowing users to adjust the balance based on their current needs and preferences. By explicitly acknowledging and managing the balance between representativeness and interactivity, designers can create visualizations that are useful for the exploration of large event sequences.\n```\n\nThe citations used in these paragraphs, uses the following as in the bibtex\n```\n@article{zgraggen2016progressive,\r\n  title={How progressive visualizations affect exploratory analysis},\r\n  author={Zgraggen, Emanuel and Galakatos, Alex and Crotty, Andrew and Fekete, Jean-Daniel and Kraska, Tim},\r\n  journal={IEEE transactions on visualization and computer graphics},\r\n  volume={23},\r\n  number={8},\r\n  pages={1977--1987},\r\n  year={2016},\r\n  publisher={IEEE}\r\n}\n@article{richer2022scalability,\r\n  title={Scalability in visualization},\r\n  author={Richer, Ga{\\\"e}lle and Pister, Alexis and Abdelaal, Moataz and Fekete, Jean-Daniel and Sedlmair, Michael and Weiskopf, Daniel},\r\n  journal={IEEE Transactions on Visualization and Computer Graphics},\r\n  volume={30},\r\n  number={7},\r\n  pages={3314--3330},\r\n  year={2022},\r\n  publisher={IEEE}\r\n}\n@inproceedings{moritz2017trust,\r\n  title={Trust, but verify: Optimistic visualizations of approximate queries for exploring big data},\r\n  author={Moritz, Dominik and Fisher, Danyel and Ding, Bolin and Wang, Chi},\r\n  booktitle={Proceedings of the 2017 CHI conference on human factors in computing systems},\r\n  pages={2904--2915},\r\n  year={2017}\r\n}\n@article{stolper2014progressive,\r\n  title={Progressive visual analytics: User-driven visual exploration of in-progress analytics},\r\n  author={Stolper, Charles D and Perer, Adam and Gotz, David},\r\n  journal={IEEE Transactions on Visualization and Computer Graphics},\r\n  volume={20},\r\n  number={12},\r\n  pages={1653--1662},\r\n  year={2014},\r\n  publisher={IEEE}\r\n}\n```\n\nNow think a little bit more and suggest an update. The first paragraph reads more like a literature review. Connect the ideas used in this paragraph directly with my recommendations that I used in the last paragraph. Rewrite more like a discussion section that is easy to follow and flows the idea smoothly.\n\n\nGive me the paragraph in tex. You can use additional citations if needed. In that case provide bibtex."
+          ]
+        },
+        "status": "finished_successfully",
+        "end_turn": null,
+        "weight": 1,
+        "metadata": {
+          "selected_github_repos": [],
+          "serialization_metadata": {
+            "custom_symbol_offsets": []
+          },
+          "request_id": "4d79e776-e721-4fd2-91ec-a7a524e76636",
+          "message_source": null,
+          "turn_exchange_id": "50a4ac32-0870-45e4-89df-fa9663b70338",
+          "resolved_model_slug": "gpt-5-3",
+          "can_save": false
+        },
+        "recipient": "all",
+        "channel": null
+      },
+      "parent": "1189a0d9-8b47-45c0-9900-37e5c8def2db",
+      "children": [
+        "2c787c4d-4477-47e4-81bd-5d9cf25694fe"
+      ]
+    },
+    "2c787c4d-4477-47e4-81bd-5d9cf25694fe": {
+      "id": "2c787c4d-4477-47e4-81bd-5d9cf25694fe",
+      "message": {
+        "id": "2c787c4d-4477-47e4-81bd-5d9cf25694fe",
+        "author": {
+          "role": "assistant",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": 1777078835.095068,
+        "update_time": null,
+        "content": {
+          "content_type": "model_editable_context",
+          "model_set_context": "",
+          "repository": null,
+          "repo_summary": null,
+          "structured_context": null
+        },
+        "status": "finished_successfully",
+        "end_turn": null,
+        "weight": 1,
+        "metadata": {
+          "search_result_groups": [],
+          "request_id": "4d79e776-e721-4fd2-91ec-a7a524e76636",
+          "message_type": "next",
+          "turn_exchange_id": "50a4ac32-0870-45e4-89df-fa9663b70338",
+          "model_slug": "gpt-5-3",
+          "default_model_slug": "auto",
+          "can_save": false,
+          "parent_id": "ddfc3a90-b6a5-4fe4-95d4-6965c26c0426",
+          "model_switcher_deny": []
+        },
+        "recipient": "all",
+        "channel": null
+      },
+      "parent": "ddfc3a90-b6a5-4fe4-95d4-6965c26c0426",
+      "children": [
+        "32c3c29d-cd62-4715-90a7-7576552a4938"
+      ]
+    },
+    "32c3c29d-cd62-4715-90a7-7576552a4938": {
+      "id": "32c3c29d-cd62-4715-90a7-7576552a4938",
+      "message": {
+        "id": "32c3c29d-cd62-4715-90a7-7576552a4938",
+        "author": {
+          "role": "assistant",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": 1777078835.089402,
+        "update_time": 1777078855.246646,
+        "content": {
+          "content_type": "text",
+          "parts": [
+            "Here’s a revised version that tightens the flow, shifts the tone from literature review to discussion, and explicitly connects prior work to your design recommendations:\n\n```tex\nThe tension between representativeness and interactivity is not merely a theoretical concern but a practical design constraint that has been repeatedly observed across visualization research. Prior work in progressive visualization shows that strictly prioritizing accuracy through blocking computations can severely limit exploratory analysis, whereas progressive or approximate results can sustain user engagement when latency is low and approximation quality remains above a usable threshold~\\cite{zgraggen2016progressive, moritz2017trust}. Similarly, scalability research frames this tension as competing effort functions that must be explicitly balanced during system design~\\cite{richer2022scalability}. Taken together, these findings suggest that there is no universally optimal balance; instead, the appropriate tradeoff depends on the analysis context, task requirements, and user expectations.\n\nOur experience with ESeMan reinforces and operationalizes these insights in the context of event sequence visualization. While our system demonstrates that it is possible to maintain both reasonable representativeness and interactivity, achieving this balance in practice requires deliberate design choices. In particular, we find that coupling data retrieval and visual representation with the current interaction context (e.g., zoom level and viewport) provides a natural mechanism for adapting the tradeoff dynamically. This design allows the system to prioritize responsiveness during broad exploration while increasing representational fidelity as users focus on specific regions. Although our implementation does not fully realize progressive analytics pipelines~\\cite{stolper2014progressive}, it follows the same principle of providing immediate, approximate feedback and refining results as more data becomes available.\n\nBased on both prior literature and our implementation experience, we recommend a design process that makes this tradeoff explicit and task-driven. First, designers should identify the minimum level of representativeness required for users to draw trustworthy insights, alongside the maximum latency that can be tolerated without disrupting exploration. Second, system mechanisms—such as level-of-detail control, adaptive querying, or progressive refinement—should be selected to operate within these bounds. Finally, and most importantly, this balance should be exposed to users whenever possible. Allowing users to control or implicitly influence the tradeoff through interaction (e.g., navigation, filtering, or precision controls) enables the system to adapt to diverse analytical needs. By explicitly framing representativeness and interactivity as a controllable and context-dependent balance, designers can create event sequence visualizations that remain both scalable and effective for exploratory analysis.\n```"
+          ]
+        },
+        "status": "finished_successfully",
+        "end_turn": true,
+        "weight": 1,
+        "metadata": {
+          "finish_details": {
+            "type": "stop",
+            "stop_tokens": [
+              200002
+            ]
+          },
+          "is_complete": true,
+          "citations": [],
+          "content_references": [],
+          "resolved_model_slug": "gpt-5-3",
+          "gizmo_id": "g-p-68d4ec9e34b4819192a95711760fdda1",
+          "code_blocks": {
+            "0": {
+              "id": "8dpr6z",
+              "edited": false,
+              "previewable": false,
+              "preview_language": null
+            }
+          },
+          "search_result_groups": [],
+          "request_id": "4d79e776-e721-4fd2-91ec-a7a524e76636",
+          "message_type": "next",
+          "turn_exchange_id": "50a4ac32-0870-45e4-89df-fa9663b70338",
+          "model_slug": "gpt-5-3",
+          "default_model_slug": "auto",
+          "can_save": true,
+          "parent_id": "2c787c4d-4477-47e4-81bd-5d9cf25694fe",
+          "model_switcher_deny": []
+        },
+        "recipient": "all",
+        "channel": "final"
+      },
+      "parent": "2c787c4d-4477-47e4-81bd-5d9cf25694fe",
+      "children": [
+        "5d7e22a9-b18e-4556-b204-ca8b469b42ce"
+      ]
+    },
+    "5d7e22a9-b18e-4556-b204-ca8b469b42ce": {
+      "id": "5d7e22a9-b18e-4556-b204-ca8b469b42ce",
+      "message": {
+        "id": "5d7e22a9-b18e-4556-b204-ca8b469b42ce",
+        "author": {
+          "role": "user",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": 1777079134.428,
+        "update_time": null,
+        "content": {
+          "content_type": "text",
+          "parts": [
+            "I dont like this. The ideas don't connect and seem abrupt. Think more deeply and suggest a single paragraph combining the first and third paragraphs where ideas connect seamlessly. You may go find some additional citations if needed."
+          ]
+        },
+        "status": "finished_successfully",
+        "end_turn": null,
+        "weight": 1,
+        "metadata": {
+          "selected_github_repos": [],
+          "serialization_metadata": {
+            "custom_symbol_offsets": []
+          },
+          "request_id": "9d1c4ef2-4802-4733-9b34-e6a1fd2d861c",
+          "message_source": null,
+          "turn_exchange_id": "38bd6621-7498-456f-a390-b78a1a4f1403",
+          "resolved_model_slug": "gpt-5-3",
+          "can_save": false
+        },
+        "recipient": "all",
+        "channel": null
+      },
+      "parent": "32c3c29d-cd62-4715-90a7-7576552a4938",
+      "children": [
+        "787d259f-d34c-4a8a-a44a-da1d0a245072"
+      ]
+    },
+    "787d259f-d34c-4a8a-a44a-da1d0a245072": {
+      "id": "787d259f-d34c-4a8a-a44a-da1d0a245072",
+      "message": {
+        "id": "787d259f-d34c-4a8a-a44a-da1d0a245072",
+        "author": {
+          "role": "assistant",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": 1777079134.965936,
+        "update_time": 1777079150.07438,
+        "content": {
+          "content_type": "text",
+          "parts": [
+            "Here is a tighter, single-paragraph version that integrates the literature with your recommendations and maintains a smoother argumentative flow:\n\n```tex id=\"4kq9x1\"\nBalancing representativeness and interactivity should be understood not as an implementation detail, but as a central, task-dependent design decision. Prior work consistently shows that prioritizing full accuracy through blocking computations undermines exploratory analysis, whereas users can effectively reason with approximate or partial results when latency remains low and approximation quality stays above a minimum threshold~\\cite{zgraggen2016progressive, moritz2017trust}. At the same time, scalability research frames this tension as a fundamental tradeoff between competing system efforts that must be explicitly managed rather than eliminated~\\cite{richer2022scalability}. Taken together, these findings suggest that the “right” balance is neither fixed nor universal, but instead bounded by two key factors: the minimum level of representativeness required for trustworthy insight and the maximum latency users can tolerate before interaction breaks down. We therefore recommend that designers explicitly identify these bounds early in the design process and choose system strategies—such as level-of-detail control, adaptive querying, or progressive refinement~\\cite{stolper2014progressive}—that operate within them. Importantly, because these bounds can shift with user goals and analysis stages, the balance between representativeness and interactivity should not remain static; instead, it should be exposed to and, when possible, controlled by users through interaction. Framing the problem in this way moves beyond treating the tradeoff as a limitation and instead positions it as a design space that can be actively shaped to support effective exploratory analysis.\n```"
+          ]
+        },
+        "status": "finished_successfully",
+        "end_turn": true,
+        "weight": 1,
+        "metadata": {
+          "finish_details": {
+            "type": "stop",
+            "stop_tokens": [
+              200002
+            ]
+          },
+          "is_complete": true,
+          "citations": [],
+          "content_references": [],
+          "resolved_model_slug": "gpt-5-3",
+          "gizmo_id": "g-p-68d4ec9e34b4819192a95711760fdda1",
+          "code_blocks": {
+            "0": {
+              "id": "8a3dgc",
+              "edited": false,
+              "previewable": false,
+              "preview_language": null
+            }
+          },
+          "search_result_groups": [],
+          "request_id": "9d1c4ef2-4802-4733-9b34-e6a1fd2d861c",
+          "message_type": "next",
+          "turn_exchange_id": "38bd6621-7498-456f-a390-b78a1a4f1403",
+          "model_slug": "gpt-5-3",
+          "default_model_slug": "auto",
+          "can_save": true,
+          "parent_id": "5d7e22a9-b18e-4556-b204-ca8b469b42ce",
+          "model_switcher_deny": []
+        },
+        "recipient": "all",
+        "channel": "final"
+      },
+      "parent": "5d7e22a9-b18e-4556-b204-ca8b469b42ce",
+      "children": [
+        "8ef05bc0-bfe6-4187-9e34-8da425cd301c"
+      ]
+    },
+    "8ef05bc0-bfe6-4187-9e34-8da425cd301c": {
+      "id": "8ef05bc0-bfe6-4187-9e34-8da425cd301c",
+      "message": {
+        "id": "8ef05bc0-bfe6-4187-9e34-8da425cd301c",
+        "author": {
+          "role": "user",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": 1777079182.892,
+        "update_time": null,
+        "content": {
+          "content_type": "text",
+          "parts": [
+            "This paragraph sounds like it is written by AI. Humanize this."
+          ]
+        },
+        "status": "finished_successfully",
+        "end_turn": null,
+        "weight": 1,
+        "metadata": {
+          "selected_github_repos": [],
+          "serialization_metadata": {
+            "custom_symbol_offsets": []
+          },
+          "request_id": "aac51707-b8f4-41f7-8dcb-c9de0bde0b76",
+          "message_source": null,
+          "turn_exchange_id": "f031f3a5-ce53-419c-af34-1c39eb8061c4",
+          "resolved_model_slug": "gpt-5-3",
+          "can_save": false
+        },
+        "recipient": "all",
+        "channel": null
+      },
+      "parent": "787d259f-d34c-4a8a-a44a-da1d0a245072",
+      "children": [
+        "3ddfaadd-3ef4-4f5d-a682-0621a1d5f55c"
+      ]
+    },
+    "3ddfaadd-3ef4-4f5d-a682-0621a1d5f55c": {
+      "id": "3ddfaadd-3ef4-4f5d-a682-0621a1d5f55c",
+      "message": {
+        "id": "3ddfaadd-3ef4-4f5d-a682-0621a1d5f55c",
+        "author": {
+          "role": "assistant",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": 1777079183.451689,
+        "update_time": 1777079194.460316,
+        "content": {
+          "content_type": "text",
+          "parts": [
+            "Here’s a more natural, human-written version with smoother transitions and less “formulaic” phrasing:\n\n```tex id=\"7h2mqp\"\nBalancing representativeness and interactivity is less of a technical tradeoff and more of a practical design decision that shapes how people explore data. Prior work shows that waiting for fully accurate results can interrupt the flow of analysis, while fast, approximate results often work well as long as they remain reasonably reliable~\\cite{zgraggen2016progressive, moritz2017trust}. At the same time, scalability research makes it clear that this tension cannot be eliminated—it has to be managed~\\cite{richer2022scalability}. In practice, this suggests thinking about the balance in terms of acceptable limits: how much approximation users can tolerate while still trusting what they see, and how much delay they are willing to accept before the system feels unresponsive. These limits will vary depending on the task and context, so there is no single “correct” setting. Instead, designers should choose mechanisms such as level-of-detail control, adaptive queries, or progressive refinement~\\cite{stolper2014progressive} to stay within these bounds. Just as importantly, this balance should not be fixed. As users move between broad exploration and more focused analysis, their needs change, and the system should adapt accordingly—ideally by letting users influence the balance directly through interaction. Thinking about representativeness and interactivity in this way makes the tradeoff easier to reason about and, ultimately, more useful in practice.\n```"
+          ]
+        },
+        "status": "finished_successfully",
+        "end_turn": true,
+        "weight": 1,
+        "metadata": {
+          "finish_details": {
+            "type": "stop",
+            "stop_tokens": [
+              200002
+            ]
+          },
+          "is_complete": true,
+          "citations": [],
+          "content_references": [],
+          "resolved_model_slug": "gpt-5-3",
+          "gizmo_id": "g-p-68d4ec9e34b4819192a95711760fdda1",
+          "code_blocks": {
+            "0": {
+              "id": "h8xff6",
+              "edited": false,
+              "previewable": false,
+              "preview_language": null
+            }
+          },
+          "search_result_groups": [],
+          "request_id": "aac51707-b8f4-41f7-8dcb-c9de0bde0b76",
+          "message_type": "next",
+          "turn_exchange_id": "f031f3a5-ce53-419c-af34-1c39eb8061c4",
+          "model_slug": "gpt-5-3",
+          "default_model_slug": "auto",
+          "can_save": true,
+          "parent_id": "8ef05bc0-bfe6-4187-9e34-8da425cd301c",
+          "model_switcher_deny": []
+        },
+        "recipient": "all",
+        "channel": "final"
+      },
+      "parent": "8ef05bc0-bfe6-4187-9e34-8da425cd301c",
+      "children": []
+    }
+  },
+  "current_node": "3ddfaadd-3ef4-4f5d-a682-0621a1d5f55c"
+}

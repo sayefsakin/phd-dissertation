@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Abstract Initial Draft</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/styles/github-dark.min.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: #ffffff; color: #0d0d0d;
+    line-height: 1.65; font-size: 16px;
+    display: flex; height: 100vh;
+  }
+  .sidebar {
+    width: 260px; min-width: 260px; height: 100vh;
+    background: #f9f9f9; border-right: 1px solid #e5e5e5;
+    overflow-y: auto; padding: 16px 0;
+    flex-shrink: 0; position: sticky; top: 0;
+  }
+  .sidebar-header {
+    padding: 8px 16px 16px; font-size: 14px; font-weight: 600;
+    color: #6b6b6b; border-bottom: 1px solid #e5e5e5; margin-bottom: 8px;
+  }
+  .sidebar-item {
+    display: block; padding: 8px 16px; font-size: 13px;
+    color: #0d0d0d; text-decoration: none;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    border-radius: 8px; margin: 2px 8px;
+  }
+  .sidebar-item:hover { background: #ececec; }
+  .sidebar-item.active { background: #e5e5e5; font-weight: 600; }
+  .sidebar-toggle {
+    display: none; position: fixed; top: 12px; left: 12px; z-index: 100;
+    background: #f4f4f4; border: 1px solid #e5e5e5; border-radius: 8px;
+    width: 36px; height: 36px; cursor: pointer;
+    align-items: center; justify-content: center; font-size: 20px;
+  }
+  @media (max-width: 768px) {
+    .sidebar {
+      position: fixed; left: -280px; z-index: 99;
+      transition: left 0.2s; box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+    }
+    .sidebar.open { left: 0; }
+    .sidebar-toggle { display: flex; }
+    .main { margin-left: 0 !important; }
+  }
+  .main { flex: 1; overflow-y: auto; }
+  .header {
+    max-width: 768px; margin: 0 auto; padding: 32px 24px 16px;
+    border-bottom: 1px solid #e5e5e5;
+  }
+  .header h1 { font-size: 22px; font-weight: 600; }
+  .header .date { font-size: 13px; color: #6b6b6b; margin-top: 4px; }
+  .chat { max-width: 768px; margin: 0 auto; padding: 24px; }
+  .message { margin-bottom: 24px; }
+  .message.user { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+  .message.user .bubble {
+    background: #f4f4f4; border-radius: 18px; padding: 10px 16px;
+    max-width: 85%; white-space: pre-wrap; word-break: break-word;
+  }
+  .message.user .images { width: 100%; display: flex; justify-content: flex-end; }
+  .message.assistant { display: flex; gap: 12px; align-items: flex-start; }
+  .message.assistant .avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #00a67e; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .message.assistant .content { flex: 1; min-width: 0; }
+  .message.assistant .content h1,
+  .message.assistant .content h2,
+  .message.assistant .content h3 { margin: 16px 0 8px; font-weight: 600; }
+  .message.assistant .content h1 { font-size: 20px; }
+  .message.assistant .content h2 { font-size: 18px; }
+  .message.assistant .content h3 { font-size: 16px; }
+  .message.assistant .content p { margin: 8px 0; }
+  .message.assistant .content ul,
+  .message.assistant .content ol { margin: 8px 0; padding-left: 24px; }
+  .message.assistant .content li { margin: 4px 0; }
+  .message.assistant .content a { color: #1a7f64; }
+  .message.assistant .content code {
+    background: #f0f0f0; border-radius: 4px; padding: 2px 5px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 14px;
+  }
+  .message.assistant .content pre { margin: 12px 0; border-radius: 8px; overflow: hidden; }
+  .message.assistant .content pre code {
+    display: block; background: #0d0d0d; color: #f8f8f2;
+    padding: 16px; overflow-x: auto; border-radius: 0;
+    font-size: 13px; line-height: 1.5;
+  }
+  .code-block { position: relative; }
+  .code-block .copy-btn {
+    position: absolute; top: 8px; right: 8px;
+    background: #333; border: none; color: #999; cursor: pointer;
+    font-size: 12px; padding: 4px 10px; border-radius: 4px;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .code-block:hover .copy-btn { opacity: 1; }
+  .code-block .copy-btn:hover { color: #fff; background: #555; }
+  .images img { max-width: 100%; border-radius: 8px; margin: 4px 0; display: block; cursor: pointer; }
+  .images img:hover { opacity: 0.9; }
+  .message.user .images img { max-width: 300px; }
+  .attachments { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .attachment {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #f4f4f4; border: 1px solid #e5e5e5; border-radius: 8px;
+    padding: 8px 12px; text-decoration: none; color: #0d0d0d; font-size: 14px;
+  }
+  .attachment:hover { background: #ececec; }
+  .att-icon { font-size: 16px; }
+  .att-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
+
+  .thinking {
+    margin-bottom: 24px; border-left: 3px solid #d4d4d4;
+    padding-left: 16px; font-size: 14px;
+  }
+  .thinking summary {
+    color: #8e8e8e; font-style: italic; cursor: pointer;
+    padding: 4px 0; user-select: none;
+  }
+  .thinking summary:hover { color: #555; }
+  .thinking-content {
+    color: #6b6b6b; padding: 8px 0; font-style: italic;
+  }
+  .thinking-content p, .thinking-content li { color: #6b6b6b; }
+  .thinking-content pre code { opacity: 0.7; }
+  .thinking-content h1, .thinking-content h2, .thinking-content h3 {
+    color: #6b6b6b; font-size: 15px;
+  }
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">&#9776;</button>
+<nav class="sidebar">
+  <div class="sidebar-header">Conversations</div>
+  <a class="sidebar-item" href="Revising Visualization Abstraction_69ed203e.html" title="Revising Visualization Abstraction">Revising Visualization Abstraction</a>
+<a class="sidebar-item" href="Wording Suggestions for Model_69ecf041.html" title="Wording Suggestions for Model">Wording Suggestions for Model</a>
+<a class="sidebar-item" href="Limitations of Connected Approach_69ec4e83.html" title="Limitations of Connected Approach">Limitations of Connected Approach</a>
+<a class="sidebar-item" href="Balancing Representativeness and Interactivity_69ec10e9.html" title="Balancing Representativeness and Interactivity">Balancing Representativeness and Interactivity</a>
+<a class="sidebar-item" href="Representativeness vs Interactivity_69e87f74.html" title="Representativeness vs Interactivity">Representativeness vs Interactivity</a>
+<a class="sidebar-item" href="Grammatical Correction Request_69e82550.html" title="Grammatical Correction Request">Grammatical Correction Request</a>
+<a class="sidebar-item" href="Improving Data Abstraction Clarity_69e7a831.html" title="Improving Data Abstraction Clarity">Improving Data Abstraction Clarity</a>
+<a class="sidebar-item" href="ESeMan Summary Improvement_69a71cdc.html" title="ESeMan Summary Improvement">ESeMan Summary Improvement</a>
+<a class="sidebar-item" href="Branch · Design principles for visualizations_69037a11.html" title="Branch · Design principles for visualizations">Branch · Design principles for visualizations</a>
+<a class="sidebar-item" href="Branch · Design principles for visualizations_690364ba.html" title="Branch · Design principles for visualizations">Branch · Design principles for visualizations</a>
+<a class="sidebar-item" href="Design principles for visualizations_68dd8912.html" title="Design principles for visualizations">Design principles for visualizations</a>
+<a class="sidebar-item" href="Abstract final_68d50fc5.html" title="Abstract final">Abstract final</a>
+<a class="sidebar-item" href="Dissertation submission email_68ddd8a9.html" title="Dissertation submission email">Dissertation submission email</a>
+<a class="sidebar-item" href="Related work chapter expansion_68d5a210.html" title="Related work chapter expansion">Related work chapter expansion</a>
+<a class="sidebar-item" href="Discussion conclusion latex formatting_68d5be12.html" title="Discussion conclusion latex formatting">Discussion conclusion latex formatting</a>
+<a class="sidebar-item" href="Event sequence visualization_68dca9de.html" title="Event sequence visualization">Event sequence visualization</a>
+<a class="sidebar-item" href="Write introduction chapter_68d540f7.html" title="Write introduction chapter">Write introduction chapter</a>
+<a class="sidebar-item" href="Write discussion chapter_68d5cf30.html" title="Write discussion chapter">Write discussion chapter</a>
+<a class="sidebar-item" href="Acknowledgement section LaTeX_68d688ae.html" title="Acknowledgement section LaTeX">Acknowledgement section LaTeX</a>
+<a class="sidebar-item" href="Latex dissertation rewrite_68d5cd8d.html" title="Latex dissertation rewrite">Latex dissertation rewrite</a>
+<a class="sidebar-item" href="Evaluation section update_68d5cbcf.html" title="Evaluation section update">Evaluation section update</a>
+<a class="sidebar-item" href="Dissertation summary in LaTeX_68d5c539.html" title="Dissertation summary in LaTeX">Dissertation summary in LaTeX</a>
+<a class="sidebar-item" href="Gantt chart data queries_68d5bfc2.html" title="Gantt chart data queries">Gantt chart data queries</a>
+<a class="sidebar-item" href="Evaluation section latex_68d5bcb1.html" title="Evaluation section latex">Evaluation section latex</a>
+<a class="sidebar-item" href="LaTeX dissertation version_68d5ba39.html" title="LaTeX dissertation version">LaTeX dissertation version</a>
+<a class="sidebar-item" href="Traveler design goals_68d5b6e5.html" title="Traveler design goals">Traveler design goals</a>
+<a class="sidebar-item" href="Visualization in HPC_68d5b451.html" title="Visualization in HPC">Visualization in HPC</a>
+<a class="sidebar-item" href="Task parallel programs summary_68d5b243.html" title="Task parallel programs summary">Task parallel programs summary</a>
+<a class="sidebar-item" href="Chapter 3 outline_68d5afc7.html" title="Chapter 3 outline">Chapter 3 outline</a>
+<a class="sidebar-item active" href="Abstract Initial Draft_68d4ee8f.html" title="Abstract Initial Draft">Abstract Initial Draft</a>
+<a class="sidebar-item" href="Paper summary Traveler platform_68d4edf5.html" title="Paper summary Traveler platform">Paper summary Traveler platform</a>
+<a class="sidebar-item" href="Gantt chart task taxonomy_68d4edc8.html" title="Gantt chart task taxonomy">Gantt chart task taxonomy</a>
+<a class="sidebar-item" href="Summarize ESeMan paper_68d4ed81.html" title="Summarize ESeMan paper">Summarize ESeMan paper</a>
+</nav>
+<div class="main">
+  <div class="header">
+    <h1>Abstract Initial Draft</h1>
+    <div class="date">2025-09-25 07:26 UTC</div>
+  </div>
+  <div class="chat">
+  <div class="message user"><div class="bubble" dir="auto">Check the three papers. Now give me a summary of these three papers, connecting their discussion, as they are all for event sequence visualization. The Traveler paper is for a trace visualization that is a form of event sequence visualization. The Gantt chart task taxonomy is a survey of ways to visualize event sequences using Gantt charts. And the third paper, ESeMan, introduces a data management technique for event sequences.</div></div>
+<div class="message assistant"><div class="avatar"><svg viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M37.532 16.87a9.963 9.963 0 0 0-.856-8.184 10.078 10.078 0 0 0-10.855-4.835A9.964 9.964 0 0 0 18.306.5a10.079 10.079 0 0 0-9.614 6.977 9.967 9.967 0 0 0-6.664 4.834 10.08 10.08 0 0 0 1.24 11.817 9.965 9.965 0 0 0 .856 8.185 10.079 10.079 0 0 0 10.855 4.835 9.965 9.965 0 0 0 7.516 3.35 10.078 10.078 0 0 0 9.617-6.981 9.967 9.967 0 0 0 6.663-4.834 10.079 10.079 0 0 0-1.243-11.813ZM22.498 37.886a7.474 7.474 0 0 1-4.799-1.735c.061-.033.168-.091.237-.134l7.964-4.6a1.294 1.294 0 0 0 .655-1.134V19.054l3.366 1.944a.12.12 0 0 1 .066.092v9.299a7.505 7.505 0 0 1-7.49 7.496ZM6.392 31.006a7.471 7.471 0 0 1-.894-5.023c.06.036.162.099.237.141l7.964 4.6a1.297 1.297 0 0 0 1.308 0l9.724-5.614v3.888a.12.12 0 0 1-.048.103l-8.051 4.649a7.504 7.504 0 0 1-10.24-2.744ZM4.297 13.62A7.469 7.469 0 0 1 8.2 10.333c0 .068-.004.19-.004.274v9.201a1.294 1.294 0 0 0 .654 1.132l9.723 5.614-3.366 1.944a.12.12 0 0 1-.114.012L7.044 23.86a7.504 7.504 0 0 1-2.747-10.24Zm27.658 6.437-9.724-5.615 3.367-1.943a.121.121 0 0 1 .114-.012l8.048 4.648a7.498 7.498 0 0 1-1.158 13.528V21.36a1.293 1.293 0 0 0-.647-1.132v-.17Zm3.35-5.043c-.059-.037-.162-.099-.236-.141l-7.965-4.6a1.298 1.298 0 0 0-1.308 0l-9.723 5.614v-3.888a.12.12 0 0 1 .048-.103l8.05-4.645a7.497 7.497 0 0 1 11.135 7.763Zm-21.063 6.929-3.367-1.944a.12.12 0 0 1-.065-.092v-9.299a7.497 7.497 0 0 1 12.293-5.756 6.94 6.94 0 0 0-.236.134l-7.965 4.6a1.294 1.294 0 0 0-.654 1.132l-.006 11.225Zm1.829-3.943 4.33-2.501 4.332 2.5v5l-4.331 2.5-4.331-2.5V18Z" fill="currentColor"/></svg></div><div class="content"><div class="md-content" dir="auto" data-md="SGVyZeKAmXMgYSBjb25uZWN0ZWQgc3VtbWFyeSB0aGF0IHdlYXZlcyB0b2dldGhlciB0aGUgdGhyZWUgcGFwZXJzIGFzIGNvbnRyaWJ1dGlvbnMgdG8gdGhlIGJyb2FkZXIgYXJlYSBvZiAqKmV2ZW50IHNlcXVlbmNlIHZpc3VhbGl6YXRpb24qKjogIAoKLS0tCgpFdmVudCBzZXF1ZW5jZXMgYXJlIGZ1bmRhbWVudGFsIGRhdGEgc3RydWN0dXJlcyBmb3IgYW5hbHl6aW5nIHRlbXBvcmFsIHByb2Nlc3NlcywgcmFuZ2luZyBmcm9tIHByb2dyYW0gZXhlY3V0aW9uIHRyYWNlcyBpbiBoaWdoLXBlcmZvcm1hbmNlIGNvbXB1dGluZyAoSFBDKSB0byBwcm9qZWN0IG1hbmFnZW1lbnQgdGltZWxpbmVzIGFuZCBzeXN0ZW0gbG9ncy4gVGhlIHRocmVlIHBhcGVyc+KAlCoqVHJhdmVsZXIqKiwgKipHYW50dCBDaGFydCBUYXNrIFRheG9ub215KiosIGFuZCAqKkVTZU1hbioq4oCUYWRkcmVzcyBjb21wbGVtZW50YXJ5IGFzcGVjdHMgb2YgdGhlIGV2ZW50IHNlcXVlbmNlIHZpc3VhbGl6YXRpb24gcGlwZWxpbmU6IGludGVyYWN0aW9uLCBjb25jZXB0dWFsIGZyYW1ld29ya3MsIGFuZCBkYXRhIG1hbmFnZW1lbnQuICAKClRoZSAqKlRyYXZlbGVyKiogcGFwZXIgaW50cm9kdWNlcyBhIHBsYXRmb3JtIHRvIG5hdmlnYXRlIEhQQyBleGVjdXRpb24gdHJhY2VzLCBhIGNoYWxsZW5naW5nIGZvcm0gb2YgZXZlbnQgc2VxdWVuY2UgdmlzdWFsaXphdGlvbiB3aGVyZSBtYXNzaXZlIHBhcmFsbGVsIHRyYWNlcyBtdXN0IGJlIGV4cGxvcmVkIGludGVyYWN0aXZlbHkuIFRyYXZlbGVyIGZvY3VzZXMgb24gc2NhbGFibGUgdmlzdWFsaXphdGlvbiB0ZWNobmlxdWVzIHRvIGhlbHAgcGVyZm9ybWFuY2UgYW5hbHlzdHMgaW52ZXN0aWdhdGUgdGFzayBwYXJhbGxlbGlzbSwgYm90dGxlbmVja3MsIGFuZCBzeW5jaHJvbml6YXRpb24gcGF0dGVybnMuIEl0IGVtcGhhc2l6ZXMgaW50ZXJhY3Rpb24gYW5kIG5hdmlnYXRpb24gdGhyb3VnaCB2aXN1YWwgZW5jb2RpbmdzIHRoYXQgcHJlc2VydmUgaW50ZXJwcmV0YWJpbGl0eSBkZXNwaXRlIGRhdGEgc2NhbGUuICAKCkluIGNvbnRyYXN0LCB0aGUgKipHYW50dCBDaGFydCBUYXNrIFRheG9ub215KiogcGFwZXIgc3VydmV5cyBhbmQgc3lzdGVtYXRpemVzIGV2ZW50IHNlcXVlbmNlIHZpc3VhbGl6YXRpb24gc3BlY2lmaWNhbGx5IHRocm91Z2ggR2FudHQgY2hhcnRzLCBvbmUgb2YgdGhlIG1vc3QgZXN0YWJsaXNoZWQgZm9ybXMuIFRoZSB0YXhvbm9teSBoaWdobGlnaHRzIGhvdyB0YXNrcyAodGVtcG9yYWwgaW50ZXJ2YWxzKSBjYW4gYmUgcmVwcmVzZW50ZWQsIGNhdGVnb3JpemVkLCBhbmQgaW50ZXJhY3RlZCB3aXRoLCBpZGVudGlmeWluZyB2aXN1YWxpemF0aW9uIHN0cmF0ZWdpZXMgYW5kIGFuYWx5dGljYWwgdGFza3MgdXNlcnMgcHVyc3VlLiBUaGlzIGNvbmNlcHR1YWwgZnJhbWV3b3JrIHNpdHVhdGVzIGV2ZW50IHNlcXVlbmNlIHZpc3VhbGl6YXRpb24gd2l0aGluIGEgZGVzaWduIHNwYWNlIGFuZCBwcm92aWRlcyBndWlkYW5jZSBmb3IgbWF0Y2hpbmcgdmlzdWFsIGVuY29kaW5ncyB0byBhbmFseXRpYyBuZWVkcy4gV2hlcmUgVHJhdmVsZXIgZW1ib2RpZXMgb25lIGluc3RhbnRpYXRpb24gb2YgdGhpcyBzcGFjZSwgdGhlIHRheG9ub215IGdlbmVyYWxpemVzIGFjcm9zcyBhcHBsaWNhdGlvbnMgYW5kIHN5c3RlbXMuICAKCkZpbmFsbHksICoqRVNlTWFuKiogYWRkcmVzc2VzIHRoZSBkYXRhIG1hbmFnZW1lbnQgZm91bmRhdGlvbiBvZiBldmVudCBzZXF1ZW5jZSB2aXN1YWxpemF0aW9uLiBSZWNvZ25pemluZyB0aGF0IGV2ZW50IHNlcXVlbmNlcyBhcmUgb2Z0ZW4gbGFyZ2UsIGhldGVyb2dlbmVvdXMsIGFuZCBldm9sdmluZywgaXQgcHJvcG9zZXMgYSBtYW5hZ2VtZW50IHRlY2huaXF1ZSB0aGF0IGVmZmljaWVudGx5IHN0b3JlcywgaW5kZXhlcywgYW5kIHJldHJpZXZlcyBldmVudCBzZXF1ZW5jZXMgZm9yIGludGVyYWN0aXZlIGV4cGxvcmF0aW9uLiBUaGlzIGNvbnRyaWJ1dGlvbiBlbnN1cmVzIHRoYXQgc3lzdGVtcyBsaWtlIFRyYXZlbGVyLCBvciBhcHBsaWNhdGlvbnMgZ3VpZGVkIGJ5IHRoZSBHYW50dCB0YXhvbm9teSwgY2FuIHNjYWxlIHRvIHJlYWwtd29ybGQgZGVtYW5kcyB3aXRob3V0IGJlaW5nIGJvdHRsZW5lY2tlZCBieSBzdG9yYWdlIGFuZCByZXRyaWV2YWwuICAKClRvZ2V0aGVyLCB0aGVzZSB3b3JrcyBmb3JtIGEgbGF5ZXJlZCBwZXJzcGVjdGl2ZTogKipFU2VNYW4gcHJvdmlkZXMgdGhlIGRhdGEgaW5mcmFzdHJ1Y3R1cmUqKiwgdGhlICoqR2FudHQgdGF4b25vbXkgcHJvdmlkZXMgY29uY2VwdHVhbCBmcmFtZXdvcmtzIGZvciB2aXN1YWwgZGVzaWduKiosIGFuZCAqKlRyYXZlbGVyIGRlbW9uc3RyYXRlcyBhbiBhcHBsaWNhdGlvbiB0aGF0IHB1c2hlcyBpbnRlcmFjdGl2ZSBldmVudCBzZXF1ZW5jZSB2aXN1YWxpemF0aW9uIHRvIHRoZSBzY2FsZSBvZiBIUEMgdHJhY2VzKiouIENvbGxlY3RpdmVseSwgdGhleSBhZHZhbmNlIHRoZSBmaWVsZCBieSBsaW5raW5nIGRhdGEgbWFuYWdlbWVudCwgY29uY2VwdHVhbCB1bmRlcnN0YW5kaW5nLCBhbmQgcHJhY3RpY2FsIHN5c3RlbSBkZXNpZ24uICAKCi0tLQoKRG8geW91IHdhbnQgbWUgdG8gbWFrZSB0aGlzIG1vcmUgKipmb3JtYWwgYW5kIGRpc3NlcnRhdGlvbi1zdHlsZSoqLCBzbyB5b3UgY2FuIGRpcmVjdGx5IGFkYXB0IGl0IGludG8geW91ciBsaXRlcmF0dXJlIHJldmlldz8="></div></div></div>
+<div class="message user"><div class="bubble" dir="auto">Help me write the abstract for my dissertation. I will include these three papers in my dissertation. I want the title to be &quot;EVENT SEQUENCE VISUALIZATION: DESIGN CONSIDERATIONS AND DATA MANAGEMENT TECHNIQUES&quot;. Make it more formal and academic dissertation-style.</div></div>
+<div class="message assistant"><div class="avatar"><svg viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M37.532 16.87a9.963 9.963 0 0 0-.856-8.184 10.078 10.078 0 0 0-10.855-4.835A9.964 9.964 0 0 0 18.306.5a10.079 10.079 0 0 0-9.614 6.977 9.967 9.967 0 0 0-6.664 4.834 10.08 10.08 0 0 0 1.24 11.817 9.965 9.965 0 0 0 .856 8.185 10.079 10.079 0 0 0 10.855 4.835 9.965 9.965 0 0 0 7.516 3.35 10.078 10.078 0 0 0 9.617-6.981 9.967 9.967 0 0 0 6.663-4.834 10.079 10.079 0 0 0-1.243-11.813ZM22.498 37.886a7.474 7.474 0 0 1-4.799-1.735c.061-.033.168-.091.237-.134l7.964-4.6a1.294 1.294 0 0 0 .655-1.134V19.054l3.366 1.944a.12.12 0 0 1 .066.092v9.299a7.505 7.505 0 0 1-7.49 7.496ZM6.392 31.006a7.471 7.471 0 0 1-.894-5.023c.06.036.162.099.237.141l7.964 4.6a1.297 1.297 0 0 0 1.308 0l9.724-5.614v3.888a.12.12 0 0 1-.048.103l-8.051 4.649a7.504 7.504 0 0 1-10.24-2.744ZM4.297 13.62A7.469 7.469 0 0 1 8.2 10.333c0 .068-.004.19-.004.274v9.201a1.294 1.294 0 0 0 .654 1.132l9.723 5.614-3.366 1.944a.12.12 0 0 1-.114.012L7.044 23.86a7.504 7.504 0 0 1-2.747-10.24Zm27.658 6.437-9.724-5.615 3.367-1.943a.121.121 0 0 1 .114-.012l8.048 4.648a7.498 7.498 0 0 1-1.158 13.528V21.36a1.293 1.293 0 0 0-.647-1.132v-.17Zm3.35-5.043c-.059-.037-.162-.099-.236-.141l-7.965-4.6a1.298 1.298 0 0 0-1.308 0l-9.723 5.614v-3.888a.12.12 0 0 1 .048-.103l8.05-4.645a7.497 7.497 0 0 1 11.135 7.763Zm-21.063 6.929-3.367-1.944a.12.12 0 0 1-.065-.092v-9.299a7.497 7.497 0 0 1 12.293-5.756 6.94 6.94 0 0 0-.236.134l-7.965 4.6a1.294 1.294 0 0 0-.654 1.132l-.006 11.225Zm1.829-3.943 4.33-2.501 4.332 2.5v5l-4.331 2.5-4.331-2.5V18Z" fill="currentColor"/></svg></div><div class="content"><div class="md-content" dir="auto" data-md="SGVyZeKAmXMgYSBwb2xpc2hlZCBkaXNzZXJ0YXRpb24tc3R5bGUgYWJzdHJhY3QgZHJhZnQgYmFzZWQgb24gdGhlIHRpdGxlIGFuZCB0aGUgdGhyZWUgcGFwZXJzIHlvdSB3YW50IHRvIGluY2x1ZGU6ICAKCi0tLQoKKipBYnN0cmFjdCoqICAKRXZlbnQgc2VxdWVuY2VzIGFyZSBjZW50cmFsIHRvIHVuZGVyc3RhbmRpbmcgdGVtcG9yYWwgZHluYW1pY3MgYWNyb3NzIGRpdmVyc2UgZG9tYWlucywgaW5jbHVkaW5nIGhpZ2gtcGVyZm9ybWFuY2UgY29tcHV0aW5nLCBzb2Z0d2FyZSBlbmdpbmVlcmluZywgYW5kIHByb2plY3QgbWFuYWdlbWVudC4gRWZmZWN0aXZlIHZpc3VhbGl6YXRpb24gb2Ygc3VjaCBzZXF1ZW5jZXMgcmVxdWlyZXMgYWRkcmVzc2luZyB0aHJlZSBpbnRlcmRlcGVuZGVudCBjaGFsbGVuZ2VzOiB0aGUgc2NhbGFiaWxpdHkgb2YgaW50ZXJhY3RpdmUgc3lzdGVtcywgdGhlIGNvbmNlcHR1YWwgZGVzaWduIHNwYWNlIG9mIHZpc3VhbCBlbmNvZGluZ3MsIGFuZCB0aGUgdW5kZXJseWluZyBkYXRhIG1hbmFnZW1lbnQgdGVjaG5pcXVlcyB0aGF0IGVuYWJsZSByZXNwb25zaXZlIGFuYWx5c2lzLiBUaGlzIGRpc3NlcnRhdGlvbiwgKkV2ZW50IFNlcXVlbmNlIFZpc3VhbGl6YXRpb246IERlc2lnbiBDb25zaWRlcmF0aW9ucyBhbmQgRGF0YSBNYW5hZ2VtZW50IFRlY2huaXF1ZXMqLCBpbnZlc3RpZ2F0ZXMgdGhlc2UgY2hhbGxlbmdlcyB0aHJvdWdoIHRoZSBkZXZlbG9wbWVudCwgYW5hbHlzaXMsIGFuZCBpbnRlZ3JhdGlvbiBvZiBtZXRob2RzIGZvciBzY2FsYWJsZSBldmVudCBzZXF1ZW5jZSB2aXN1YWxpemF0aW9uLiAgCgpGaXJzdCwgdGhlIGRpc3NlcnRhdGlvbiBwcmVzZW50cyAqKlRyYXZlbGVyKiosIGEgc3lzdGVtIGRlc2lnbmVkIHRvIHN1cHBvcnQgdGhlIG5hdmlnYXRpb24gb2YgbWFzc2l2ZSB0YXNrLXBhcmFsbGVsIHRyYWNlcyBmcm9tIGhpZ2gtcGVyZm9ybWFuY2UgY29tcHV0aW5nIGFwcGxpY2F0aW9ucy4gVHJhdmVsZXIgZGVtb25zdHJhdGVzIGhvdyB2aXN1YWxpemF0aW9uIGFuZCBpbnRlcmFjdGlvbiB0ZWNobmlxdWVzIGNhbiByZXZlYWwgcGF0dGVybnMgb2YgZXhlY3V0aW9uLCBzeW5jaHJvbml6YXRpb24sIGFuZCBwZXJmb3JtYW5jZSBib3R0bGVuZWNrcyBhdCBzY2FsZS4gU2Vjb25kLCB0aGUgZGlzc2VydGF0aW9uIGNvbnRyaWJ1dGVzIGEgKipHYW50dCBjaGFydCB0YXNrIHRheG9ub215KiosIHdoaWNoIHN5bnRoZXNpemVzIGFuZCBvcmdhbml6ZXMgZXhpc3RpbmcgYXBwcm9hY2hlcyBmb3IgcmVwcmVzZW50aW5nIGV2ZW50IHNlcXVlbmNlcyB0aHJvdWdoIGludGVydmFsLWJhc2VkIHZpc3VhbGl6YXRpb25zLiBUaGlzIHRheG9ub215IHByb3ZpZGVzIGEgc3RydWN0dXJlZCBmcmFtZXdvcmsgZm9yIHVuZGVyc3RhbmRpbmcgZGVzaWduIGFsdGVybmF0aXZlcywgbWFwcGluZyB2aXN1YWxpemF0aW9uIHRlY2huaXF1ZXMgdG8gdXNlciB0YXNrcywgYW5kIGd1aWRpbmcgZnV0dXJlIHN5c3RlbSBkZXZlbG9wbWVudC4gVGhpcmQsIHRoZSBkaXNzZXJ0YXRpb24gaW50cm9kdWNlcyAqKkVTZU1hbioqLCBhIGRhdGEgbWFuYWdlbWVudCB0ZWNobmlxdWUgdGFpbG9yZWQgZm9yIGV2ZW50IHNlcXVlbmNlcy4gQnkgZW5hYmxpbmcgZWZmaWNpZW50IHN0b3JhZ2UsIGluZGV4aW5nLCBhbmQgcmV0cmlldmFsIG9mIGxhcmdlLXNjYWxlLCBoZXRlcm9nZW5lb3VzIGV2ZW50IGRhdGEsIEVTZU1hbiBwcm92aWRlcyB0aGUgaW5mcmFzdHJ1Y3R1cmFsIGZvdW5kYXRpb24gcmVxdWlyZWQgZm9yIGludGVyYWN0aXZlIGV2ZW50IHNlcXVlbmNlIGV4cGxvcmF0aW9uLiAgCgpUb2dldGhlciwgdGhlc2UgY29udHJpYnV0aW9ucyBhZHZhbmNlIHRoZSBmaWVsZCBvZiBldmVudCBzZXF1ZW5jZSB2aXN1YWxpemF0aW9uIGJ5IGludGVncmF0aW5nIHN5c3RlbSBkZXNpZ24sIGNvbmNlcHR1YWwgZnJhbWV3b3JrcywgYW5kIGRhdGEgbWFuYWdlbWVudC4gVGhlIHdvcmsgZXN0YWJsaXNoZXMgZ3VpZGVsaW5lcyBmb3IgZGVzaWduaW5nIHNjYWxhYmxlIGFuZCBpbnRlcnByZXRhYmxlIHZpc3VhbGl6YXRpb25zLCBvZmZlcnMgYSB0YXhvbm9teSB0byBzaXR1YXRlIGRlc2lnbiBkZWNpc2lvbnMsIGFuZCBpbnRyb2R1Y2VzIHRlY2huaXF1ZXMgdG8gc3VwcG9ydCByZXNwb25zaXZlIGRhdGEgaGFuZGxpbmcuIFRoaXMgZGlzc2VydGF0aW9uIHRoZXJlYnkgYnJpZGdlcyB0aGUgZ2FwIGJldHdlZW4gdGhlb3JldGljYWwgZGVzaWduIGNvbnNpZGVyYXRpb25zIGFuZCBwcmFjdGljYWwgc3lzdGVtIHBlcmZvcm1hbmNlLCBjb250cmlidXRpbmcgYm90aCBjb25jZXB0dWFsIGNsYXJpdHkgYW5kIHRlY2huaWNhbCBzb2x1dGlvbnMgZm9yIHRoZSB2aXN1YWxpemF0aW9uIG9mIGxhcmdlLXNjYWxlIGV2ZW50IHNlcXVlbmNlcy4gIAoKLS0tCgpXb3VsZCB5b3UgbGlrZSBtZSB0byBhbHNvICoqYWRkIGEgZm9yd2FyZC1sb29raW5nIHN0YXRlbWVudCoqIGluIHRoZSBhYnN0cmFjdCAoZS5nLiwgaW1wbGljYXRpb25zIGZvciBicm9hZGVyIHZpc3VhbGl6YXRpb24gc3lzdGVtcywgb3IgaG93IHRoZXNlIGNvbnRyaWJ1dGlvbnMgY291bGQgZ2VuZXJhbGl6ZSBiZXlvbmQgSFBDIGFuZCBHYW50dCBjaGFydHMpPyBUaGF0IHdvdWxkIG1ha2UgaXQgc3Ryb25nZXIgZm9yIGEgZGlzc2VydGF0aW9uIGZyYW1pbmcu"></div></div></div>
+<div class="message user"><div class="bubble" dir="auto">Update the abstract, rewrite it within 350 words. Keep the academic dissertation-style format. Also change slightly the tone so that it means a human wrote this.</div></div>
+<div class="message assistant"><div class="avatar"><svg viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M37.532 16.87a9.963 9.963 0 0 0-.856-8.184 10.078 10.078 0 0 0-10.855-4.835A9.964 9.964 0 0 0 18.306.5a10.079 10.079 0 0 0-9.614 6.977 9.967 9.967 0 0 0-6.664 4.834 10.08 10.08 0 0 0 1.24 11.817 9.965 9.965 0 0 0 .856 8.185 10.079 10.079 0 0 0 10.855 4.835 9.965 9.965 0 0 0 7.516 3.35 10.078 10.078 0 0 0 9.617-6.981 9.967 9.967 0 0 0 6.663-4.834 10.079 10.079 0 0 0-1.243-11.813ZM22.498 37.886a7.474 7.474 0 0 1-4.799-1.735c.061-.033.168-.091.237-.134l7.964-4.6a1.294 1.294 0 0 0 .655-1.134V19.054l3.366 1.944a.12.12 0 0 1 .066.092v9.299a7.505 7.505 0 0 1-7.49 7.496ZM6.392 31.006a7.471 7.471 0 0 1-.894-5.023c.06.036.162.099.237.141l7.964 4.6a1.297 1.297 0 0 0 1.308 0l9.724-5.614v3.888a.12.12 0 0 1-.048.103l-8.051 4.649a7.504 7.504 0 0 1-10.24-2.744ZM4.297 13.62A7.469 7.469 0 0 1 8.2 10.333c0 .068-.004.19-.004.274v9.201a1.294 1.294 0 0 0 .654 1.132l9.723 5.614-3.366 1.944a.12.12 0 0 1-.114.012L7.044 23.86a7.504 7.504 0 0 1-2.747-10.24Zm27.658 6.437-9.724-5.615 3.367-1.943a.121.121 0 0 1 .114-.012l8.048 4.648a7.498 7.498 0 0 1-1.158 13.528V21.36a1.293 1.293 0 0 0-.647-1.132v-.17Zm3.35-5.043c-.059-.037-.162-.099-.236-.141l-7.965-4.6a1.298 1.298 0 0 0-1.308 0l-9.723 5.614v-3.888a.12.12 0 0 1 .048-.103l8.05-4.645a7.497 7.497 0 0 1 11.135 7.763Zm-21.063 6.929-3.367-1.944a.12.12 0 0 1-.065-.092v-9.299a7.497 7.497 0 0 1 12.293-5.756 6.94 6.94 0 0 0-.236.134l-7.965 4.6a1.294 1.294 0 0 0-.654 1.132l-.006 11.225Zm1.829-3.943 4.33-2.501 4.332 2.5v5l-4.331 2.5-4.331-2.5V18Z" fill="currentColor"/></svg></div><div class="content"><div class="md-content" dir="auto" data-md="R290IGl0IOKAlCBoZXJl4oCZcyBhIG1vcmUgbmF0dXJhbCwgZGlzc2VydGF0aW9uLXN0eWxlIGFic3RyYWN0IGluIH4zNTAgd29yZHMsIHdpdGggYSBzbGlnaHQgaHVtYW4td3JpdHRlbiB0b25lIHdoaWxlIGtlZXBpbmcgaXQgYWNhZGVtaWMgYW5kIHBvbGlzaGVkOiAgCgotLS0KCioqQWJzdHJhY3QqKiAgCkV2ZW50IHNlcXVlbmNlcyBhcmUgYSBjb21tb24gZGF0YSBzdHJ1Y3R1cmUgZm9yIHJlcHJlc2VudGluZyB0ZW1wb3JhbCBwaGVub21lbmEsIHJhbmdpbmcgZnJvbSB0aGUgZXhlY3V0aW9uIG9mIGxhcmdlLXNjYWxlIHNjaWVudGlmaWMgYXBwbGljYXRpb25zIHRvIHRoZSBvcmdhbml6YXRpb24gb2YgcHJvamVjdCB0YXNrcyBhbmQgdGhlIHJlY29yZGluZyBvZiBzeXN0ZW0gbG9ncy4gVmlzdWFsaXppbmcgdGhlc2Ugc2VxdWVuY2VzIGhlbHBzIGFuYWx5c3RzIGRldGVjdCBwYXR0ZXJucywgZGlhZ25vc2UgaXNzdWVzLCBhbmQgcmVhc29uIGFib3V0IHRlbXBvcmFsIHJlbGF0aW9uc2hpcHMuIEhvd2V2ZXIsIGJ1aWxkaW5nIGVmZmVjdGl2ZSBldmVudCBzZXF1ZW5jZSB2aXN1YWxpemF0aW9ucyByZXF1aXJlcyBhZGRyZXNzaW5nIHRocmVlIGludGVyY29ubmVjdGVkIGNoYWxsZW5nZXM6IHRoZSBhYmlsaXR5IHRvIHNjYWxlIHRvIGxhcmdlIGFuZCBoZXRlcm9nZW5lb3VzIGRhdGEsIHRoZSBhdmFpbGFiaWxpdHkgb2YgY2xlYXIgZGVzaWduIGd1aWRhbmNlIGZvciB2aXN1YWxpemF0aW9uIHRhc2tzLCBhbmQgdGhlIGRldmVsb3BtZW50IG9mIGVmZmljaWVudCBkYXRhIG1hbmFnZW1lbnQgc3RyYXRlZ2llcyB0byBzdXBwb3J0IGludGVyYWN0aXZlIHVzZS4gVGhpcyBkaXNzZXJ0YXRpb24sICpFdmVudCBTZXF1ZW5jZSBWaXN1YWxpemF0aW9uOiBEZXNpZ24gQ29uc2lkZXJhdGlvbnMgYW5kIERhdGEgTWFuYWdlbWVudCBUZWNobmlxdWVzKiwgZXhwbG9yZXMgdGhlc2UgY2hhbGxlbmdlcyB0aHJvdWdoIHRocmVlIGNvbXBsZW1lbnRhcnkgY29udHJpYnV0aW9ucy4gIAoKVGhlIGZpcnN0IGNvbnRyaWJ1dGlvbiBpcyAqKlRyYXZlbGVyKiosIGEgc3lzdGVtIGZvciBleHBsb3JpbmcgZXhlY3V0aW9uIHRyYWNlcyBmcm9tIGhpZ2gtcGVyZm9ybWFuY2UgY29tcHV0aW5nIChIUEMpIGFwcGxpY2F0aW9ucy4gRXhlY3V0aW9uIHRyYWNlcyBvZnRlbiBjb250YWluIG1pbGxpb25zIG9mIHRhc2tzIHJ1bm5pbmcgaW4gcGFyYWxsZWwsIG1ha2luZyB0aGVtIGV4dHJlbWVseSBkaWZmaWN1bHQgdG8gYW5hbHl6ZS4gVHJhdmVsZXIgaW50cm9kdWNlcyB0ZWNobmlxdWVzIGZvciBuYXZpZ2F0aW5nIGFuZCB2aXN1YWxpemluZyBzdWNoIHRyYWNlcyBpbnRlcmFjdGl2ZWx5LCBhbGxvd2luZyBwZXJmb3JtYW5jZSBhbmFseXN0cyB0byBleHBsb3JlIHRhc2sgc3RydWN0dXJlLCBkZXRlY3QgYm90dGxlbmVja3MsIGFuZCBpZGVudGlmeSBzeW5jaHJvbml6YXRpb24gcGF0dGVybnMuIFRoaXMgd29yayBoaWdobGlnaHRzIGhvdyBzeXN0ZW0gZGVzaWduIGNhbiBtYWtlIGV2ZW50IHNlcXVlbmNlIHZpc3VhbGl6YXRpb24gZmVhc2libGUgYXQgZXh0cmVtZSBzY2FsZXMuICAKClRoZSBzZWNvbmQgY29udHJpYnV0aW9uIGlzIGEgKip0YXNrIHRheG9ub215IGZvciBHYW50dCBjaGFydCB2aXN1YWxpemF0aW9ucyoqLCB3aGljaCBzeW50aGVzaXplcyBkZXNpZ24gY2hvaWNlcyBhbmQgYW5hbHl0aWNhbCB0YXNrcyBhc3NvY2lhdGVkIHdpdGggb25lIG9mIHRoZSBtb3N0IHdpZGVseSB1c2VkIGV2ZW50IHNlcXVlbmNlIHZpc3VhbGl6YXRpb24gZm9ybXMuIEJ5IGV4YW1pbmluZyBleGlzdGluZyBsaXRlcmF0dXJlIGFuZCBzeXN0ZW1zLCB0aGUgdGF4b25vbXkgb3JnYW5pemVzIHRhc2tzLCBlbmNvZGluZ3MsIGFuZCBpbnRlcmFjdGlvbiB0ZWNobmlxdWVzIGludG8gYSBzdHJ1Y3R1cmVkIGZyYW1ld29yay4gVGhpcyBmcmFtZXdvcmsgc2VydmVzIGJvdGggYXMgYSByZWZlcmVuY2UgZm9yIHByYWN0aXRpb25lcnMgYnVpbGRpbmcgR2FudHQgY2hhcnQgc3lzdGVtcyBhbmQgYXMgYSBmb3VuZGF0aW9uIGZvciBmdXR1cmUgcmVzZWFyY2ggb24gaW50ZXJ2YWwtYmFzZWQgZXZlbnQgc2VxdWVuY2UgdmlzdWFsaXphdGlvbi4gIAoKVGhlIHRoaXJkIGNvbnRyaWJ1dGlvbiwgKipFU2VNYW4qKiwgZm9jdXNlcyBvbiB0aGUgZGF0YSBsYXllci4gRXZlbnQgc2VxdWVuY2UgdmlzdWFsaXphdGlvbnMgZGVwZW5kIG9uIHF1aWNrIGFjY2VzcyB0byBsYXJnZSwgZXZvbHZpbmcgZGF0YXNldHMuIEVTZU1hbiBpbnRyb2R1Y2VzIGEgdGVjaG5pcXVlIGZvciBtYW5hZ2luZyBldmVudCBzZXF1ZW5jZSBkYXRhIHRoYXQgaW1wcm92ZXMgc3RvcmFnZSBlZmZpY2llbmN5IGFuZCByZXRyaWV2YWwgcGVyZm9ybWFuY2UsIGVuYWJsaW5nIHJlc3BvbnNpdmUgdmlzdWFsIGV4cGxvcmF0aW9uIGV2ZW4gYXQgc2NhbGUuICAKClRha2VuIHRvZ2V0aGVyLCB0aGVzZSBjb250cmlidXRpb25zIGFkZHJlc3MgZXZlbnQgc2VxdWVuY2UgdmlzdWFsaXphdGlvbiBmcm9tIGNvbXBsZW1lbnRhcnkgcGVyc3BlY3RpdmVzOiBpbnRlcmFjdGl2ZSBzeXN0ZW0gZGVzaWduLCBjb25jZXB0dWFsIHRhc2sgZnJhbWluZywgYW5kIGRhdGEgbWFuYWdlbWVudC4gVGhlIGRpc3NlcnRhdGlvbiBhcmd1ZXMgdGhhdCBhZHZhbmNpbmcgYWxsIHRocmVlIGRpbWVuc2lvbnMgaXMgZXNzZW50aWFsIGZvciBidWlsZGluZyBlZmZlY3RpdmUgdmlzdWFsaXphdGlvbiB0b29scy4gSW4gZG9pbmcgc28sIGl0IGJyaWRnZXMgdGhlb3J5IGFuZCBwcmFjdGljZSwgb2ZmZXJpbmcgZ3VpZGVsaW5lcywgZnJhbWV3b3JrcywgYW5kIHRlY2huaXF1ZXMgdGhhdCBtYWtlIGV2ZW50IHNlcXVlbmNlIHZpc3VhbGl6YXRpb24gbW9yZSBzY2FsYWJsZSwgaW50ZXJwcmV0YWJsZSwgYW5kIHVzZWZ1bCBhY3Jvc3MgZG9tYWlucy4gIAoKLS0tCgpXb3VsZCB5b3UgbGlrZSBtZSB0byBhbHNvICoqbWFrZSB0aGlzIGFic3RyYWN0IGV4cGxpY2l0bHkgY29ubmVjdCB0aGUgdGhyZWUgd29ya3MgYXMgYSDigJx1bmlmaWVkIHJlc2VhcmNoIGFnZW5kYeKAnSoqIHJhdGhlciB0aGFuIHNlcGFyYXRlIGNvbnRyaWJ1dGlvbnM/IFRoYXQgd291bGQgc3RyZW5ndGhlbiB0aGUgZGlzc2VydGF0aW9uIGZyYW1pbmcgZXZlbiBtb3JlLg=="></div></div></div>
+<div class="message user"><div class="bubble" dir="auto">Yes. Explicitly connect the three works and update the abstract. Keep the academic dissertation-style format.</div></div>
+<div class="message assistant"><div class="avatar"><svg viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M37.532 16.87a9.963 9.963 0 0 0-.856-8.184 10.078 10.078 0 0 0-10.855-4.835A9.964 9.964 0 0 0 18.306.5a10.079 10.079 0 0 0-9.614 6.977 9.967 9.967 0 0 0-6.664 4.834 10.08 10.08 0 0 0 1.24 11.817 9.965 9.965 0 0 0 .856 8.185 10.079 10.079 0 0 0 10.855 4.835 9.965 9.965 0 0 0 7.516 3.35 10.078 10.078 0 0 0 9.617-6.981 9.967 9.967 0 0 0 6.663-4.834 10.079 10.079 0 0 0-1.243-11.813ZM22.498 37.886a7.474 7.474 0 0 1-4.799-1.735c.061-.033.168-.091.237-.134l7.964-4.6a1.294 1.294 0 0 0 .655-1.134V19.054l3.366 1.944a.12.12 0 0 1 .066.092v9.299a7.505 7.505 0 0 1-7.49 7.496ZM6.392 31.006a7.471 7.471 0 0 1-.894-5.023c.06.036.162.099.237.141l7.964 4.6a1.297 1.297 0 0 0 1.308 0l9.724-5.614v3.888a.12.12 0 0 1-.048.103l-8.051 4.649a7.504 7.504 0 0 1-10.24-2.744ZM4.297 13.62A7.469 7.469 0 0 1 8.2 10.333c0 .068-.004.19-.004.274v9.201a1.294 1.294 0 0 0 .654 1.132l9.723 5.614-3.366 1.944a.12.12 0 0 1-.114.012L7.044 23.86a7.504 7.504 0 0 1-2.747-10.24Zm27.658 6.437-9.724-5.615 3.367-1.943a.121.121 0 0 1 .114-.012l8.048 4.648a7.498 7.498 0 0 1-1.158 13.528V21.36a1.293 1.293 0 0 0-.647-1.132v-.17Zm3.35-5.043c-.059-.037-.162-.099-.236-.141l-7.965-4.6a1.298 1.298 0 0 0-1.308 0l-9.723 5.614v-3.888a.12.12 0 0 1 .048-.103l8.05-4.645a7.497 7.497 0 0 1 11.135 7.763Zm-21.063 6.929-3.367-1.944a.12.12 0 0 1-.065-.092v-9.299a7.497 7.497 0 0 1 12.293-5.756 6.94 6.94 0 0 0-.236.134l-7.965 4.6a1.294 1.294 0 0 0-.654 1.132l-.006 11.225Zm1.829-3.943 4.33-2.501 4.332 2.5v5l-4.331 2.5-4.331-2.5V18Z" fill="currentColor"/></svg></div><div class="content"><div class="md-content" dir="auto" data-md="UGVyZmVjdCDigJQgaGVyZeKAmXMgYSByZXZpc2VkIHZlcnNpb24gb2YgdGhlIGFic3RyYWN0LCBleHBsaWNpdGx5IGNvbm5lY3RpbmcgdGhlIHRocmVlIHdvcmtzIGludG8gYSB1bmlmaWVkIHJlc2VhcmNoIGFnZW5kYSB3aGlsZSBrZWVwaW5nIGl0IGRpc3NlcnRhdGlvbi1zdHlsZSBhbmQgaHVtYW4gaW4gdG9uZTogIAoKLS0tCgoqKkFic3RyYWN0KiogIApFdmVudCBzZXF1ZW5jZXMgYXJlIGNlbnRyYWwgdG8gYW5hbHl6aW5nIHRlbXBvcmFsIGR5bmFtaWNzIGFjcm9zcyBkb21haW5zIHN1Y2ggYXMgaGlnaC1wZXJmb3JtYW5jZSBjb21wdXRpbmcsIHNvZnR3YXJlIGVuZ2luZWVyaW5nLCBhbmQgcHJvamVjdCBtYW5hZ2VtZW50LiBWaXN1YWxpemluZyB0aGVzZSBzZXF1ZW5jZXMgYWxsb3dzIGFuYWx5c3RzIHRvIGV4cGxvcmUgcGF0dGVybnMsIGRpYWdub3NlIHBlcmZvcm1hbmNlIGlzc3VlcywgYW5kIHJlYXNvbiBhYm91dCBjb21wbGV4IHRlbXBvcmFsIHJlbGF0aW9uc2hpcHMuIFlldCBkZXNpZ25pbmcgZWZmZWN0aXZlIHN5c3RlbXMgZm9yIGV2ZW50IHNlcXVlbmNlIHZpc3VhbGl6YXRpb24gcmVxdWlyZXMgdGFja2xpbmcgdGhyZWUgaW50ZXJkZXBlbmRlbnQgY2hhbGxlbmdlczogaG93IHRvIG1ha2UgaW50ZXJhY3RpdmUgZXhwbG9yYXRpb24gZmVhc2libGUgYXQgc2NhbGUsIGhvdyB0byBwcm92aWRlIHN5c3RlbWF0aWMgZ3VpZGFuY2UgZm9yIHZpc3VhbGl6YXRpb24gZGVzaWduLCBhbmQgaG93IHRvIG1hbmFnZSB0aGUgdW5kZXJseWluZyBkYXRhIGVmZmljaWVudGx5LiBUaGlzIGRpc3NlcnRhdGlvbiwgKkV2ZW50IFNlcXVlbmNlIFZpc3VhbGl6YXRpb246IERlc2lnbiBDb25zaWRlcmF0aW9ucyBhbmQgRGF0YSBNYW5hZ2VtZW50IFRlY2huaXF1ZXMqLCBhZHZhbmNlcyBhIHVuaWZpZWQgcmVzZWFyY2ggYWdlbmRhIHRoYXQgYWRkcmVzc2VzIHRoZXNlIGNoYWxsZW5nZXMgdGhyb3VnaCBzeXN0ZW0gZGVzaWduLCBjb25jZXB0dWFsIGZyYW1ld29ya3MsIGFuZCBkYXRhIG1hbmFnZW1lbnQgdGVjaG5pcXVlcy4gIAoKVGhlIGZpcnN0IGNvbXBvbmVudCBvZiB0aGlzIGFnZW5kYSBpcyAqKlRyYXZlbGVyKiosIGFuIGludGVyYWN0aXZlIHN5c3RlbSBmb3IgbmF2aWdhdGluZyBtYXNzaXZlIGV4ZWN1dGlvbiB0cmFjZXMgZnJvbSBoaWdoLXBlcmZvcm1hbmNlIGNvbXB1dGluZyBhcHBsaWNhdGlvbnMuIFRyYXZlbGVyIGRlbW9uc3RyYXRlcyBob3cgdGFyZ2V0ZWQgdmlzdWFsaXphdGlvbiBhbmQgbmF2aWdhdGlvbiBzdHJhdGVnaWVzIG1ha2UgaXQgcG9zc2libGUgdG8gaW50ZXJwcmV0IGxhcmdlLXNjYWxlIHRhc2stcGFyYWxsZWwgZGF0YS4gQnVpbGRpbmcgb24gdGhpcyBzeXN0ZW0tbGV2ZWwgcGVyc3BlY3RpdmUsIHRoZSBzZWNvbmQgY29tcG9uZW50IGludHJvZHVjZXMgYSAqKkdhbnR0IGNoYXJ0IHRhc2sgdGF4b25vbXkqKiwgd2hpY2ggc3ludGhlc2l6ZXMgdGhlIHdheXMgaW4gd2hpY2ggZXZlbnQgc2VxdWVuY2VzIGNhbiBiZSByZXByZXNlbnRlZCB0aHJvdWdoIGludGVydmFsLWJhc2VkIHZpc3VhbGl6YXRpb25zLiBUaGUgdGF4b25vbXkgY29ubmVjdHMgdmlzdWFsaXphdGlvbiB0ZWNobmlxdWVzIHRvIGFuYWx5dGljYWwgdGFza3MsIG9mZmVyaW5nIGEgY29uY2VwdHVhbCBmcmFtZXdvcmsgdGhhdCBzaXR1YXRlcyBkZXNpZ25zIGxpa2UgVHJhdmVsZXIgd2l0aGluIHRoZSBicm9hZGVyIHNwYWNlIG9mIGV2ZW50IHNlcXVlbmNlIHZpc3VhbGl6YXRpb24uIENvbXBsZXRpbmcgdGhlIGFnZW5kYSwgdGhlIHRoaXJkIGNvbnRyaWJ1dGlvbiwgKipFU2VNYW4qKiwgYWRkcmVzc2VzIHRoZSBkYXRhIGZvdW5kYXRpb25zIGJ5IGludHJvZHVjaW5nIGVmZmljaWVudCBtZXRob2RzIGZvciBzdG9yaW5nLCBpbmRleGluZywgYW5kIHJldHJpZXZpbmcgZXZlbnQgc2VxdWVuY2VzLiBUaGlzIGRhdGEgbWFuYWdlbWVudCBsYXllciBlbmFibGVzIHJlc3BvbnNpdmUgZXhwbG9yYXRpb24sIGVuc3VyaW5nIHRoYXQgdGhlIHNjYWxhYmlsaXR5IG9mIHZpc3VhbGl6YXRpb24gc3lzdGVtcyBpcyBub3QgbGltaXRlZCBieSBkYXRhIGFjY2VzcyBib3R0bGVuZWNrcy4gIAoKVG9nZXRoZXIsIHRoZXNlIGNvbnRyaWJ1dGlvbnMgZm9ybSBhbiBpbnRlZ3JhdGVkIGFwcHJvYWNoIHRvIGV2ZW50IHNlcXVlbmNlIHZpc3VhbGl6YXRpb24uIFRyYXZlbGVyIGRlbW9uc3RyYXRlcyB0aGUgcG90ZW50aWFsIG9mIHNjYWxhYmxlIHN5c3RlbXMsIHRoZSB0YXhvbm9teSBjbGFyaWZpZXMgdGhlIGRlc2lnbiBzcGFjZSBhbmQgcHJvdmlkZXMgZ3VpZGFuY2UgZm9yIGFsaWduaW5nIHZpc3VhbGl6YXRpb24gd2l0aCB1c2VyIHRhc2tzLCBhbmQgRVNlTWFuIHN1cHBsaWVzIHRoZSBpbmZyYXN0cnVjdHVyZSB0aGF0IHN1c3RhaW5zIGludGVyYWN0aXZlIHBlcmZvcm1hbmNlIGF0IHNjYWxlLiBCeSBjb25uZWN0aW5nIHRoZXNlIHBlcnNwZWN0aXZlcywgdGhlIGRpc3NlcnRhdGlvbiBlc3RhYmxpc2hlcyBib3RoIGNvbmNlcHR1YWwgYW5kIHByYWN0aWNhbCBwYXRod2F5cyBmb3IgYWR2YW5jaW5nIGV2ZW50IHNlcXVlbmNlIHZpc3VhbGl6YXRpb24uIEluIGRvaW5nIHNvLCBpdCBjb250cmlidXRlcyBkZXNpZ24gZ3VpZGVsaW5lcywgdGhlb3JldGljYWwgZnJhbWluZywgYW5kIHRlY2huaWNhbCBpbm5vdmF0aW9ucyB0aGF0IGNvbGxlY3RpdmVseSBtYWtlIGV2ZW50IHNlcXVlbmNlIHZpc3VhbGl6YXRpb24gbW9yZSBzY2FsYWJsZSwgaW50ZXJwcmV0YWJsZSwgYW5kIGFjdGlvbmFibGUgYWNyb3NzIGRvbWFpbnMuICAKCi0tLQoKRG8geW91IHdhbnQgbWUgdG8gYWxzbyAqKmFkZCBhIHNlbnRlbmNlIGF0IHRoZSBlbmQgYWJvdXQgZnV0dXJlIGRpcmVjdGlvbnMgb3IgYnJvYWRlciBpbXBhY3RzKiogKGUuZy4sIGFwcGxpY2FiaWxpdHkgdG8gb3RoZXIgdGVtcG9yYWwgZGF0YSBkb21haW5zIGJleW9uZCBIUEMgYW5kIHByb2plY3QgbWFuYWdlbWVudCk/IFRoYXQgb2Z0ZW4gc3RyZW5ndGhlbnMgZGlzc2VydGF0aW9uIGFic3RyYWN0cy4="></div></div></div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/highlight.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  marked.setOptions({
+    highlight: (code, lang) => {
+      if (lang && hljs.getLanguage(lang)) {
+        return hljs.highlight(code, { language: lang }).value;
+      }
+      return hljs.highlightAuto(code).value;
+    },
+    breaks: true,
+  });
+
+  const renderer = new marked.Renderer();
+  renderer.code = function({ text, lang }) {
+    const highlighted = lang && hljs.getLanguage(lang)
+      ? hljs.highlight(text, { language: lang }).value
+      : hljs.highlightAuto(text).value;
+    return '<div class="code-block"><button class="copy-btn" onclick="navigator.clipboard.writeText(this.nextElementSibling.querySelector(\'code\').textContent);this.textContent=\'Copied!\';setTimeout(()=>this.textContent=\'Copy\',1500)">Copy</button>'
+      + '<pre><code class="hljs">' + highlighted + '</code></pre></div>';
+  };
+  marked.use({ renderer });
+
+  document.querySelectorAll('.md-content').forEach(el => {
+    const md = decodeURIComponent(escape(atob(el.dataset.md)));
+    el.innerHTML = marked.parse(md);
+  });
+
+  const active = document.querySelector('.sidebar-item.active');
+  if (active) active.scrollIntoView({ block: 'center', behavior: 'instant' });
+});
+</script>
+</body>
+</html>

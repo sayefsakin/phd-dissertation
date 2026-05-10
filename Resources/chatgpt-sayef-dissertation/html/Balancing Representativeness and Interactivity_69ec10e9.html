@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Balancing Representativeness and Interactivity</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/styles/github-dark.min.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: #ffffff; color: #0d0d0d;
+    line-height: 1.65; font-size: 16px;
+    display: flex; height: 100vh;
+  }
+  .sidebar {
+    width: 260px; min-width: 260px; height: 100vh;
+    background: #f9f9f9; border-right: 1px solid #e5e5e5;
+    overflow-y: auto; padding: 16px 0;
+    flex-shrink: 0; position: sticky; top: 0;
+  }
+  .sidebar-header {
+    padding: 8px 16px 16px; font-size: 14px; font-weight: 600;
+    color: #6b6b6b; border-bottom: 1px solid #e5e5e5; margin-bottom: 8px;
+  }
+  .sidebar-item {
+    display: block; padding: 8px 16px; font-size: 13px;
+    color: #0d0d0d; text-decoration: none;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    border-radius: 8px; margin: 2px 8px;
+  }
+  .sidebar-item:hover { background: #ececec; }
+  .sidebar-item.active { background: #e5e5e5; font-weight: 600; }
+  .sidebar-toggle {
+    display: none; position: fixed; top: 12px; left: 12px; z-index: 100;
+    background: #f4f4f4; border: 1px solid #e5e5e5; border-radius: 8px;
+    width: 36px; height: 36px; cursor: pointer;
+    align-items: center; justify-content: center; font-size: 20px;
+  }
+  @media (max-width: 768px) {
+    .sidebar {
+      position: fixed; left: -280px; z-index: 99;
+      transition: left 0.2s; box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+    }
+    .sidebar.open { left: 0; }
+    .sidebar-toggle { display: flex; }
+    .main { margin-left: 0 !important; }
+  }
+  .main { flex: 1; overflow-y: auto; }
+  .header {
+    max-width: 768px; margin: 0 auto; padding: 32px 24px 16px;
+    border-bottom: 1px solid #e5e5e5;
+  }
+  .header h1 { font-size: 22px; font-weight: 600; }
+  .header .date { font-size: 13px; color: #6b6b6b; margin-top: 4px; }
+  .chat { max-width: 768px; margin: 0 auto; padding: 24px; }
+  .message { margin-bottom: 24px; }
+  .message.user { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+  .message.user .bubble {
+    background: #f4f4f4; border-radius: 18px; padding: 10px 16px;
+    max-width: 85%; white-space: pre-wrap; word-break: break-word;
+  }
+  .message.user .images { width: 100%; display: flex; justify-content: flex-end; }
+  .message.assistant { display: flex; gap: 12px; align-items: flex-start; }
+  .message.assistant .avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #00a67e; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .message.assistant .content { flex: 1; min-width: 0; }
+  .message.assistant .content h1,
+  .message.assistant .content h2,
+  .message.assistant .content h3 { margin: 16px 0 8px; font-weight: 600; }
+  .message.assistant .content h1 { font-size: 20px; }
+  .message.assistant .content h2 { font-size: 18px; }
+  .message.assistant .content h3 { font-size: 16px; }
+  .message.assistant .content p { margin: 8px 0; }
+  .message.assistant .content ul,
+  .message.assistant .content ol { margin: 8px 0; padding-left: 24px; }
+  .message.assistant .content li { margin: 4px 0; }
+  .message.assistant .content a { color: #1a7f64; }
+  .message.assistant .content code {
+    background: #f0f0f0; border-radius: 4px; padding: 2px 5px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 14px;
+  }
+  .message.assistant .content pre { margin: 12px 0; border-radius: 8px; overflow: hidden; }
+  .message.assistant .content pre code {
+    display: block; background: #0d0d0d; color: #f8f8f2;
+    padding: 16px; overflow-x: auto; border-radius: 0;
+    font-size: 13px; line-height: 1.5;
+  }
+  .code-block { position: relative; }
+  .code-block .copy-btn {
+    position: absolute; top: 8px; right: 8px;
+    background: #333; border: none; color: #999; cursor: pointer;
+    font-size: 12px; padding: 4px 10px; border-radius: 4px;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .code-block:hover .copy-btn { opacity: 1; }
+  .code-block .copy-btn:hover { color: #fff; background: #555; }
+  .images img { max-width: 100%; border-radius: 8px; margin: 4px 0; display: block; cursor: pointer; }
+  .images img:hover { opacity: 0.9; }
+  .message.user .images img { max-width: 300px; }
+  .attachments { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .attachment {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #f4f4f4; border: 1px solid #e5e5e5; border-radius: 8px;
+    padding: 8px 12px; text-decoration: none; color: #0d0d0d; font-size: 14px;
+  }
+  .attachment:hover { background: #ececec; }
+  .att-icon { font-size: 16px; }
+  .att-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
+
+  .thinking {
+    margin-bottom: 24px; border-left: 3px solid #d4d4d4;
+    padding-left: 16px; font-size: 14px;
+  }
+  .thinking summary {
+    color: #8e8e8e; font-style: italic; cursor: pointer;
+    padding: 4px 0; user-select: none;
+  }
+  .thinking summary:hover { color: #555; }
+  .thinking-content {
+    color: #6b6b6b; padding: 8px 0; font-style: italic;
+  }
+  .thinking-content p, .thinking-content li { color: #6b6b6b; }
+  .thinking-content pre code { opacity: 0.7; }
+  .thinking-content h1, .thinking-content h2, .thinking-content h3 {
+    color: #6b6b6b; font-size: 15px;
+  }
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">&#9776;</button>
+<nav class="sidebar">
+  <div class="sidebar-header">Conversations</div>
+  <a class="sidebar-item" href="Revising Visualization Abstraction_69ed203e.html" title="Revising Visualization Abstraction">Revising Visualization Abstraction</a>
+<a class="sidebar-item" href="Wording Suggestions for Model_69ecf041.html" title="Wording Suggestions for Model">Wording Suggestions for Model</a>
+<a class="sidebar-item" href="Limitations of Connected Approach_69ec4e83.html" title="Limitations of Connected Approach">Limitations of Connected Approach</a>
+<a class="sidebar-item active" href="Balancing Representativeness and Interactivity_69ec10e9.html" title="Balancing Representativeness and Interactivity">Balancing Representativeness and Interactivity</a>
+<a class="sidebar-item" href="Representativeness vs Interactivity_69e87f74.html" title="Representativeness vs Interactivity">Representativeness vs Interactivity</a>
+<a class="sidebar-item" href="Grammatical Correction Request_69e82550.html" title="Grammatical Correction Request">Grammatical Correction Request</a>
+<a class="sidebar-item" href="Improving Data Abstraction Clarity_69e7a831.html" title="Improving Data Abstraction Clarity">Improving Data Abstraction Clarity</a>
+<a class="sidebar-item" href="ESeMan Summary Improvement_69a71cdc.html" title="ESeMan Summary Improvement">ESeMan Summary Improvement</a>
+<a class="sidebar-item" href="Branch · Design principles for visualizations_69037a11.html" title="Branch · Design principles for visualizations">Branch · Design principles for visualizations</a>
+<a class="sidebar-item" href="Branch · Design principles for visualizations_690364ba.html" title="Branch · Design principles for visualizations">Branch · Design principles for visualizations</a>
+<a class="sidebar-item" href="Design principles for visualizations_68dd8912.html" title="Design principles for visualizations">Design principles for visualizations</a>
+<a class="sidebar-item" href="Abstract final_68d50fc5.html" title="Abstract final">Abstract final</a>
+<a class="sidebar-item" href="Dissertation submission email_68ddd8a9.html" title="Dissertation submission email">Dissertation submission email</a>
+<a class="sidebar-item" href="Related work chapter expansion_68d5a210.html" title="Related work chapter expansion">Related work chapter expansion</a>
+<a class="sidebar-item" href="Discussion conclusion latex formatting_68d5be12.html" title="Discussion conclusion latex formatting">Discussion conclusion latex formatting</a>
+<a class="sidebar-item" href="Event sequence visualization_68dca9de.html" title="Event sequence visualization">Event sequence visualization</a>
+<a class="sidebar-item" href="Write introduction chapter_68d540f7.html" title="Write introduction chapter">Write introduction chapter</a>
+<a class="sidebar-item" href="Write discussion chapter_68d5cf30.html" title="Write discussion chapter">Write discussion chapter</a>
+<a class="sidebar-item" href="Acknowledgement section LaTeX_68d688ae.html" title="Acknowledgement section LaTeX">Acknowledgement section LaTeX</a>
+<a class="sidebar-item" href="Latex dissertation rewrite_68d5cd8d.html" title="Latex dissertation rewrite">Latex dissertation rewrite</a>
+<a class="sidebar-item" href="Evaluation section update_68d5cbcf.html" title="Evaluation section update">Evaluation section update</a>
+<a class="sidebar-item" href="Dissertation summary in LaTeX_68d5c539.html" title="Dissertation summary in LaTeX">Dissertation summary in LaTeX</a>
+<a class="sidebar-item" href="Gantt chart data queries_68d5bfc2.html" title="Gantt chart data queries">Gantt chart data queries</a>
+<a class="sidebar-item" href="Evaluation section latex_68d5bcb1.html" title="Evaluation section latex">Evaluation section latex</a>
+<a class="sidebar-item" href="LaTeX dissertation version_68d5ba39.html" title="LaTeX dissertation version">LaTeX dissertation version</a>
+<a class="sidebar-item" href="Traveler design goals_68d5b6e5.html" title="Traveler design goals">Traveler design goals</a>
+<a class="sidebar-item" href="Visualization in HPC_68d5b451.html" title="Visualization in HPC">Visualization in HPC</a>
+<a class="sidebar-item" href="Task parallel programs summary_68d5b243.html" title="Task parallel programs summary">Task parallel programs summary</a>
+<a class="sidebar-item" href="Chapter 3 outline_68d5afc7.html" title="Chapter 3 outline">Chapter 3 outline</a>
+<a class="sidebar-item" href="Abstract Initial Draft_68d4ee8f.html" title="Abstract Initial Draft">Abstract Initial Draft</a>
+<a class="sidebar-item" href="Paper summary Traveler platform_68d4edf5.html" title="Paper summary Traveler platform">Paper summary Traveler platform</a>
+<a class="sidebar-item" href="Gantt chart task taxonomy_68d4edc8.html" title="Gantt chart task taxonomy">Gantt chart task taxonomy</a>
+<a class="sidebar-item" href="Summarize ESeMan paper_68d4ed81.html" title="Summarize ESeMan paper">Summarize ESeMan paper</a>
+</nav>
+<div class="main">
+  <div class="header">
+    <h1>Balancing Representativeness and Interactivity</h1>
+    <div class="date">2026-04-25 01:00 UTC</div>
+  </div>
+  <div class="chat">
+  <div class="message user"><div class="bubble" dir="auto">Check the following paragraphs that I used in the discussion section<br><br>```<br><br>The challenges of balancing representativeness and interactivity have been observed and characterized across the visualization literature. Progressive visualization research~\cite{zgraggen2016progressive} characterizes the challenge as a tradeoff between result accuracy (representativeness) and computation speed (interactivity), showing that completely blocking strategies (maximal representativeness but zero interactivity) significantly hinder user exploration compared to instantaneous or progressive approaches. Scalability studies~\cite{richer2022scalability} model this challenge as competing effort functions that system designers must explicitly balance. An optimistic visualization system, proposed by Moritz et al.~\cite{moritz2017trust}, showed that users can extract valid insights from approximate, progressively refined results as long as the approximation quality (representativeness) remains above a minimum threshold and system latency (interactivity) remains low enough to maintain user engagement. Together, these studies suggest to manage the balance between representativeness and interactivity based on the context and analysis task.<br><br>In the context of exploratory analysis using event sequence visualizations, balancing between representativeness and interactivity remains a difficult challenge. Our developed system, ESeMan, demonstrates that maintaining a balance is possible for event sequences. However, in practice, designers often need to balance between representativeness and interactivity depending on user needs. One promising strategy is to provide options that allow users to control the balance explicitly. In our visual design, users control the data accuracy with the zoom level by scrolling and panning. Data queries are therefore designed to fetch specific data based on the zoom level and panning window. Although we didn't implement full progressive refinement~\cite{stolper2014progressive}, our system is designed to render an initial view quickly with approximate or partial data, and then refine the visualization with more accurate data as computation and data transfer complete. Our design ensures that the user receives immediate feedback, even if initially approximate, while progressively improving the representation. Visualizing all data at once is rarely useful for exploratory analysis; instead, we aim to present data that is useful for exploration while maintaining interactive responsiveness.<br><br>% modify the following paragraph<br>Based on relevant works in the literature and our implementation experience, we recommmend to identify first the minimum level of representativeness needed for trustworthy analysis and the maximum delay users can tolerate before exploration is disrupted. Then choose an appropriate tradeoff depending on task requirements and the context in which the visualization will be used. Finally, the level of representativeness and interactivity should be made user-controllable, allowing users to adjust the balance based on their current needs and preferences. By explicitly acknowledging and managing the balance between representativeness and interactivity, designers can create visualizations that are useful for the exploration of large event sequences.<br>```<br><br>The citations used in these paragraphs, uses the following as in the bibtex<br>```<br>@article{zgraggen2016progressive,<br>  title={How progressive visualizations affect exploratory analysis},<br>  author={Zgraggen, Emanuel and Galakatos, Alex and Crotty, Andrew and Fekete, Jean-Daniel and Kraska, Tim},<br>  journal={IEEE transactions on visualization and computer graphics},<br>  volume={23},<br>  number={8},<br>  pages={1977--1987},<br>  year={2016},<br>  publisher={IEEE}<br>}<br>@article{richer2022scalability,<br>  title={Scalability in visualization},<br>  author={Richer, Ga{\&quot;e}lle and Pister, Alexis and Abdelaal, Moataz and Fekete, Jean-Daniel and Sedlmair, Michael and Weiskopf, Daniel},<br>  journal={IEEE Transactions on Visualization and Computer Graphics},<br>  volume={30},<br>  number={7},<br>  pages={3314--3330},<br>  year={2022},<br>  publisher={IEEE}<br>}<br>@inproceedings{moritz2017trust,<br>  title={Trust, but verify: Optimistic visualizations of approximate queries for exploring big data},<br>  author={Moritz, Dominik and Fisher, Danyel and Ding, Bolin and Wang, Chi},<br>  booktitle={Proceedings of the 2017 CHI conference on human factors in computing systems},<br>  pages={2904--2915},<br>  year={2017}<br>}<br>@article{stolper2014progressive,<br>  title={Progressive visual analytics: User-driven visual exploration of in-progress analytics},<br>  author={Stolper, Charles D and Perer, Adam and Gotz, David},<br>  journal={IEEE Transactions on Visualization and Computer Graphics},<br>  volume={20},<br>  number={12},<br>  pages={1653--1662},<br>  year={2014},<br>  publisher={IEEE}<br>}<br>```<br><br>Now think a little bit more and suggest an update. The first paragraph reads more like a literature review. Connect the ideas used in this paragraph directly with my recommendations that I used in the last paragraph. Rewrite more like a discussion section that is easy to follow and flows the idea smoothly.<br><br><br>Give me the paragraph in tex. You can use additional citations if needed. In that case provide bibtex.</div></div>
+<div class="message assistant"><div class="avatar"><svg viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M37.532 16.87a9.963 9.963 0 0 0-.856-8.184 10.078 10.078 0 0 0-10.855-4.835A9.964 9.964 0 0 0 18.306.5a10.079 10.079 0 0 0-9.614 6.977 9.967 9.967 0 0 0-6.664 4.834 10.08 10.08 0 0 0 1.24 11.817 9.965 9.965 0 0 0 .856 8.185 10.079 10.079 0 0 0 10.855 4.835 9.965 9.965 0 0 0 7.516 3.35 10.078 10.078 0 0 0 9.617-6.981 9.967 9.967 0 0 0 6.663-4.834 10.079 10.079 0 0 0-1.243-11.813ZM22.498 37.886a7.474 7.474 0 0 1-4.799-1.735c.061-.033.168-.091.237-.134l7.964-4.6a1.294 1.294 0 0 0 .655-1.134V19.054l3.366 1.944a.12.12 0 0 1 .066.092v9.299a7.505 7.505 0 0 1-7.49 7.496ZM6.392 31.006a7.471 7.471 0 0 1-.894-5.023c.06.036.162.099.237.141l7.964 4.6a1.297 1.297 0 0 0 1.308 0l9.724-5.614v3.888a.12.12 0 0 1-.048.103l-8.051 4.649a7.504 7.504 0 0 1-10.24-2.744ZM4.297 13.62A7.469 7.469 0 0 1 8.2 10.333c0 .068-.004.19-.004.274v9.201a1.294 1.294 0 0 0 .654 1.132l9.723 5.614-3.366 1.944a.12.12 0 0 1-.114.012L7.044 23.86a7.504 7.504 0 0 1-2.747-10.24Zm27.658 6.437-9.724-5.615 3.367-1.943a.121.121 0 0 1 .114-.012l8.048 4.648a7.498 7.498 0 0 1-1.158 13.528V21.36a1.293 1.293 0 0 0-.647-1.132v-.17Zm3.35-5.043c-.059-.037-.162-.099-.236-.141l-7.965-4.6a1.298 1.298 0 0 0-1.308 0l-9.723 5.614v-3.888a.12.12 0 0 1 .048-.103l8.05-4.645a7.497 7.497 0 0 1 11.135 7.763Zm-21.063 6.929-3.367-1.944a.12.12 0 0 1-.065-.092v-9.299a7.497 7.497 0 0 1 12.293-5.756 6.94 6.94 0 0 0-.236.134l-7.965 4.6a1.294 1.294 0 0 0-.654 1.132l-.006 11.225Zm1.829-3.943 4.33-2.501 4.332 2.5v5l-4.331 2.5-4.331-2.5V18Z" fill="currentColor"/></svg></div><div class="content"><div class="md-content" dir="auto" data-md="SGVyZeKAmXMgYSByZXZpc2VkIHZlcnNpb24gdGhhdCB0aWdodGVucyB0aGUgZmxvdywgc2hpZnRzIHRoZSB0b25lIGZyb20gbGl0ZXJhdHVyZSByZXZpZXcgdG8gZGlzY3Vzc2lvbiwgYW5kIGV4cGxpY2l0bHkgY29ubmVjdHMgcHJpb3Igd29yayB0byB5b3VyIGRlc2lnbiByZWNvbW1lbmRhdGlvbnM6CgpgYGB0ZXgKVGhlIHRlbnNpb24gYmV0d2VlbiByZXByZXNlbnRhdGl2ZW5lc3MgYW5kIGludGVyYWN0aXZpdHkgaXMgbm90IG1lcmVseSBhIHRoZW9yZXRpY2FsIGNvbmNlcm4gYnV0IGEgcHJhY3RpY2FsIGRlc2lnbiBjb25zdHJhaW50IHRoYXQgaGFzIGJlZW4gcmVwZWF0ZWRseSBvYnNlcnZlZCBhY3Jvc3MgdmlzdWFsaXphdGlvbiByZXNlYXJjaC4gUHJpb3Igd29yayBpbiBwcm9ncmVzc2l2ZSB2aXN1YWxpemF0aW9uIHNob3dzIHRoYXQgc3RyaWN0bHkgcHJpb3JpdGl6aW5nIGFjY3VyYWN5IHRocm91Z2ggYmxvY2tpbmcgY29tcHV0YXRpb25zIGNhbiBzZXZlcmVseSBsaW1pdCBleHBsb3JhdG9yeSBhbmFseXNpcywgd2hlcmVhcyBwcm9ncmVzc2l2ZSBvciBhcHByb3hpbWF0ZSByZXN1bHRzIGNhbiBzdXN0YWluIHVzZXIgZW5nYWdlbWVudCB3aGVuIGxhdGVuY3kgaXMgbG93IGFuZCBhcHByb3hpbWF0aW9uIHF1YWxpdHkgcmVtYWlucyBhYm92ZSBhIHVzYWJsZSB0aHJlc2hvbGR+XGNpdGV7emdyYWdnZW4yMDE2cHJvZ3Jlc3NpdmUsIG1vcml0ejIwMTd0cnVzdH0uIFNpbWlsYXJseSwgc2NhbGFiaWxpdHkgcmVzZWFyY2ggZnJhbWVzIHRoaXMgdGVuc2lvbiBhcyBjb21wZXRpbmcgZWZmb3J0IGZ1bmN0aW9ucyB0aGF0IG11c3QgYmUgZXhwbGljaXRseSBiYWxhbmNlZCBkdXJpbmcgc3lzdGVtIGRlc2lnbn5cY2l0ZXtyaWNoZXIyMDIyc2NhbGFiaWxpdHl9LiBUYWtlbiB0b2dldGhlciwgdGhlc2UgZmluZGluZ3Mgc3VnZ2VzdCB0aGF0IHRoZXJlIGlzIG5vIHVuaXZlcnNhbGx5IG9wdGltYWwgYmFsYW5jZTsgaW5zdGVhZCwgdGhlIGFwcHJvcHJpYXRlIHRyYWRlb2ZmIGRlcGVuZHMgb24gdGhlIGFuYWx5c2lzIGNvbnRleHQsIHRhc2sgcmVxdWlyZW1lbnRzLCBhbmQgdXNlciBleHBlY3RhdGlvbnMuCgpPdXIgZXhwZXJpZW5jZSB3aXRoIEVTZU1hbiByZWluZm9yY2VzIGFuZCBvcGVyYXRpb25hbGl6ZXMgdGhlc2UgaW5zaWdodHMgaW4gdGhlIGNvbnRleHQgb2YgZXZlbnQgc2VxdWVuY2UgdmlzdWFsaXphdGlvbi4gV2hpbGUgb3VyIHN5c3RlbSBkZW1vbnN0cmF0ZXMgdGhhdCBpdCBpcyBwb3NzaWJsZSB0byBtYWludGFpbiBib3RoIHJlYXNvbmFibGUgcmVwcmVzZW50YXRpdmVuZXNzIGFuZCBpbnRlcmFjdGl2aXR5LCBhY2hpZXZpbmcgdGhpcyBiYWxhbmNlIGluIHByYWN0aWNlIHJlcXVpcmVzIGRlbGliZXJhdGUgZGVzaWduIGNob2ljZXMuIEluIHBhcnRpY3VsYXIsIHdlIGZpbmQgdGhhdCBjb3VwbGluZyBkYXRhIHJldHJpZXZhbCBhbmQgdmlzdWFsIHJlcHJlc2VudGF0aW9uIHdpdGggdGhlIGN1cnJlbnQgaW50ZXJhY3Rpb24gY29udGV4dCAoZS5nLiwgem9vbSBsZXZlbCBhbmQgdmlld3BvcnQpIHByb3ZpZGVzIGEgbmF0dXJhbCBtZWNoYW5pc20gZm9yIGFkYXB0aW5nIHRoZSB0cmFkZW9mZiBkeW5hbWljYWxseS4gVGhpcyBkZXNpZ24gYWxsb3dzIHRoZSBzeXN0ZW0gdG8gcHJpb3JpdGl6ZSByZXNwb25zaXZlbmVzcyBkdXJpbmcgYnJvYWQgZXhwbG9yYXRpb24gd2hpbGUgaW5jcmVhc2luZyByZXByZXNlbnRhdGlvbmFsIGZpZGVsaXR5IGFzIHVzZXJzIGZvY3VzIG9uIHNwZWNpZmljIHJlZ2lvbnMuIEFsdGhvdWdoIG91ciBpbXBsZW1lbnRhdGlvbiBkb2VzIG5vdCBmdWxseSByZWFsaXplIHByb2dyZXNzaXZlIGFuYWx5dGljcyBwaXBlbGluZXN+XGNpdGV7c3RvbHBlcjIwMTRwcm9ncmVzc2l2ZX0sIGl0IGZvbGxvd3MgdGhlIHNhbWUgcHJpbmNpcGxlIG9mIHByb3ZpZGluZyBpbW1lZGlhdGUsIGFwcHJveGltYXRlIGZlZWRiYWNrIGFuZCByZWZpbmluZyByZXN1bHRzIGFzIG1vcmUgZGF0YSBiZWNvbWVzIGF2YWlsYWJsZS4KCkJhc2VkIG9uIGJvdGggcHJpb3IgbGl0ZXJhdHVyZSBhbmQgb3VyIGltcGxlbWVudGF0aW9uIGV4cGVyaWVuY2UsIHdlIHJlY29tbWVuZCBhIGRlc2lnbiBwcm9jZXNzIHRoYXQgbWFrZXMgdGhpcyB0cmFkZW9mZiBleHBsaWNpdCBhbmQgdGFzay1kcml2ZW4uIEZpcnN0LCBkZXNpZ25lcnMgc2hvdWxkIGlkZW50aWZ5IHRoZSBtaW5pbXVtIGxldmVsIG9mIHJlcHJlc2VudGF0aXZlbmVzcyByZXF1aXJlZCBmb3IgdXNlcnMgdG8gZHJhdyB0cnVzdHdvcnRoeSBpbnNpZ2h0cywgYWxvbmdzaWRlIHRoZSBtYXhpbXVtIGxhdGVuY3kgdGhhdCBjYW4gYmUgdG9sZXJhdGVkIHdpdGhvdXQgZGlzcnVwdGluZyBleHBsb3JhdGlvbi4gU2Vjb25kLCBzeXN0ZW0gbWVjaGFuaXNtc+KAlHN1Y2ggYXMgbGV2ZWwtb2YtZGV0YWlsIGNvbnRyb2wsIGFkYXB0aXZlIHF1ZXJ5aW5nLCBvciBwcm9ncmVzc2l2ZSByZWZpbmVtZW504oCUc2hvdWxkIGJlIHNlbGVjdGVkIHRvIG9wZXJhdGUgd2l0aGluIHRoZXNlIGJvdW5kcy4gRmluYWxseSwgYW5kIG1vc3QgaW1wb3J0YW50bHksIHRoaXMgYmFsYW5jZSBzaG91bGQgYmUgZXhwb3NlZCB0byB1c2VycyB3aGVuZXZlciBwb3NzaWJsZS4gQWxsb3dpbmcgdXNlcnMgdG8gY29udHJvbCBvciBpbXBsaWNpdGx5IGluZmx1ZW5jZSB0aGUgdHJhZGVvZmYgdGhyb3VnaCBpbnRlcmFjdGlvbiAoZS5nLiwgbmF2aWdhdGlvbiwgZmlsdGVyaW5nLCBvciBwcmVjaXNpb24gY29udHJvbHMpIGVuYWJsZXMgdGhlIHN5c3RlbSB0byBhZGFwdCB0byBkaXZlcnNlIGFuYWx5dGljYWwgbmVlZHMuIEJ5IGV4cGxpY2l0bHkgZnJhbWluZyByZXByZXNlbnRhdGl2ZW5lc3MgYW5kIGludGVyYWN0aXZpdHkgYXMgYSBjb250cm9sbGFibGUgYW5kIGNvbnRleHQtZGVwZW5kZW50IGJhbGFuY2UsIGRlc2lnbmVycyBjYW4gY3JlYXRlIGV2ZW50IHNlcXVlbmNlIHZpc3VhbGl6YXRpb25zIHRoYXQgcmVtYWluIGJvdGggc2NhbGFibGUgYW5kIGVmZmVjdGl2ZSBmb3IgZXhwbG9yYXRvcnkgYW5hbHlzaXMuCmBgYA=="></div></div></div>
+<div class="message user"><div class="bubble" dir="auto">I dont like this. The ideas don't connect and seem abrupt. Think more deeply and suggest a single paragraph combining the first and third paragraphs where ideas connect seamlessly. You may go find some additional citations if needed.</div></div>
+<div class="message assistant"><div class="avatar"><svg viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M37.532 16.87a9.963 9.963 0 0 0-.856-8.184 10.078 10.078 0 0 0-10.855-4.835A9.964 9.964 0 0 0 18.306.5a10.079 10.079 0 0 0-9.614 6.977 9.967 9.967 0 0 0-6.664 4.834 10.08 10.08 0 0 0 1.24 11.817 9.965 9.965 0 0 0 .856 8.185 10.079 10.079 0 0 0 10.855 4.835 9.965 9.965 0 0 0 7.516 3.35 10.078 10.078 0 0 0 9.617-6.981 9.967 9.967 0 0 0 6.663-4.834 10.079 10.079 0 0 0-1.243-11.813ZM22.498 37.886a7.474 7.474 0 0 1-4.799-1.735c.061-.033.168-.091.237-.134l7.964-4.6a1.294 1.294 0 0 0 .655-1.134V19.054l3.366 1.944a.12.12 0 0 1 .066.092v9.299a7.505 7.505 0 0 1-7.49 7.496ZM6.392 31.006a7.471 7.471 0 0 1-.894-5.023c.06.036.162.099.237.141l7.964 4.6a1.297 1.297 0 0 0 1.308 0l9.724-5.614v3.888a.12.12 0 0 1-.048.103l-8.051 4.649a7.504 7.504 0 0 1-10.24-2.744ZM4.297 13.62A7.469 7.469 0 0 1 8.2 10.333c0 .068-.004.19-.004.274v9.201a1.294 1.294 0 0 0 .654 1.132l9.723 5.614-3.366 1.944a.12.12 0 0 1-.114.012L7.044 23.86a7.504 7.504 0 0 1-2.747-10.24Zm27.658 6.437-9.724-5.615 3.367-1.943a.121.121 0 0 1 .114-.012l8.048 4.648a7.498 7.498 0 0 1-1.158 13.528V21.36a1.293 1.293 0 0 0-.647-1.132v-.17Zm3.35-5.043c-.059-.037-.162-.099-.236-.141l-7.965-4.6a1.298 1.298 0 0 0-1.308 0l-9.723 5.614v-3.888a.12.12 0 0 1 .048-.103l8.05-4.645a7.497 7.497 0 0 1 11.135 7.763Zm-21.063 6.929-3.367-1.944a.12.12 0 0 1-.065-.092v-9.299a7.497 7.497 0 0 1 12.293-5.756 6.94 6.94 0 0 0-.236.134l-7.965 4.6a1.294 1.294 0 0 0-.654 1.132l-.006 11.225Zm1.829-3.943 4.33-2.501 4.332 2.5v5l-4.331 2.5-4.331-2.5V18Z" fill="currentColor"/></svg></div><div class="content"><div class="md-content" dir="auto" data-md="SGVyZSBpcyBhIHRpZ2h0ZXIsIHNpbmdsZS1wYXJhZ3JhcGggdmVyc2lvbiB0aGF0IGludGVncmF0ZXMgdGhlIGxpdGVyYXR1cmUgd2l0aCB5b3VyIHJlY29tbWVuZGF0aW9ucyBhbmQgbWFpbnRhaW5zIGEgc21vb3RoZXIgYXJndW1lbnRhdGl2ZSBmbG93OgoKYGBgdGV4IGlkPSI0a3E5eDEiCkJhbGFuY2luZyByZXByZXNlbnRhdGl2ZW5lc3MgYW5kIGludGVyYWN0aXZpdHkgc2hvdWxkIGJlIHVuZGVyc3Rvb2Qgbm90IGFzIGFuIGltcGxlbWVudGF0aW9uIGRldGFpbCwgYnV0IGFzIGEgY2VudHJhbCwgdGFzay1kZXBlbmRlbnQgZGVzaWduIGRlY2lzaW9uLiBQcmlvciB3b3JrIGNvbnNpc3RlbnRseSBzaG93cyB0aGF0IHByaW9yaXRpemluZyBmdWxsIGFjY3VyYWN5IHRocm91Z2ggYmxvY2tpbmcgY29tcHV0YXRpb25zIHVuZGVybWluZXMgZXhwbG9yYXRvcnkgYW5hbHlzaXMsIHdoZXJlYXMgdXNlcnMgY2FuIGVmZmVjdGl2ZWx5IHJlYXNvbiB3aXRoIGFwcHJveGltYXRlIG9yIHBhcnRpYWwgcmVzdWx0cyB3aGVuIGxhdGVuY3kgcmVtYWlucyBsb3cgYW5kIGFwcHJveGltYXRpb24gcXVhbGl0eSBzdGF5cyBhYm92ZSBhIG1pbmltdW0gdGhyZXNob2xkflxjaXRle3pncmFnZ2VuMjAxNnByb2dyZXNzaXZlLCBtb3JpdHoyMDE3dHJ1c3R9LiBBdCB0aGUgc2FtZSB0aW1lLCBzY2FsYWJpbGl0eSByZXNlYXJjaCBmcmFtZXMgdGhpcyB0ZW5zaW9uIGFzIGEgZnVuZGFtZW50YWwgdHJhZGVvZmYgYmV0d2VlbiBjb21wZXRpbmcgc3lzdGVtIGVmZm9ydHMgdGhhdCBtdXN0IGJlIGV4cGxpY2l0bHkgbWFuYWdlZCByYXRoZXIgdGhhbiBlbGltaW5hdGVkflxjaXRle3JpY2hlcjIwMjJzY2FsYWJpbGl0eX0uIFRha2VuIHRvZ2V0aGVyLCB0aGVzZSBmaW5kaW5ncyBzdWdnZXN0IHRoYXQgdGhlIOKAnHJpZ2h04oCdIGJhbGFuY2UgaXMgbmVpdGhlciBmaXhlZCBub3IgdW5pdmVyc2FsLCBidXQgaW5zdGVhZCBib3VuZGVkIGJ5IHR3byBrZXkgZmFjdG9yczogdGhlIG1pbmltdW0gbGV2ZWwgb2YgcmVwcmVzZW50YXRpdmVuZXNzIHJlcXVpcmVkIGZvciB0cnVzdHdvcnRoeSBpbnNpZ2h0IGFuZCB0aGUgbWF4aW11bSBsYXRlbmN5IHVzZXJzIGNhbiB0b2xlcmF0ZSBiZWZvcmUgaW50ZXJhY3Rpb24gYnJlYWtzIGRvd24uIFdlIHRoZXJlZm9yZSByZWNvbW1lbmQgdGhhdCBkZXNpZ25lcnMgZXhwbGljaXRseSBpZGVudGlmeSB0aGVzZSBib3VuZHMgZWFybHkgaW4gdGhlIGRlc2lnbiBwcm9jZXNzIGFuZCBjaG9vc2Ugc3lzdGVtIHN0cmF0ZWdpZXPigJRzdWNoIGFzIGxldmVsLW9mLWRldGFpbCBjb250cm9sLCBhZGFwdGl2ZSBxdWVyeWluZywgb3IgcHJvZ3Jlc3NpdmUgcmVmaW5lbWVudH5cY2l0ZXtzdG9scGVyMjAxNHByb2dyZXNzaXZlfeKAlHRoYXQgb3BlcmF0ZSB3aXRoaW4gdGhlbS4gSW1wb3J0YW50bHksIGJlY2F1c2UgdGhlc2UgYm91bmRzIGNhbiBzaGlmdCB3aXRoIHVzZXIgZ29hbHMgYW5kIGFuYWx5c2lzIHN0YWdlcywgdGhlIGJhbGFuY2UgYmV0d2VlbiByZXByZXNlbnRhdGl2ZW5lc3MgYW5kIGludGVyYWN0aXZpdHkgc2hvdWxkIG5vdCByZW1haW4gc3RhdGljOyBpbnN0ZWFkLCBpdCBzaG91bGQgYmUgZXhwb3NlZCB0byBhbmQsIHdoZW4gcG9zc2libGUsIGNvbnRyb2xsZWQgYnkgdXNlcnMgdGhyb3VnaCBpbnRlcmFjdGlvbi4gRnJhbWluZyB0aGUgcHJvYmxlbSBpbiB0aGlzIHdheSBtb3ZlcyBiZXlvbmQgdHJlYXRpbmcgdGhlIHRyYWRlb2ZmIGFzIGEgbGltaXRhdGlvbiBhbmQgaW5zdGVhZCBwb3NpdGlvbnMgaXQgYXMgYSBkZXNpZ24gc3BhY2UgdGhhdCBjYW4gYmUgYWN0aXZlbHkgc2hhcGVkIHRvIHN1cHBvcnQgZWZmZWN0aXZlIGV4cGxvcmF0b3J5IGFuYWx5c2lzLgpgYGA="></div></div></div>
+<div class="message user"><div class="bubble" dir="auto">This paragraph sounds like it is written by AI. Humanize this.</div></div>
+<div class="message assistant"><div class="avatar"><svg viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M37.532 16.87a9.963 9.963 0 0 0-.856-8.184 10.078 10.078 0 0 0-10.855-4.835A9.964 9.964 0 0 0 18.306.5a10.079 10.079 0 0 0-9.614 6.977 9.967 9.967 0 0 0-6.664 4.834 10.08 10.08 0 0 0 1.24 11.817 9.965 9.965 0 0 0 .856 8.185 10.079 10.079 0 0 0 10.855 4.835 9.965 9.965 0 0 0 7.516 3.35 10.078 10.078 0 0 0 9.617-6.981 9.967 9.967 0 0 0 6.663-4.834 10.079 10.079 0 0 0-1.243-11.813ZM22.498 37.886a7.474 7.474 0 0 1-4.799-1.735c.061-.033.168-.091.237-.134l7.964-4.6a1.294 1.294 0 0 0 .655-1.134V19.054l3.366 1.944a.12.12 0 0 1 .066.092v9.299a7.505 7.505 0 0 1-7.49 7.496ZM6.392 31.006a7.471 7.471 0 0 1-.894-5.023c.06.036.162.099.237.141l7.964 4.6a1.297 1.297 0 0 0 1.308 0l9.724-5.614v3.888a.12.12 0 0 1-.048.103l-8.051 4.649a7.504 7.504 0 0 1-10.24-2.744ZM4.297 13.62A7.469 7.469 0 0 1 8.2 10.333c0 .068-.004.19-.004.274v9.201a1.294 1.294 0 0 0 .654 1.132l9.723 5.614-3.366 1.944a.12.12 0 0 1-.114.012L7.044 23.86a7.504 7.504 0 0 1-2.747-10.24Zm27.658 6.437-9.724-5.615 3.367-1.943a.121.121 0 0 1 .114-.012l8.048 4.648a7.498 7.498 0 0 1-1.158 13.528V21.36a1.293 1.293 0 0 0-.647-1.132v-.17Zm3.35-5.043c-.059-.037-.162-.099-.236-.141l-7.965-4.6a1.298 1.298 0 0 0-1.308 0l-9.723 5.614v-3.888a.12.12 0 0 1 .048-.103l8.05-4.645a7.497 7.497 0 0 1 11.135 7.763Zm-21.063 6.929-3.367-1.944a.12.12 0 0 1-.065-.092v-9.299a7.497 7.497 0 0 1 12.293-5.756 6.94 6.94 0 0 0-.236.134l-7.965 4.6a1.294 1.294 0 0 0-.654 1.132l-.006 11.225Zm1.829-3.943 4.33-2.501 4.332 2.5v5l-4.331 2.5-4.331-2.5V18Z" fill="currentColor"/></svg></div><div class="content"><div class="md-content" dir="auto" data-md="SGVyZeKAmXMgYSBtb3JlIG5hdHVyYWwsIGh1bWFuLXdyaXR0ZW4gdmVyc2lvbiB3aXRoIHNtb290aGVyIHRyYW5zaXRpb25zIGFuZCBsZXNzIOKAnGZvcm11bGFpY+KAnSBwaHJhc2luZzoKCmBgYHRleCBpZD0iN2gybXFwIgpCYWxhbmNpbmcgcmVwcmVzZW50YXRpdmVuZXNzIGFuZCBpbnRlcmFjdGl2aXR5IGlzIGxlc3Mgb2YgYSB0ZWNobmljYWwgdHJhZGVvZmYgYW5kIG1vcmUgb2YgYSBwcmFjdGljYWwgZGVzaWduIGRlY2lzaW9uIHRoYXQgc2hhcGVzIGhvdyBwZW9wbGUgZXhwbG9yZSBkYXRhLiBQcmlvciB3b3JrIHNob3dzIHRoYXQgd2FpdGluZyBmb3IgZnVsbHkgYWNjdXJhdGUgcmVzdWx0cyBjYW4gaW50ZXJydXB0IHRoZSBmbG93IG9mIGFuYWx5c2lzLCB3aGlsZSBmYXN0LCBhcHByb3hpbWF0ZSByZXN1bHRzIG9mdGVuIHdvcmsgd2VsbCBhcyBsb25nIGFzIHRoZXkgcmVtYWluIHJlYXNvbmFibHkgcmVsaWFibGV+XGNpdGV7emdyYWdnZW4yMDE2cHJvZ3Jlc3NpdmUsIG1vcml0ejIwMTd0cnVzdH0uIEF0IHRoZSBzYW1lIHRpbWUsIHNjYWxhYmlsaXR5IHJlc2VhcmNoIG1ha2VzIGl0IGNsZWFyIHRoYXQgdGhpcyB0ZW5zaW9uIGNhbm5vdCBiZSBlbGltaW5hdGVk4oCUaXQgaGFzIHRvIGJlIG1hbmFnZWR+XGNpdGV7cmljaGVyMjAyMnNjYWxhYmlsaXR5fS4gSW4gcHJhY3RpY2UsIHRoaXMgc3VnZ2VzdHMgdGhpbmtpbmcgYWJvdXQgdGhlIGJhbGFuY2UgaW4gdGVybXMgb2YgYWNjZXB0YWJsZSBsaW1pdHM6IGhvdyBtdWNoIGFwcHJveGltYXRpb24gdXNlcnMgY2FuIHRvbGVyYXRlIHdoaWxlIHN0aWxsIHRydXN0aW5nIHdoYXQgdGhleSBzZWUsIGFuZCBob3cgbXVjaCBkZWxheSB0aGV5IGFyZSB3aWxsaW5nIHRvIGFjY2VwdCBiZWZvcmUgdGhlIHN5c3RlbSBmZWVscyB1bnJlc3BvbnNpdmUuIFRoZXNlIGxpbWl0cyB3aWxsIHZhcnkgZGVwZW5kaW5nIG9uIHRoZSB0YXNrIGFuZCBjb250ZXh0LCBzbyB0aGVyZSBpcyBubyBzaW5nbGUg4oCcY29ycmVjdOKAnSBzZXR0aW5nLiBJbnN0ZWFkLCBkZXNpZ25lcnMgc2hvdWxkIGNob29zZSBtZWNoYW5pc21zIHN1Y2ggYXMgbGV2ZWwtb2YtZGV0YWlsIGNvbnRyb2wsIGFkYXB0aXZlIHF1ZXJpZXMsIG9yIHByb2dyZXNzaXZlIHJlZmluZW1lbnR+XGNpdGV7c3RvbHBlcjIwMTRwcm9ncmVzc2l2ZX0gdG8gc3RheSB3aXRoaW4gdGhlc2UgYm91bmRzLiBKdXN0IGFzIGltcG9ydGFudGx5LCB0aGlzIGJhbGFuY2Ugc2hvdWxkIG5vdCBiZSBmaXhlZC4gQXMgdXNlcnMgbW92ZSBiZXR3ZWVuIGJyb2FkIGV4cGxvcmF0aW9uIGFuZCBtb3JlIGZvY3VzZWQgYW5hbHlzaXMsIHRoZWlyIG5lZWRzIGNoYW5nZSwgYW5kIHRoZSBzeXN0ZW0gc2hvdWxkIGFkYXB0IGFjY29yZGluZ2x54oCUaWRlYWxseSBieSBsZXR0aW5nIHVzZXJzIGluZmx1ZW5jZSB0aGUgYmFsYW5jZSBkaXJlY3RseSB0aHJvdWdoIGludGVyYWN0aW9uLiBUaGlua2luZyBhYm91dCByZXByZXNlbnRhdGl2ZW5lc3MgYW5kIGludGVyYWN0aXZpdHkgaW4gdGhpcyB3YXkgbWFrZXMgdGhlIHRyYWRlb2ZmIGVhc2llciB0byByZWFzb24gYWJvdXQgYW5kLCB1bHRpbWF0ZWx5LCBtb3JlIHVzZWZ1bCBpbiBwcmFjdGljZS4KYGBg"></div></div></div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/highlight.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  marked.setOptions({
+    highlight: (code, lang) => {
+      if (lang && hljs.getLanguage(lang)) {
+        return hljs.highlight(code, { language: lang }).value;
+      }
+      return hljs.highlightAuto(code).value;
+    },
+    breaks: true,
+  });
+
+  const renderer = new marked.Renderer();
+  renderer.code = function({ text, lang }) {
+    const highlighted = lang && hljs.getLanguage(lang)
+      ? hljs.highlight(text, { language: lang }).value
+      : hljs.highlightAuto(text).value;
+    return '<div class="code-block"><button class="copy-btn" onclick="navigator.clipboard.writeText(this.nextElementSibling.querySelector(\'code\').textContent);this.textContent=\'Copied!\';setTimeout(()=>this.textContent=\'Copy\',1500)">Copy</button>'
+      + '<pre><code class="hljs">' + highlighted + '</code></pre></div>';
+  };
+  marked.use({ renderer });
+
+  document.querySelectorAll('.md-content').forEach(el => {
+    const md = decodeURIComponent(escape(atob(el.dataset.md)));
+    el.innerHTML = marked.parse(md);
+  });
+
+  const active = document.querySelector('.sidebar-item.active');
+  if (active) active.scrollIntoView({ block: 'center', behavior: 'instant' });
+});
+</script>
+</body>
+</html>

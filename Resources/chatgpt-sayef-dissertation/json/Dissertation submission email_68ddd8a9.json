@@ -1,0 +1,235 @@
+{
+  "title": "Dissertation submission email",
+  "create_time": 1759369385.818053,
+  "update_time": 1759369409.575714,
+  "moderation_results": [],
+  "plugin_ids": null,
+  "conversation_id": "68ddd8a9-3a50-8328-a31a-3ce1eda27187",
+  "conversation_template_id": "g-p-68d4ec9e34b4819192a95711760fdda1",
+  "gizmo_id": "g-p-68d4ec9e34b4819192a95711760fdda1",
+  "gizmo_type": "snorlax",
+  "is_archived": false,
+  "is_starred": null,
+  "safe_urls": [],
+  "blocked_urls": [],
+  "default_model_slug": "gpt-5",
+  "atlas_mode_enabled": null,
+  "conversation_origin": null,
+  "is_read_only": null,
+  "voice": null,
+  "async_status": null,
+  "disabled_tool_ids": [],
+  "is_temporary_chat": false,
+  "is_do_not_remember": false,
+  "memory_scope": "global_enabled",
+  "context_scopes": null,
+  "sugar_item_id": null,
+  "sugar_item_visible": false,
+  "pinned_time": null,
+  "is_study_mode": false,
+  "owner": null,
+  "mapping": {
+    "client-created-root": {
+      "id": "client-created-root",
+      "message": null,
+      "parent": null,
+      "children": [
+        "f30eb0d8-4a77-446e-81a2-cea1d03866a8"
+      ]
+    },
+    "f30eb0d8-4a77-446e-81a2-cea1d03866a8": {
+      "id": "f30eb0d8-4a77-446e-81a2-cea1d03866a8",
+      "message": {
+        "id": "f30eb0d8-4a77-446e-81a2-cea1d03866a8",
+        "author": {
+          "role": "system",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": null,
+        "update_time": null,
+        "content": {
+          "content_type": "text",
+          "parts": [
+            ""
+          ]
+        },
+        "status": "finished_successfully",
+        "end_turn": true,
+        "weight": 0,
+        "metadata": {
+          "is_visually_hidden_from_conversation": true,
+          "can_save": false
+        },
+        "recipient": "all",
+        "channel": null
+      },
+      "parent": "client-created-root",
+      "children": [
+        "bac41886-dc25-42c4-bd5b-8ab44e8c8db2"
+      ]
+    },
+    "bac41886-dc25-42c4-bd5b-8ab44e8c8db2": {
+      "id": "bac41886-dc25-42c4-bd5b-8ab44e8c8db2",
+      "message": {
+        "id": "bac41886-dc25-42c4-bd5b-8ab44e8c8db2",
+        "author": {
+          "role": "system",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": 1759369385.5724106,
+        "update_time": null,
+        "content": {
+          "content_type": "text",
+          "parts": [
+            ""
+          ]
+        },
+        "status": "finished_successfully",
+        "end_turn": null,
+        "weight": 1,
+        "metadata": {
+          "attachments": [],
+          "is_visually_hidden_from_conversation": true,
+          "can_save": false
+        },
+        "recipient": "all",
+        "channel": null
+      },
+      "parent": "f30eb0d8-4a77-446e-81a2-cea1d03866a8",
+      "children": [
+        "5fd01e50-d906-4207-9b4b-916e1c1d656f"
+      ]
+    },
+    "5fd01e50-d906-4207-9b4b-916e1c1d656f": {
+      "id": "5fd01e50-d906-4207-9b4b-916e1c1d656f",
+      "message": {
+        "id": "5fd01e50-d906-4207-9b4b-916e1c1d656f",
+        "author": {
+          "role": "user",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": 1759369385.056,
+        "update_time": null,
+        "content": {
+          "content_type": "text",
+          "parts": [
+            "help me write the email with that I'll submit my disseration to the committee members."
+          ]
+        },
+        "status": "finished_successfully",
+        "end_turn": null,
+        "weight": 1,
+        "metadata": {
+          "developer_mode_connector_ids": [],
+          "selected_sources": [],
+          "selected_github_repos": [],
+          "serialization_metadata": {
+            "custom_symbol_offsets": []
+          },
+          "request_id": "988081c08c7a38e9-SLC",
+          "message_source": null,
+          "turn_exchange_id": "bcc51f46-af92-48cd-b0ee-f5c530d561c7",
+          "timestamp_": "absolute",
+          "can_save": false
+        },
+        "recipient": "all",
+        "channel": null
+      },
+      "parent": "bac41886-dc25-42c4-bd5b-8ab44e8c8db2",
+      "children": [
+        "813aed7d-3af5-4120-9b48-329817124e88"
+      ]
+    },
+    "813aed7d-3af5-4120-9b48-329817124e88": {
+      "id": "813aed7d-3af5-4120-9b48-329817124e88",
+      "message": {
+        "id": "813aed7d-3af5-4120-9b48-329817124e88",
+        "author": {
+          "role": "assistant",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": 1759369385.6489532,
+        "update_time": null,
+        "content": {
+          "content_type": "model_editable_context",
+          "model_set_context": "",
+          "repository": null,
+          "repo_summary": null,
+          "structured_context": null
+        },
+        "status": "finished_successfully",
+        "end_turn": null,
+        "weight": 1,
+        "metadata": {
+          "request_id": "988081c08c7a38e9-SLC",
+          "message_type": "next",
+          "model_slug": "gpt-5",
+          "default_model_slug": "gpt-5",
+          "parent_id": "5fd01e50-d906-4207-9b4b-916e1c1d656f",
+          "turn_exchange_id": "bcc51f46-af92-48cd-b0ee-f5c530d561c7",
+          "timestamp_": "absolute",
+          "model_switcher_deny": [],
+          "can_save": false
+        },
+        "recipient": "all",
+        "channel": null
+      },
+      "parent": "5fd01e50-d906-4207-9b4b-916e1c1d656f",
+      "children": [
+        "e4e181dc-c31e-4b70-9d7e-78cc5240a779"
+      ]
+    },
+    "e4e181dc-c31e-4b70-9d7e-78cc5240a779": {
+      "id": "e4e181dc-c31e-4b70-9d7e-78cc5240a779",
+      "message": {
+        "id": "e4e181dc-c31e-4b70-9d7e-78cc5240a779",
+        "author": {
+          "role": "assistant",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": 1759369385.660561,
+        "update_time": null,
+        "content": {
+          "content_type": "text",
+          "parts": [
+            "Here’s a polished draft you can adapt for submitting your dissertation to your committee members:  \n\n---\n\n**Subject:** Submission of Dissertation for Committee Review  \n\nDear [Committee Member’s Name / Committee Members],  \n\nI am pleased to share with you the completed draft of my dissertation, titled *“[Your Dissertation Title Here]”*. This version incorporates the revisions and feedback received during my proposal and subsequent meetings. I am submitting it for your review ahead of my defense.  \n\nPlease find the dissertation attached [or: uploaded at the following link: **[insert link]**]. I welcome any comments or suggestions you may have and will incorporate them as I prepare for the defense.  \n\nThank you very much for your guidance and support throughout this process. I truly appreciate the time and effort you dedicate to reviewing my work.  \n\nBest regards,  \n[Your Full Name]  \nPh.D. Candidate  \nSchool of Computing, University of Utah  \n\n---\n\nWould you like me to also draft a **more formal version** (aligned with typical defense submission etiquette), or a **slightly warmer version** that emphasizes your appreciation for their mentorship?"
+          ]
+        },
+        "status": "finished_successfully",
+        "end_turn": true,
+        "weight": 1,
+        "metadata": {
+          "finish_details": {
+            "type": "stop",
+            "stop_tokens": [
+              200002
+            ]
+          },
+          "is_complete": true,
+          "citations": [],
+          "content_references": [],
+          "gizmo_id": "g-p-68d4ec9e34b4819192a95711760fdda1",
+          "request_id": "988081c08c7a38e9-SLC",
+          "message_type": "next",
+          "model_slug": "gpt-5",
+          "default_model_slug": "gpt-5",
+          "parent_id": "813aed7d-3af5-4120-9b48-329817124e88",
+          "turn_exchange_id": "bcc51f46-af92-48cd-b0ee-f5c530d561c7",
+          "timestamp_": "absolute",
+          "model_switcher_deny": [],
+          "can_save": true
+        },
+        "recipient": "all",
+        "channel": null
+      },
+      "parent": "813aed7d-3af5-4120-9b48-329817124e88",
+      "children": []
+    }
+  },
+  "current_node": "e4e181dc-c31e-4b70-9d7e-78cc5240a779"
+}

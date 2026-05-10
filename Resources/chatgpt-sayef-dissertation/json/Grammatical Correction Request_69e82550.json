@@ -1,0 +1,302 @@
+{
+  "title": "Grammatical Correction Request",
+  "create_time": 1776821650.713079,
+  "update_time": 1776821654.815263,
+  "moderation_results": [],
+  "plugin_ids": null,
+  "conversation_id": "69e82550-3930-83e8-a990-ee44afe2555b",
+  "conversation_template_id": "g-p-68d4ec9e34b4819192a95711760fdda1",
+  "gizmo_id": "g-p-68d4ec9e34b4819192a95711760fdda1",
+  "gizmo_type": "snorlax",
+  "is_archived": false,
+  "is_starred": null,
+  "safe_urls": [],
+  "blocked_urls": [],
+  "default_model_slug": "auto",
+  "atlas_mode_enabled": null,
+  "conversation_origin": null,
+  "is_read_only": null,
+  "voice": null,
+  "async_status": null,
+  "disabled_tool_ids": [],
+  "is_temporary_chat": false,
+  "is_do_not_remember": false,
+  "memory_scope": "global_enabled",
+  "context_scopes": [],
+  "sugar_item_id": null,
+  "sugar_item_visible": false,
+  "pinned_time": null,
+  "is_study_mode": false,
+  "owner": null,
+  "mapping": {
+    "client-created-root": {
+      "id": "client-created-root",
+      "message": null,
+      "parent": null,
+      "children": [
+        "98b710b7-959e-4e9b-b615-7ba3338dfe2e"
+      ]
+    },
+    "98b710b7-959e-4e9b-b615-7ba3338dfe2e": {
+      "id": "98b710b7-959e-4e9b-b615-7ba3338dfe2e",
+      "message": {
+        "id": "98b710b7-959e-4e9b-b615-7ba3338dfe2e",
+        "author": {
+          "role": "system",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": null,
+        "update_time": null,
+        "content": {
+          "content_type": "text",
+          "parts": [
+            ""
+          ]
+        },
+        "status": "finished_successfully",
+        "end_turn": true,
+        "weight": 0,
+        "metadata": {
+          "is_visually_hidden_from_conversation": true,
+          "can_save": false
+        },
+        "recipient": "all",
+        "channel": null
+      },
+      "parent": "client-created-root",
+      "children": [
+        "d6487307-1988-42db-965b-13b688f708cf"
+      ]
+    },
+    "d6487307-1988-42db-965b-13b688f708cf": {
+      "id": "d6487307-1988-42db-965b-13b688f708cf",
+      "message": {
+        "id": "d6487307-1988-42db-965b-13b688f708cf",
+        "author": {
+          "role": "system",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": null,
+        "update_time": null,
+        "content": {
+          "content_type": "text",
+          "parts": [
+            ""
+          ]
+        },
+        "status": "finished_successfully",
+        "end_turn": true,
+        "weight": 0,
+        "metadata": {
+          "rebase_developer_message": true,
+          "is_visually_hidden_from_conversation": true,
+          "can_save": false
+        },
+        "recipient": "all",
+        "channel": null
+      },
+      "parent": "98b710b7-959e-4e9b-b615-7ba3338dfe2e",
+      "children": [
+        "f64dea87-10bd-489e-939b-86eddfa69b7b"
+      ]
+    },
+    "f64dea87-10bd-489e-939b-86eddfa69b7b": {
+      "id": "f64dea87-10bd-489e-939b-86eddfa69b7b",
+      "message": {
+        "id": "f64dea87-10bd-489e-939b-86eddfa69b7b",
+        "author": {
+          "role": "system",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": 1776821584.6200223,
+        "update_time": null,
+        "content": {
+          "content_type": "text",
+          "parts": [
+            ""
+          ]
+        },
+        "status": "finished_successfully",
+        "end_turn": null,
+        "weight": 1,
+        "metadata": {
+          "attachments": [],
+          "is_visually_hidden_from_conversation": true,
+          "can_save": false
+        },
+        "recipient": "all",
+        "channel": null
+      },
+      "parent": "d6487307-1988-42db-965b-13b688f708cf",
+      "children": [
+        "b8a4d42c-9f88-47d5-913e-021a36bf287a"
+      ]
+    },
+    "b8a4d42c-9f88-47d5-913e-021a36bf287a": {
+      "id": "b8a4d42c-9f88-47d5-913e-021a36bf287a",
+      "message": {
+        "id": "b8a4d42c-9f88-47d5-913e-021a36bf287a",
+        "author": {
+          "role": "system",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": 1776821650.472924,
+        "update_time": null,
+        "content": {
+          "content_type": "text",
+          "parts": [
+            ""
+          ]
+        },
+        "status": "finished_successfully",
+        "end_turn": null,
+        "weight": 0,
+        "metadata": {
+          "request_id": "a5b11009-fa5b-4162-b968-a96bf179af68",
+          "message_source": null,
+          "turn_exchange_id": "704c8c76-45a4-4b3b-b70b-056da6291d71",
+          "is_visually_hidden_from_conversation": true,
+          "can_save": false
+        },
+        "recipient": "all",
+        "channel": null
+      },
+      "parent": "f64dea87-10bd-489e-939b-86eddfa69b7b",
+      "children": [
+        "9e451884-8294-409f-9ee8-4d42473c248f"
+      ]
+    },
+    "9e451884-8294-409f-9ee8-4d42473c248f": {
+      "id": "9e451884-8294-409f-9ee8-4d42473c248f",
+      "message": {
+        "id": "9e451884-8294-409f-9ee8-4d42473c248f",
+        "author": {
+          "role": "user",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": 1776821652.265,
+        "update_time": null,
+        "content": {
+          "content_type": "text",
+          "parts": [
+            "For the following sentence \"Optimistic visualization system in~\\cite{moritz2017trust} showed that users can extract valid insights from approximate and progressively refined results as long as approximation quality (representativeness) remains above a minimum threshold and system latency (interactivity) stays low enough to maintain engagement.\"\n\nFix any grammatical errors in this and update it to remove \"in <citation>\" (I don't want to use reference as a word)"
+          ]
+        },
+        "status": "finished_successfully",
+        "end_turn": null,
+        "weight": 1,
+        "metadata": {
+          "selected_github_repos": [],
+          "serialization_metadata": {
+            "custom_symbol_offsets": []
+          },
+          "request_id": "a5b11009-fa5b-4162-b968-a96bf179af68",
+          "message_source": null,
+          "turn_exchange_id": "704c8c76-45a4-4b3b-b70b-056da6291d71",
+          "resolved_model_slug": "gpt-5-3",
+          "can_save": false
+        },
+        "recipient": "all",
+        "channel": null
+      },
+      "parent": "b8a4d42c-9f88-47d5-913e-021a36bf287a",
+      "children": [
+        "f2bc98ca-29ed-4550-9a16-d30b9428ace4"
+      ]
+    },
+    "f2bc98ca-29ed-4550-9a16-d30b9428ace4": {
+      "id": "f2bc98ca-29ed-4550-9a16-d30b9428ace4",
+      "message": {
+        "id": "f2bc98ca-29ed-4550-9a16-d30b9428ace4",
+        "author": {
+          "role": "assistant",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": 1776821650.583058,
+        "update_time": null,
+        "content": {
+          "content_type": "model_editable_context",
+          "model_set_context": "",
+          "repository": null,
+          "repo_summary": null,
+          "structured_context": null
+        },
+        "status": "finished_successfully",
+        "end_turn": null,
+        "weight": 1,
+        "metadata": {
+          "search_result_groups": [],
+          "request_id": "a5b11009-fa5b-4162-b968-a96bf179af68",
+          "message_type": "next",
+          "turn_exchange_id": "704c8c76-45a4-4b3b-b70b-056da6291d71",
+          "model_slug": "gpt-5-3",
+          "default_model_slug": "auto",
+          "can_save": false,
+          "parent_id": "9e451884-8294-409f-9ee8-4d42473c248f",
+          "model_switcher_deny": []
+        },
+        "recipient": "all",
+        "channel": null
+      },
+      "parent": "9e451884-8294-409f-9ee8-4d42473c248f",
+      "children": [
+        "1db697c1-91c6-4086-b7ee-e4a0dd387d1a"
+      ]
+    },
+    "1db697c1-91c6-4086-b7ee-e4a0dd387d1a": {
+      "id": "1db697c1-91c6-4086-b7ee-e4a0dd387d1a",
+      "message": {
+        "id": "1db697c1-91c6-4086-b7ee-e4a0dd387d1a",
+        "author": {
+          "role": "assistant",
+          "name": null,
+          "metadata": {}
+        },
+        "create_time": 1776821650.623819,
+        "update_time": null,
+        "content": {
+          "content_type": "text",
+          "parts": [
+            "The optimistic visualization system proposed by~\\cite{moritz2017trust} showed that users can extract valid insights from approximate and progressively refined results, as long as approximation quality (representativeness) remains above a minimum threshold and system latency (interactivity) stays low enough to maintain engagement."
+          ]
+        },
+        "status": "finished_successfully",
+        "end_turn": true,
+        "weight": 1,
+        "metadata": {
+          "finish_details": {
+            "type": "stop",
+            "stop_tokens": [
+              200002
+            ]
+          },
+          "is_complete": true,
+          "citations": [],
+          "content_references": [],
+          "resolved_model_slug": "gpt-5-3",
+          "gizmo_id": "g-p-68d4ec9e34b4819192a95711760fdda1",
+          "search_result_groups": [],
+          "request_id": "a5b11009-fa5b-4162-b968-a96bf179af68",
+          "message_type": "next",
+          "turn_exchange_id": "704c8c76-45a4-4b3b-b70b-056da6291d71",
+          "model_slug": "gpt-5-3",
+          "default_model_slug": "auto",
+          "can_save": true,
+          "parent_id": "f2bc98ca-29ed-4550-9a16-d30b9428ace4",
+          "model_switcher_deny": []
+        },
+        "recipient": "all",
+        "channel": "final"
+      },
+      "parent": "f2bc98ca-29ed-4550-9a16-d30b9428ace4",
+      "children": []
+    }
+  },
+  "current_node": "1db697c1-91c6-4086-b7ee-e4a0dd387d1a"
+}

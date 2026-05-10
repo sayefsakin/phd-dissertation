@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Improving Data Abstraction Clarity</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/styles/github-dark.min.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: #ffffff; color: #0d0d0d;
+    line-height: 1.65; font-size: 16px;
+    display: flex; height: 100vh;
+  }
+  .sidebar {
+    width: 260px; min-width: 260px; height: 100vh;
+    background: #f9f9f9; border-right: 1px solid #e5e5e5;
+    overflow-y: auto; padding: 16px 0;
+    flex-shrink: 0; position: sticky; top: 0;
+  }
+  .sidebar-header {
+    padding: 8px 16px 16px; font-size: 14px; font-weight: 600;
+    color: #6b6b6b; border-bottom: 1px solid #e5e5e5; margin-bottom: 8px;
+  }
+  .sidebar-item {
+    display: block; padding: 8px 16px; font-size: 13px;
+    color: #0d0d0d; text-decoration: none;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    border-radius: 8px; margin: 2px 8px;
+  }
+  .sidebar-item:hover { background: #ececec; }
+  .sidebar-item.active { background: #e5e5e5; font-weight: 600; }
+  .sidebar-toggle {
+    display: none; position: fixed; top: 12px; left: 12px; z-index: 100;
+    background: #f4f4f4; border: 1px solid #e5e5e5; border-radius: 8px;
+    width: 36px; height: 36px; cursor: pointer;
+    align-items: center; justify-content: center; font-size: 20px;
+  }
+  @media (max-width: 768px) {
+    .sidebar {
+      position: fixed; left: -280px; z-index: 99;
+      transition: left 0.2s; box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+    }
+    .sidebar.open { left: 0; }
+    .sidebar-toggle { display: flex; }
+    .main { margin-left: 0 !important; }
+  }
+  .main { flex: 1; overflow-y: auto; }
+  .header {
+    max-width: 768px; margin: 0 auto; padding: 32px 24px 16px;
+    border-bottom: 1px solid #e5e5e5;
+  }
+  .header h1 { font-size: 22px; font-weight: 600; }
+  .header .date { font-size: 13px; color: #6b6b6b; margin-top: 4px; }
+  .chat { max-width: 768px; margin: 0 auto; padding: 24px; }
+  .message { margin-bottom: 24px; }
+  .message.user { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+  .message.user .bubble {
+    background: #f4f4f4; border-radius: 18px; padding: 10px 16px;
+    max-width: 85%; white-space: pre-wrap; word-break: break-word;
+  }
+  .message.user .images { width: 100%; display: flex; justify-content: flex-end; }
+  .message.assistant { display: flex; gap: 12px; align-items: flex-start; }
+  .message.assistant .avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #00a67e; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .message.assistant .content { flex: 1; min-width: 0; }
+  .message.assistant .content h1,
+  .message.assistant .content h2,
+  .message.assistant .content h3 { margin: 16px 0 8px; font-weight: 600; }
+  .message.assistant .content h1 { font-size: 20px; }
+  .message.assistant .content h2 { font-size: 18px; }
+  .message.assistant .content h3 { font-size: 16px; }
+  .message.assistant .content p { margin: 8px 0; }
+  .message.assistant .content ul,
+  .message.assistant .content ol { margin: 8px 0; padding-left: 24px; }
+  .message.assistant .content li { margin: 4px 0; }
+  .message.assistant .content a { color: #1a7f64; }
+  .message.assistant .content code {
+    background: #f0f0f0; border-radius: 4px; padding: 2px 5px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 14px;
+  }
+  .message.assistant .content pre { margin: 12px 0; border-radius: 8px; overflow: hidden; }
+  .message.assistant .content pre code {
+    display: block; background: #0d0d0d; color: #f8f8f2;
+    padding: 16px; overflow-x: auto; border-radius: 0;
+    font-size: 13px; line-height: 1.5;
+  }
+  .code-block { position: relative; }
+  .code-block .copy-btn {
+    position: absolute; top: 8px; right: 8px;
+    background: #333; border: none; color: #999; cursor: pointer;
+    font-size: 12px; padding: 4px 10px; border-radius: 4px;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .code-block:hover .copy-btn { opacity: 1; }
+  .code-block .copy-btn:hover { color: #fff; background: #555; }
+  .images img { max-width: 100%; border-radius: 8px; margin: 4px 0; display: block; cursor: pointer; }
+  .images img:hover { opacity: 0.9; }
+  .message.user .images img { max-width: 300px; }
+  .attachments { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .attachment {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #f4f4f4; border: 1px solid #e5e5e5; border-radius: 8px;
+    padding: 8px 12px; text-decoration: none; color: #0d0d0d; font-size: 14px;
+  }
+  .attachment:hover { background: #ececec; }
+  .att-icon { font-size: 16px; }
+  .att-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
+
+  .thinking {
+    margin-bottom: 24px; border-left: 3px solid #d4d4d4;
+    padding-left: 16px; font-size: 14px;
+  }
+  .thinking summary {
+    color: #8e8e8e; font-style: italic; cursor: pointer;
+    padding: 4px 0; user-select: none;
+  }
+  .thinking summary:hover { color: #555; }
+  .thinking-content {
+    color: #6b6b6b; padding: 8px 0; font-style: italic;
+  }
+  .thinking-content p, .thinking-content li { color: #6b6b6b; }
+  .thinking-content pre code { opacity: 0.7; }
+  .thinking-content h1, .thinking-content h2, .thinking-content h3 {
+    color: #6b6b6b; font-size: 15px;
+  }
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">&#9776;</button>
+<nav class="sidebar">
+  <div class="sidebar-header">Conversations</div>
+  <a class="sidebar-item" href="Revising Visualization Abstraction_69ed203e.html" title="Revising Visualization Abstraction">Revising Visualization Abstraction</a>
+<a class="sidebar-item" href="Wording Suggestions for Model_69ecf041.html" title="Wording Suggestions for Model">Wording Suggestions for Model</a>
+<a class="sidebar-item" href="Limitations of Connected Approach_69ec4e83.html" title="Limitations of Connected Approach">Limitations of Connected Approach</a>
+<a class="sidebar-item" href="Balancing Representativeness and Interactivity_69ec10e9.html" title="Balancing Representativeness and Interactivity">Balancing Representativeness and Interactivity</a>
+<a class="sidebar-item" href="Representativeness vs Interactivity_69e87f74.html" title="Representativeness vs Interactivity">Representativeness vs Interactivity</a>
+<a class="sidebar-item" href="Grammatical Correction Request_69e82550.html" title="Grammatical Correction Request">Grammatical Correction Request</a>
+<a class="sidebar-item active" href="Improving Data Abstraction Clarity_69e7a831.html" title="Improving Data Abstraction Clarity">Improving Data Abstraction Clarity</a>
+<a class="sidebar-item" href="ESeMan Summary Improvement_69a71cdc.html" title="ESeMan Summary Improvement">ESeMan Summary Improvement</a>
+<a class="sidebar-item" href="Branch · Design principles for visualizations_69037a11.html" title="Branch · Design principles for visualizations">Branch · Design principles for visualizations</a>
+<a class="sidebar-item" href="Branch · Design principles for visualizations_690364ba.html" title="Branch · Design principles for visualizations">Branch · Design principles for visualizations</a>
+<a class="sidebar-item" href="Design principles for visualizations_68dd8912.html" title="Design principles for visualizations">Design principles for visualizations</a>
+<a class="sidebar-item" href="Abstract final_68d50fc5.html" title="Abstract final">Abstract final</a>
+<a class="sidebar-item" href="Dissertation submission email_68ddd8a9.html" title="Dissertation submission email">Dissertation submission email</a>
+<a class="sidebar-item" href="Related work chapter expansion_68d5a210.html" title="Related work chapter expansion">Related work chapter expansion</a>
+<a class="sidebar-item" href="Discussion conclusion latex formatting_68d5be12.html" title="Discussion conclusion latex formatting">Discussion conclusion latex formatting</a>
+<a class="sidebar-item" href="Event sequence visualization_68dca9de.html" title="Event sequence visualization">Event sequence visualization</a>
+<a class="sidebar-item" href="Write introduction chapter_68d540f7.html" title="Write introduction chapter">Write introduction chapter</a>
+<a class="sidebar-item" href="Write discussion chapter_68d5cf30.html" title="Write discussion chapter">Write discussion chapter</a>
+<a class="sidebar-item" href="Acknowledgement section LaTeX_68d688ae.html" title="Acknowledgement section LaTeX">Acknowledgement section LaTeX</a>
+<a class="sidebar-item" href="Latex dissertation rewrite_68d5cd8d.html" title="Latex dissertation rewrite">Latex dissertation rewrite</a>
+<a class="sidebar-item" href="Evaluation section update_68d5cbcf.html" title="Evaluation section update">Evaluation section update</a>
+<a class="sidebar-item" href="Dissertation summary in LaTeX_68d5c539.html" title="Dissertation summary in LaTeX">Dissertation summary in LaTeX</a>
+<a class="sidebar-item" href="Gantt chart data queries_68d5bfc2.html" title="Gantt chart data queries">Gantt chart data queries</a>
+<a class="sidebar-item" href="Evaluation section latex_68d5bcb1.html" title="Evaluation section latex">Evaluation section latex</a>
+<a class="sidebar-item" href="LaTeX dissertation version_68d5ba39.html" title="LaTeX dissertation version">LaTeX dissertation version</a>
+<a class="sidebar-item" href="Traveler design goals_68d5b6e5.html" title="Traveler design goals">Traveler design goals</a>
+<a class="sidebar-item" href="Visualization in HPC_68d5b451.html" title="Visualization in HPC">Visualization in HPC</a>
+<a class="sidebar-item" href="Task parallel programs summary_68d5b243.html" title="Task parallel programs summary">Task parallel programs summary</a>
+<a class="sidebar-item" href="Chapter 3 outline_68d5afc7.html" title="Chapter 3 outline">Chapter 3 outline</a>
+<a class="sidebar-item" href="Abstract Initial Draft_68d4ee8f.html" title="Abstract Initial Draft">Abstract Initial Draft</a>
+<a class="sidebar-item" href="Paper summary Traveler platform_68d4edf5.html" title="Paper summary Traveler platform">Paper summary Traveler platform</a>
+<a class="sidebar-item" href="Gantt chart task taxonomy_68d4edc8.html" title="Gantt chart task taxonomy">Gantt chart task taxonomy</a>
+<a class="sidebar-item" href="Summarize ESeMan paper_68d4ed81.html" title="Summarize ESeMan paper">Summarize ESeMan paper</a>
+</nav>
+<div class="main">
+  <div class="header">
+    <h1>Improving Data Abstraction Clarity</h1>
+    <div class="date">2026-04-21 16:41 UTC</div>
+  </div>
+  <div class="chat">
+  <div class="message user"><div class="bubble" dir="auto">In the discussion chapter, in the section &quot;Relating Visual Data Abstraction with Data Format&quot;, I wrote the following <br>```<br>To apply this lesson in practice, we recommend identifying \textit{visual data abstraction} and \textit{data format} and iteratively updating both to relate with each other as closely as possible. Stakeholder engagement and domain characterization~\cite{munzner2009nested, Sedlmair2012}, revealing latent data abstractions~\cite{bigelow2020guidelines}, data reconnaissance and task wrangling~\cite{crisan2019uncovering}, and data-first strategy~\cite{oppermann2020data} are utilized to identify \textit{visual data abstraction}. \textit{Data formats} are identified by profiling the raw data landscape like determining structural organization (flat tables, nested hierarchies, multi-table collections, temporal sequences, or graphs), enumerating attribute types, ranges, and edge cases, and documenting how data flows between system components such as databases, query managers, and rendering layers~\cite{kandel2011research, battle2020structured, yang2024optimizing}. Finally, to relate the visual abstraction to the format, the gap between the two is enumerated as syntactic, structural, or semantic transformation requirements, and the data architecture is adapted, through schema redesign, query API restructuring, or data structure selection, so that the format natively mirrors the visual abstraction and minimizes inter-component conversion~\cite{kandel2011research, walny2019data, kasica2020table, battle2020structured, yang2024optimizing, bigelow2020guidelines}. Where format and abstraction cannot be aligned at the storage level, dedicated middleware architectures can coordinate between the visualization specification and the backend data system~\cite{battle2020structured, heer2023mosaic, yang2024optimizing}; and where domain partners must be brought into the alignment process~\cite{williams2023data}, the guidelines of Bigelow et al.~\cite{bigelow2020guidelines} provide a framework for negotiating which latent abstractions to reveal and at what cost.<br>```<br><br>This paragraph seems unreadable. The logical flow of what should be done does not come through and there is a lot of jargon. For example, early on it has a list of terms like 'data-first strategy' and 'data reconnaissance' without explaining what those methods are and how they are supposed to help with the problem. A person reading this paragraph is unlikely to be able to do anything as the suggestions are not clear. The verb tenses within this paragraph are also confusing. I cannot tell what is happening passively, what you have done, or what a person is supposed to do. You might also want to split this into multiple paragraphs.</div></div>
+<div class="message assistant"><div class="avatar"><svg viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M37.532 16.87a9.963 9.963 0 0 0-.856-8.184 10.078 10.078 0 0 0-10.855-4.835A9.964 9.964 0 0 0 18.306.5a10.079 10.079 0 0 0-9.614 6.977 9.967 9.967 0 0 0-6.664 4.834 10.08 10.08 0 0 0 1.24 11.817 9.965 9.965 0 0 0 .856 8.185 10.079 10.079 0 0 0 10.855 4.835 9.965 9.965 0 0 0 7.516 3.35 10.078 10.078 0 0 0 9.617-6.981 9.967 9.967 0 0 0 6.663-4.834 10.079 10.079 0 0 0-1.243-11.813ZM22.498 37.886a7.474 7.474 0 0 1-4.799-1.735c.061-.033.168-.091.237-.134l7.964-4.6a1.294 1.294 0 0 0 .655-1.134V19.054l3.366 1.944a.12.12 0 0 1 .066.092v9.299a7.505 7.505 0 0 1-7.49 7.496ZM6.392 31.006a7.471 7.471 0 0 1-.894-5.023c.06.036.162.099.237.141l7.964 4.6a1.297 1.297 0 0 0 1.308 0l9.724-5.614v3.888a.12.12 0 0 1-.048.103l-8.051 4.649a7.504 7.504 0 0 1-10.24-2.744ZM4.297 13.62A7.469 7.469 0 0 1 8.2 10.333c0 .068-.004.19-.004.274v9.201a1.294 1.294 0 0 0 .654 1.132l9.723 5.614-3.366 1.944a.12.12 0 0 1-.114.012L7.044 23.86a7.504 7.504 0 0 1-2.747-10.24Zm27.658 6.437-9.724-5.615 3.367-1.943a.121.121 0 0 1 .114-.012l8.048 4.648a7.498 7.498 0 0 1-1.158 13.528V21.36a1.293 1.293 0 0 0-.647-1.132v-.17Zm3.35-5.043c-.059-.037-.162-.099-.236-.141l-7.965-4.6a1.298 1.298 0 0 0-1.308 0l-9.723 5.614v-3.888a.12.12 0 0 1 .048-.103l8.05-4.645a7.497 7.497 0 0 1 11.135 7.763Zm-21.063 6.929-3.367-1.944a.12.12 0 0 1-.065-.092v-9.299a7.497 7.497 0 0 1 12.293-5.756 6.94 6.94 0 0 0-.236.134l-7.965 4.6a1.294 1.294 0 0 0-.654 1.132l-.006 11.225Zm1.829-3.943 4.33-2.501 4.332 2.5v5l-4.331 2.5-4.331-2.5V18Z" fill="currentColor"/></svg></div><div class="content"><div class="md-content" dir="auto" data-md="YGBgdGV4ClRvIGFwcGx5IHRoaXMgbGVzc29uIGluIHByYWN0aWNlLCB3ZSByZWNvbW1lbmQgdHJlYXRpbmcgXHRleHRpdHt2aXN1YWwgZGF0YSBhYnN0cmFjdGlvbn0gYW5kIFx0ZXh0aXR7ZGF0YSBmb3JtYXR9IGFzIHR3byBkZXNpZ24gZGVjaXNpb25zIHRoYXQgc2hvdWxkIGJlIGRldmVsb3BlZCB0b2dldGhlci4gUmF0aGVyIHRoYW4gZml4aW5nIG9uZSBmaXJzdCBhbmQgYWRhcHRpbmcgdGhlIG90aGVyIGxhdGVyLCBkZXNpZ25lcnMgc2hvdWxkIGl0ZXJhdGl2ZWx5IHJlZmluZSBib3RoIHVudGlsIHRoZSBzdG9yZWQgZGF0YSBzdHJ1Y3R1cmUgY2xvc2VseSBzdXBwb3J0cyB0aGUgaW50ZW5kZWQgdmlzdWFsIHJlcHJlc2VudGF0aW9uLgoKVGhlIGZpcnN0IHN0ZXAgaXMgdG8gaWRlbnRpZnkgdGhlIFx0ZXh0aXR7dmlzdWFsIGRhdGEgYWJzdHJhY3Rpb259OiB0aGUgZGF0YSBtb2RlbCByZXF1aXJlZCBieSB0aGUgdmlzdWFsaXphdGlvbi4gVGhpcyBjYW4gYmUgZG9uZSB0aHJvdWdoIHN0YWtlaG9sZGVyIGludGVydmlld3MsIGRvbWFpbiBjaGFyYWN0ZXJpemF0aW9uLCBhbmQgdGFzayBhbmFseXNpcyB0byB1bmRlcnN0YW5kIHdoYXQgdXNlcnMgbmVlZCB0byBzZWUgYW5kIGRvflxjaXRle211bnpuZXIyMDA5bmVzdGVkLFNlZGxtYWlyMjAxMn0uIEFkZGl0aW9uYWwgbWV0aG9kcyBzdWNoIGFzIGV4YW1pbmluZyBleGlzdGluZyB3b3JrZmxvd3MsIGV4cGxvcmluZyB0aGUgcmF3IGRhdGEsIGFuZCBpZGVudGlmeWluZyBoaWRkZW4gcmVsYXRpb25zaGlwcyBvciBhZ2dyZWdhdGVzIGNhbiBoZWxwIHJldmVhbCBsYXRlbnQgYWJzdHJhY3Rpb25zIHRoYXQgYXJlIG5vdCBpbW1lZGlhdGVseSB2aXNpYmxlIGluIHRoZSBzb3VyY2UgZGF0YX5cY2l0ZXtjcmlzYW4yMDE5dW5jb3ZlcmluZyxiaWdlbG93MjAyMGd1aWRlbGluZXMsb3BwZXJtYW5uMjAyMGRhdGF9LiBGb3IgZXhhbXBsZSwgYSBjb2xsZWN0aW9uIG9mIGV2ZW50IGxvZ3MgbWF5IG5lZWQgdG8gYmUgcmVmcmFtZWQgYXMgdGltZWxpbmVzLCBoaWVyYXJjaGllcywgb3IgbmV0d29ya3MgZGVwZW5kaW5nIG9uIHRoZSBhbmFseXRpY2FsIGdvYWxzLgoKVGhlIHNlY29uZCBzdGVwIGlzIHRvIGlkZW50aWZ5IHRoZSBjdXJyZW50IFx0ZXh0aXR7ZGF0YSBmb3JtYXR9OiBob3cgdGhlIGRhdGEgaXMgYWN0dWFsbHkgc3RvcmVkLCBvcmdhbml6ZWQsIGFuZCB0cmFuc21pdHRlZC4gVGhpcyBpbmNsdWRlcyBkZXRlcm1pbmluZyB3aGV0aGVyIHRoZSBkYXRhIGV4aXN0cyBhcyBmbGF0IHRhYmxlcywgbmVzdGVkIHJlY29yZHMsIGdyYXBocywgdGVtcG9yYWwgc2VxdWVuY2VzLCBvciBtdWx0aXBsZSBsaW5rZWQgdGFibGVzLCBhbmQgZG9jdW1lbnRpbmcgaG93IGl0IG1vdmVzIHRocm91Z2ggZGF0YWJhc2VzLCBBUElzLCBxdWVyeSBlbmdpbmVzLCBhbmQgcmVuZGVyaW5nIHBpcGVsaW5lc35cY2l0ZXtrYW5kZWwyMDExcmVzZWFyY2gsYmF0dGxlMjAyMHN0cnVjdHVyZWQseWFuZzIwMjRvcHRpbWl6aW5nfS4KClRoZSBmaW5hbCBzdGVwIGlzIHRvIGNvbXBhcmUgdGhlIGFic3RyYWN0aW9uIHdpdGggdGhlIGZvcm1hdCBhbmQgaWRlbnRpZnkgbWlzbWF0Y2hlcy4gVGhlc2UgbWlzbWF0Y2hlcyBtYXkgYmUgc3ludGFjdGljIChkaWZmZXJlbnQgZmllbGQgbmFtZXMgb3IgZW5jb2RpbmdzKSwgc3RydWN0dXJhbCAodGFidWxhciBkYXRhIHRoYXQgbXVzdCBiZSBjb252ZXJ0ZWQgaW50byBoaWVyYXJjaGllcyBvciBncmFwaHMpLCBvciBzZW1hbnRpYyAobWlzc2luZyBkZXJpdmVkIGNvbmNlcHRzIG5lZWRlZCBmb3IgYW5hbHlzaXMpLiBPbmNlIGlkZW50aWZpZWQsIHRoZSBkYXRhIGFyY2hpdGVjdHVyZSBjYW4gYmUgcmV2aXNlZCB0aHJvdWdoIHNjaGVtYSByZWRlc2lnbiwgcXVlcnkgaW50ZXJmYWNlIGNoYW5nZXMsIHByZXByb2Nlc3NpbmcgcGlwZWxpbmVzLCBvciBhbHRlcm5hdGl2ZSBkYXRhIHN0cnVjdHVyZXMgc28gdGhhdCB0aGUgZm9ybWF0IG1vcmUgZGlyZWN0bHkgc3VwcG9ydHMgdGhlIHZpc3VhbGl6YXRpb24gYW5kIHJlZHVjZXMgcmVwZWF0ZWQgdHJhbnNmb3JtYXRpb25zIGR1cmluZyBpbnRlcmFjdGlvbn5cY2l0ZXtrYW5kZWwyMDExcmVzZWFyY2gsd2FsbnkyMDE5ZGF0YSxrYXNpY2EyMDIwdGFibGUsYmF0dGxlMjAyMHN0cnVjdHVyZWQseWFuZzIwMjRvcHRpbWl6aW5nLGJpZ2Vsb3cyMDIwZ3VpZGVsaW5lc30uCgpXaGVuIHN0b3JhZ2UtbGV2ZWwgYWxpZ25tZW50IGlzIG5vdCBmZWFzaWJsZSwgbWlkZGxld2FyZSBsYXllcnMgY2FuIHRyYW5zbGF0ZSBiZXR3ZWVuIGJhY2tlbmQgc3lzdGVtcyBhbmQgdmlzdWFsaXphdGlvbiByZXF1aXJlbWVudHMgYXQgcnVudGltZX5cY2l0ZXtiYXR0bGUyMDIwc3RydWN0dXJlZCxoZWVyMjAyM21vc2FpYyx5YW5nMjAyNG9wdGltaXppbmd9LiBXaGVuIHRoZXNlIGNoYW5nZXMgcmVxdWlyZSBuZWdvdGlhdGlvbiB3aXRoIGRvbWFpbiBjb2xsYWJvcmF0b3JzLCBwYXJ0aWNpcGF0b3J5IGRlc2lnbiBtZXRob2RzIGNhbiBoZWxwIGRldGVybWluZSB3aGljaCBhYnN0cmFjdGlvbnMgYXJlIG1vc3QgdmFsdWFibGUgYW5kIHdoYXQgdHJhZGUtb2ZmcyBhcmUgYWNjZXB0YWJsZX5cY2l0ZXt3aWxsaWFtczIwMjNkYXRhLGJpZ2Vsb3cyMDIwZ3VpZGVsaW5lc30uCmBgYA=="></div></div></div>
+<div class="message user"><div class="bubble" dir="auto">Here, I provided the bibtex for the citations that is used in this paragraph<br>The BibTeX references used in the above quoted paragraph are,<br><br><br><br>```<br>@article{munzner2009nested,<br>  title={A nested model for visualization design and validation},<br>  author={Munzner, Tamara},<br>  journal={IEEE transactions on visualization and computer graphics},<br>  volume={15},<br>  number={6},<br>  pages={921--928},<br>  year={2009},<br>  publisher={IEEE}<br>}<br><br>@article{Sedlmair2012,<br>    author = {Sedlmair, Michael and Meyer, Miriah and Munzner, Tamara},<br>    title = {Design Study Methodology: Reflections from the Trenches and the<br>	Statcks},<br>    journal = {IEEE Trans. on Vis. and Comp. Graphics},<br>    volume = {18},<br>    number = {12},<br>    pages = {2431--2440},<br>    year = {2012},<br>}<br><br>@inproceedings{crisan2019uncovering,<br>  title={Uncovering data landscapes through data reconnaissance and task wrangling},<br>  author={Crisan, Anamaria and Munzner, Tamara},<br>  booktitle={2019 IEEE Visualization Conference (VIS)},<br>  pages={46--50},<br>  year={2019},<br>  organization={IEEE}<br>}<br><br>@article{bigelow2020guidelines,<br>  title={Guidelines for pursuing and revealing data abstractions},<br>  author={Bigelow, Alex and Williams, Katy and Isaacs, Katherine E},<br>  journal={IEEE Transactions on Visualization and Computer Graphics},<br>  volume={27},<br>  number={2},<br>  pages={1503--1513},<br>  year={2020},<br>  publisher={IEEE}<br>}<br><br>@inproceedings{oppermann2020data,<br>  title={Data-first visualization design studies},<br>  author={Oppermann, Michael and Munzner, Tamara},<br>  booktitle={2020 IEEE Workshop on Evaluation and Beyond-Methodological Approaches to Visualization (BELIV)},<br>  pages={74--80},<br>  year={2020},<br>  organization={IEEE}<br>}<br><br>@article{kandel2011research,<br>  title={Research directions in data wrangling: Visualizations and transformations for usable and credible data},<br>  author={Kandel, Sean and Heer, Jeffrey and Plaisant, Catherine and Kennedy, Jessie and Van Ham, Frank and Riche, Nathalie Henry and Weaver, Chris and Lee, Bongshin and Brodbeck, Dominique and Buono, Paolo},<br>  journal={Information visualization},<br>  volume={10},<br>  number={4},<br>  pages={271--288},<br>  year={2011},<br>  publisher={SAGE Publications Sage UK: London, England}<br>}<br><br>@article{battle2020structured,<br>  title={A structured review of data management technology for interactive visualization and analysis},<br>  author={Battle, Leilani and Scheidegger, Carlos},<br>  journal={IEEE Trans. on Vis. \&amp; Comp. Graphics},<br>  volume={27},<br>  number={2},<br>  pages={1128--1138},<br>  year={2020},<br>  publisher={IEEE}<br>}<br><br>@article{yang2024optimizing,<br>  title={Optimizing dataflow systems for scalable interactive visualization},<br>  author={Yang, Junran and Joo, Hyekang Kevin and Yerramreddy, Sai and Moritz, Dominik and Battle, Leilani},<br>  journal={Proceedings of the ACM on Management of Data},<br>  volume={2},<br>  number={1},<br>  pages={1--25},<br>  year={2024},<br>  publisher={ACM New York, NY, USA}<br>}<br><br>@article{kandel2011research,<br>  title={Research directions in data wrangling: Visualizations and transformations for usable and credible data},<br>  author={Kandel, Sean and Heer, Jeffrey and Plaisant, Catherine and Kennedy, Jessie and Van Ham, Frank and Riche, Nathalie Henry and Weaver, Chris and Lee, Bongshin and Brodbeck, Dominique and Buono, Paolo},<br>  journal={Information visualization},<br>  volume={10},<br>  number={4},<br>  pages={271--288},<br>  year={2011},<br>  publisher={SAGE Publications Sage UK: London, England}<br>}<br><br>@article{heer2023mosaic,<br>  title={Mosaic: An architecture for scalable \&amp; interoperable data views},<br>  author={Heer, Jeffrey and Moritz, Dominik},<br>  journal={IEEE Transactions on Visualization and Computer Graphics},<br>  year={2023},<br>  publisher={IEEE}<br>}<br><br>@inproceedings{williams2023data,<br>  title={Data abstraction elephants: The initial diversity of data representations and mental models},<br>  author={Williams, Katy and Bigelow, Alex and Isaacs, Katherine E},<br>  booktitle={Proceedings of the 2023 CHI Conference on Human Factors in Computing Systems},<br>  pages={1--24},<br>  year={2023}<br>}<br>```<br>You may add additional inline citations if needed. Shorten the entire discussion. Remove em-dash and any indication that this is written by AI (Humanize this).</div></div>
+<div class="message assistant"><div class="avatar"><svg viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M37.532 16.87a9.963 9.963 0 0 0-.856-8.184 10.078 10.078 0 0 0-10.855-4.835A9.964 9.964 0 0 0 18.306.5a10.079 10.079 0 0 0-9.614 6.977 9.967 9.967 0 0 0-6.664 4.834 10.08 10.08 0 0 0 1.24 11.817 9.965 9.965 0 0 0 .856 8.185 10.079 10.079 0 0 0 10.855 4.835 9.965 9.965 0 0 0 7.516 3.35 10.078 10.078 0 0 0 9.617-6.981 9.967 9.967 0 0 0 6.663-4.834 10.079 10.079 0 0 0-1.243-11.813ZM22.498 37.886a7.474 7.474 0 0 1-4.799-1.735c.061-.033.168-.091.237-.134l7.964-4.6a1.294 1.294 0 0 0 .655-1.134V19.054l3.366 1.944a.12.12 0 0 1 .066.092v9.299a7.505 7.505 0 0 1-7.49 7.496ZM6.392 31.006a7.471 7.471 0 0 1-.894-5.023c.06.036.162.099.237.141l7.964 4.6a1.297 1.297 0 0 0 1.308 0l9.724-5.614v3.888a.12.12 0 0 1-.048.103l-8.051 4.649a7.504 7.504 0 0 1-10.24-2.744ZM4.297 13.62A7.469 7.469 0 0 1 8.2 10.333c0 .068-.004.19-.004.274v9.201a1.294 1.294 0 0 0 .654 1.132l9.723 5.614-3.366 1.944a.12.12 0 0 1-.114.012L7.044 23.86a7.504 7.504 0 0 1-2.747-10.24Zm27.658 6.437-9.724-5.615 3.367-1.943a.121.121 0 0 1 .114-.012l8.048 4.648a7.498 7.498 0 0 1-1.158 13.528V21.36a1.293 1.293 0 0 0-.647-1.132v-.17Zm3.35-5.043c-.059-.037-.162-.099-.236-.141l-7.965-4.6a1.298 1.298 0 0 0-1.308 0l-9.723 5.614v-3.888a.12.12 0 0 1 .048-.103l8.05-4.645a7.497 7.497 0 0 1 11.135 7.763Zm-21.063 6.929-3.367-1.944a.12.12 0 0 1-.065-.092v-9.299a7.497 7.497 0 0 1 12.293-5.756 6.94 6.94 0 0 0-.236.134l-7.965 4.6a1.294 1.294 0 0 0-.654 1.132l-.006 11.225Zm1.829-3.943 4.33-2.501 4.332 2.5v5l-4.331 2.5-4.331-2.5V18Z" fill="currentColor"/></svg></div><div class="content"><div class="md-content" dir="auto" data-md="YGBgdGV4IGlkPSJyNG0ydGUiClRvIGFwcGx5IHRoaXMgbGVzc29uIGluIHByYWN0aWNlLCBcdGV4dGl0e3Zpc3VhbCBkYXRhIGFic3RyYWN0aW9ufSBhbmQgXHRleHRpdHtkYXRhIGZvcm1hdH0gc2hvdWxkIGJlIGRlc2lnbmVkIHRvZ2V0aGVyIHJhdGhlciB0aGFuIHRyZWF0ZWQgYXMgc2VwYXJhdGUgZGVjaXNpb25zLiBUaGUgZ29hbCBpcyB0byBpdGVyYXRpdmVseSByZWZpbmUgYm90aCBzbyB0aGF0IHRoZSBzdG9yZWQgZGF0YSBvcmdhbml6YXRpb24gZGlyZWN0bHkgc3VwcG9ydHMgdGhlIGludGVuZGVkIHZpc3VhbGl6YXRpb24uCgpGaXJzdCwgaWRlbnRpZnkgdGhlIFx0ZXh0aXR7dmlzdWFsIGRhdGEgYWJzdHJhY3Rpb259OiB0aGUgZGF0YSByZXByZXNlbnRhdGlvbiBuZWVkZWQgZm9yIHRoZSB0YXNrcyB1c2VycyB3YW50IHRvIHBlcmZvcm0uIFRoaXMgY2FuIGJlIGluZm9ybWVkIGJ5IHN0YWtlaG9sZGVyIGRpc2N1c3Npb25zLCBkb21haW4gYW5hbHlzaXMsIGFuZCB0YXNrIGFuYWx5c2lzIHRvIHVuZGVyc3RhbmQgd2hhdCB1c2VycyBuZWVkIHRvIHNlZSBhbmQgY29tcGFyZX5cY2l0ZXttdW56bmVyMjAwOW5lc3RlZCxTZWRsbWFpcjIwMTJ9LiBFeGFtaW5pbmcgZXhpc3Rpbmcgd29ya2Zsb3dzIGFuZCBleHBsb3JpbmcgdGhlIHNvdXJjZSBkYXRhIGNhbiBhbHNvIHJldmVhbCB1c2VmdWwgYWJzdHJhY3Rpb25zIHRoYXQgYXJlIG5vdCBleHBsaWNpdCBpbiB0aGUgcmF3IGRhdGEsIHN1Y2ggYXMgaGllcmFyY2hpZXMsIHRpbWVsaW5lcywgb3IgcmVsYXRpb25zaGlwc35cY2l0ZXtjcmlzYW4yMDE5dW5jb3ZlcmluZyxiaWdlbG93MjAyMGd1aWRlbGluZXMsb3BwZXJtYW5uMjAyMGRhdGF9LgoKTmV4dCwgaWRlbnRpZnkgdGhlIGN1cnJlbnQgXHRleHRpdHtkYXRhIGZvcm1hdH06IGhvdyBkYXRhIGlzIHN0b3JlZCBhbmQgcGFzc2VkIHRocm91Z2ggdGhlIHN5c3RlbS4gVGhpcyBpbmNsdWRlcyB3aGV0aGVyIHRoZSBkYXRhIGlzIG9yZ2FuaXplZCBhcyB0YWJsZXMsIG5lc3RlZCByZWNvcmRzLCBncmFwaHMsIHRlbXBvcmFsIHNlcXVlbmNlcywgb3IgbXVsdGlwbGUgbGlua2VkIHNvdXJjZXMsIGFuZCBob3cgaXQgbW92ZXMgdGhyb3VnaCBkYXRhYmFzZXMsIEFQSXMsIGFuZCByZW5kZXJpbmcgcGlwZWxpbmVzflxjaXRle2thbmRlbDIwMTFyZXNlYXJjaCxiYXR0bGUyMDIwc3RydWN0dXJlZCx5YW5nMjAyNG9wdGltaXppbmd9LgoKVGhlbiBjb21wYXJlIHRoZSBhYnN0cmFjdGlvbiB3aXRoIHRoZSBmb3JtYXQgYW5kIGxvY2F0ZSBtaXNtYXRjaGVzLiBUaGVzZSBtYXkgYmUgc3ludGFjdGljIGRpZmZlcmVuY2VzLCBzdHJ1Y3R1cmFsIGRpZmZlcmVuY2VzLCBvciBtaXNzaW5nIGRlcml2ZWQgY29uY2VwdHMgbmVlZGVkIGZvciBhbmFseXNpcy4gQWRkcmVzc2luZyB0aGVtIG1heSByZXF1aXJlIHNjaGVtYSByZWRlc2lnbiwgcHJlcHJvY2Vzc2luZywgcXVlcnkgY2hhbmdlcywgb3IgZGlmZmVyZW50IGRhdGEgc3RydWN0dXJlcyBzbyB0aGF0IHRoZSBmb3JtYXQgbW9yZSBuYXR1cmFsbHkgc3VwcG9ydHMgdGhlIHZpc3VhbGl6YXRpb24gYW5kIHJlZHVjZXMgcmVwZWF0ZWQgdHJhbnNmb3JtYXRpb25zIGR1cmluZyBpbnRlcmFjdGlvbn5cY2l0ZXtrYW5kZWwyMDExcmVzZWFyY2gsd2FsbnkyMDE5ZGF0YSxrYXNpY2EyMDIwdGFibGUsYmF0dGxlMjAyMHN0cnVjdHVyZWQseWFuZzIwMjRvcHRpbWl6aW5nfS4KCklmIHN0b3JhZ2UtbGV2ZWwgYWxpZ25tZW50IGlzIG5vdCBwcmFjdGljYWwsIG1pZGRsZXdhcmUgY2FuIHRyYW5zbGF0ZSBiZXR3ZWVuIGJhY2tlbmQgc3lzdGVtcyBhbmQgdmlzdWFsaXphdGlvbiBuZWVkcyBhdCBydW50aW1lflxjaXRle2JhdHRsZTIwMjBzdHJ1Y3R1cmVkLGhlZXIyMDIzbW9zYWljLHlhbmcyMDI0b3B0aW1pemluZ30uIFdoZW4gY2hhbmdlcyByZXF1aXJlIGNvbGxhYm9yYXRpb24gd2l0aCBkb21haW4gcGFydG5lcnMsIHBhcnRpY2lwYXRvcnkgYXBwcm9hY2hlcyBjYW4gaGVscCBkZWNpZGUgd2hpY2ggYWJzdHJhY3Rpb25zIGFyZSBtb3N0IHZhbHVhYmxlIGFuZCBmZWFzaWJsZSB0byBzdXBwb3J0flxjaXRle3dpbGxpYW1zMjAyM2RhdGEsYmlnZWxvdzIwMjBndWlkZWxpbmVzfS4KYGBg"></div></div></div>
+<div class="message user"><div class="bubble" dir="auto">For the last paragraph, I wrote it as follows<br>&quot;Once identified, address the mismatch between abstraction and format through schema redesign~\cite{kandel2011research}, query API restructuring~\cite{walny2019data}, or data structure selection~\cite{battle2020structured, yang2024optimizing}, ensuring the chosen format aligns with the visual abstractions and minimizing conversion overhead. When format and abstraction cannot be aligned due to practical constraints, utilize dedicated middleware to coordinate between the visualization specification and the backend data system, as in the Mosaic architecture~\cite{heer2023mosaic}. Designers can involve domain collaborators to prioritize certain abstractions or formats over others. However, even collaborators can hold diverse mental model of same data~\cite{williams2023data}.&quot;<br><br>Suggest a concluding sentence where it will tell guidelines proposed by Bigelow et al.~\cite{bigelow2020guidelines} shouled be followed, include specific guideline from that paper and how that helps.</div></div>
+<div class="message assistant"><div class="avatar"><svg viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M37.532 16.87a9.963 9.963 0 0 0-.856-8.184 10.078 10.078 0 0 0-10.855-4.835A9.964 9.964 0 0 0 18.306.5a10.079 10.079 0 0 0-9.614 6.977 9.967 9.967 0 0 0-6.664 4.834 10.08 10.08 0 0 0 1.24 11.817 9.965 9.965 0 0 0 .856 8.185 10.079 10.079 0 0 0 10.855 4.835 9.965 9.965 0 0 0 7.516 3.35 10.078 10.078 0 0 0 9.617-6.981 9.967 9.967 0 0 0 6.663-4.834 10.079 10.079 0 0 0-1.243-11.813ZM22.498 37.886a7.474 7.474 0 0 1-4.799-1.735c.061-.033.168-.091.237-.134l7.964-4.6a1.294 1.294 0 0 0 .655-1.134V19.054l3.366 1.944a.12.12 0 0 1 .066.092v9.299a7.505 7.505 0 0 1-7.49 7.496ZM6.392 31.006a7.471 7.471 0 0 1-.894-5.023c.06.036.162.099.237.141l7.964 4.6a1.297 1.297 0 0 0 1.308 0l9.724-5.614v3.888a.12.12 0 0 1-.048.103l-8.051 4.649a7.504 7.504 0 0 1-10.24-2.744ZM4.297 13.62A7.469 7.469 0 0 1 8.2 10.333c0 .068-.004.19-.004.274v9.201a1.294 1.294 0 0 0 .654 1.132l9.723 5.614-3.366 1.944a.12.12 0 0 1-.114.012L7.044 23.86a7.504 7.504 0 0 1-2.747-10.24Zm27.658 6.437-9.724-5.615 3.367-1.943a.121.121 0 0 1 .114-.012l8.048 4.648a7.498 7.498 0 0 1-1.158 13.528V21.36a1.293 1.293 0 0 0-.647-1.132v-.17Zm3.35-5.043c-.059-.037-.162-.099-.236-.141l-7.965-4.6a1.298 1.298 0 0 0-1.308 0l-9.723 5.614v-3.888a.12.12 0 0 1 .048-.103l8.05-4.645a7.497 7.497 0 0 1 11.135 7.763Zm-21.063 6.929-3.367-1.944a.12.12 0 0 1-.065-.092v-9.299a7.497 7.497 0 0 1 12.293-5.756 6.94 6.94 0 0 0-.236.134l-7.965 4.6a1.294 1.294 0 0 0-.654 1.132l-.006 11.225Zm1.829-3.943 4.33-2.501 4.332 2.5v5l-4.331 2.5-4.331-2.5V18Z" fill="currentColor"/></svg></div><div class="content"><div class="md-content" dir="auto" data-md="QSB1c2VmdWwgY29uY2x1c2lvbiBpcyB0byBmb2xsb3cgdGhlIGd1aWRlbGluZXMgb2YgQmlnZWxvdyBldCBhbC5+XGNpdGV7YmlnZWxvdzIwMjBndWlkZWxpbmVzfSwgcGFydGljdWxhcmx5IHRvIG1ha2UgYWJzdHJhY3Rpb25zIGV4cGxpY2l0LCBjb21wYXJlIGFsdGVybmF0aXZlIHJlcHJlc2VudGF0aW9ucywgYW5kIGNvbW11bmljYXRlIHRoZSB0cmFkZS1vZmZzIG9mIGVhY2ggY2hvaWNlIHdpdGggc3Rha2Vob2xkZXJzOyBkb2luZyBzbyBoZWxwcyByZWNvbmNpbGUgZGlmZmVyaW5nIG1lbnRhbCBtb2RlbHMsIHN1cHBvcnRzIGluZm9ybWVkIGRlc2lnbiBkZWNpc2lvbnMsIGFuZCBsZWFkcyB0byBmb3JtYXRzIHRoYXQgYmV0dGVyIG1hdGNoIHZpc3VhbGl6YXRpb24gbmVlZHMu"></div></div></div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/highlight.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  marked.setOptions({
+    highlight: (code, lang) => {
+      if (lang && hljs.getLanguage(lang)) {
+        return hljs.highlight(code, { language: lang }).value;
+      }
+      return hljs.highlightAuto(code).value;
+    },
+    breaks: true,
+  });
+
+  const renderer = new marked.Renderer();
+  renderer.code = function({ text, lang }) {
+    const highlighted = lang && hljs.getLanguage(lang)
+      ? hljs.highlight(text, { language: lang }).value
+      : hljs.highlightAuto(text).value;
+    return '<div class="code-block"><button class="copy-btn" onclick="navigator.clipboard.writeText(this.nextElementSibling.querySelector(\'code\').textContent);this.textContent=\'Copied!\';setTimeout(()=>this.textContent=\'Copy\',1500)">Copy</button>'
+      + '<pre><code class="hljs">' + highlighted + '</code></pre></div>';
+  };
+  marked.use({ renderer });
+
+  document.querySelectorAll('.md-content').forEach(el => {
+    const md = decodeURIComponent(escape(atob(el.dataset.md)));
+    el.innerHTML = marked.parse(md);
+  });
+
+  const active = document.querySelector('.sidebar-item.active');
+  if (active) active.scrollIntoView({ block: 'center', behavior: 'instant' });
+});
+</script>
+</body>
+</html>

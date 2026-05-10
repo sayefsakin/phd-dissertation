@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visualization in HPC</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/styles/github-dark.min.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: #ffffff; color: #0d0d0d;
+    line-height: 1.65; font-size: 16px;
+    display: flex; height: 100vh;
+  }
+  .sidebar {
+    width: 260px; min-width: 260px; height: 100vh;
+    background: #f9f9f9; border-right: 1px solid #e5e5e5;
+    overflow-y: auto; padding: 16px 0;
+    flex-shrink: 0; position: sticky; top: 0;
+  }
+  .sidebar-header {
+    padding: 8px 16px 16px; font-size: 14px; font-weight: 600;
+    color: #6b6b6b; border-bottom: 1px solid #e5e5e5; margin-bottom: 8px;
+  }
+  .sidebar-item {
+    display: block; padding: 8px 16px; font-size: 13px;
+    color: #0d0d0d; text-decoration: none;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    border-radius: 8px; margin: 2px 8px;
+  }
+  .sidebar-item:hover { background: #ececec; }
+  .sidebar-item.active { background: #e5e5e5; font-weight: 600; }
+  .sidebar-toggle {
+    display: none; position: fixed; top: 12px; left: 12px; z-index: 100;
+    background: #f4f4f4; border: 1px solid #e5e5e5; border-radius: 8px;
+    width: 36px; height: 36px; cursor: pointer;
+    align-items: center; justify-content: center; font-size: 20px;
+  }
+  @media (max-width: 768px) {
+    .sidebar {
+      position: fixed; left: -280px; z-index: 99;
+      transition: left 0.2s; box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+    }
+    .sidebar.open { left: 0; }
+    .sidebar-toggle { display: flex; }
+    .main { margin-left: 0 !important; }
+  }
+  .main { flex: 1; overflow-y: auto; }
+  .header {
+    max-width: 768px; margin: 0 auto; padding: 32px 24px 16px;
+    border-bottom: 1px solid #e5e5e5;
+  }
+  .header h1 { font-size: 22px; font-weight: 600; }
+  .header .date { font-size: 13px; color: #6b6b6b; margin-top: 4px; }
+  .chat { max-width: 768px; margin: 0 auto; padding: 24px; }
+  .message { margin-bottom: 24px; }
+  .message.user { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+  .message.user .bubble {
+    background: #f4f4f4; border-radius: 18px; padding: 10px 16px;
+    max-width: 85%; white-space: pre-wrap; word-break: break-word;
+  }
+  .message.user .images { width: 100%; display: flex; justify-content: flex-end; }
+  .message.assistant { display: flex; gap: 12px; align-items: flex-start; }
+  .message.assistant .avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #00a67e; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .message.assistant .content { flex: 1; min-width: 0; }
+  .message.assistant .content h1,
+  .message.assistant .content h2,
+  .message.assistant .content h3 { margin: 16px 0 8px; font-weight: 600; }
+  .message.assistant .content h1 { font-size: 20px; }
+  .message.assistant .content h2 { font-size: 18px; }
+  .message.assistant .content h3 { font-size: 16px; }
+  .message.assistant .content p { margin: 8px 0; }
+  .message.assistant .content ul,
+  .message.assistant .content ol { margin: 8px 0; padding-left: 24px; }
+  .message.assistant .content li { margin: 4px 0; }
+  .message.assistant .content a { color: #1a7f64; }
+  .message.assistant .content code {
+    background: #f0f0f0; border-radius: 4px; padding: 2px 5px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 14px;
+  }
+  .message.assistant .content pre { margin: 12px 0; border-radius: 8px; overflow: hidden; }
+  .message.assistant .content pre code {
+    display: block; background: #0d0d0d; color: #f8f8f2;
+    padding: 16px; overflow-x: auto; border-radius: 0;
+    font-size: 13px; line-height: 1.5;
+  }
+  .code-block { position: relative; }
+  .code-block .copy-btn {
+    position: absolute; top: 8px; right: 8px;
+    background: #333; border: none; color: #999; cursor: pointer;
+    font-size: 12px; padding: 4px 10px; border-radius: 4px;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .code-block:hover .copy-btn { opacity: 1; }
+  .code-block .copy-btn:hover { color: #fff; background: #555; }
+  .images img { max-width: 100%; border-radius: 8px; margin: 4px 0; display: block; cursor: pointer; }
+  .images img:hover { opacity: 0.9; }
+  .message.user .images img { max-width: 300px; }
+  .attachments { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .attachment {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #f4f4f4; border: 1px solid #e5e5e5; border-radius: 8px;
+    padding: 8px 12px; text-decoration: none; color: #0d0d0d; font-size: 14px;
+  }
+  .attachment:hover { background: #ececec; }
+  .att-icon { font-size: 16px; }
+  .att-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
+
+  .thinking {
+    margin-bottom: 24px; border-left: 3px solid #d4d4d4;
+    padding-left: 16px; font-size: 14px;
+  }
+  .thinking summary {
+    color: #8e8e8e; font-style: italic; cursor: pointer;
+    padding: 4px 0; user-select: none;
+  }
+  .thinking summary:hover { color: #555; }
+  .thinking-content {
+    color: #6b6b6b; padding: 8px 0; font-style: italic;
+  }
+  .thinking-content p, .thinking-content li { color: #6b6b6b; }
+  .thinking-content pre code { opacity: 0.7; }
+  .thinking-content h1, .thinking-content h2, .thinking-content h3 {
+    color: #6b6b6b; font-size: 15px;
+  }
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">&#9776;</button>
+<nav class="sidebar">
+  <div class="sidebar-header">Conversations</div>
+  <a class="sidebar-item" href="Revising Visualization Abstraction_69ed203e.html" title="Revising Visualization Abstraction">Revising Visualization Abstraction</a>
+<a class="sidebar-item" href="Wording Suggestions for Model_69ecf041.html" title="Wording Suggestions for Model">Wording Suggestions for Model</a>
+<a class="sidebar-item" href="Limitations of Connected Approach_69ec4e83.html" title="Limitations of Connected Approach">Limitations of Connected Approach</a>
+<a class="sidebar-item" href="Balancing Representativeness and Interactivity_69ec10e9.html" title="Balancing Representativeness and Interactivity">Balancing Representativeness and Interactivity</a>
+<a class="sidebar-item" href="Representativeness vs Interactivity_69e87f74.html" title="Representativeness vs Interactivity">Representativeness vs Interactivity</a>
+<a class="sidebar-item" href="Grammatical Correction Request_69e82550.html" title="Grammatical Correction Request">Grammatical Correction Request</a>
+<a class="sidebar-item" href="Improving Data Abstraction Clarity_69e7a831.html" title="Improving Data Abstraction Clarity">Improving Data Abstraction Clarity</a>
+<a class="sidebar-item" href="ESeMan Summary Improvement_69a71cdc.html" title="ESeMan Summary Improvement">ESeMan Summary Improvement</a>
+<a class="sidebar-item" href="Branch · Design principles for visualizations_69037a11.html" title="Branch · Design principles for visualizations">Branch · Design principles for visualizations</a>
+<a class="sidebar-item" href="Branch · Design principles for visualizations_690364ba.html" title="Branch · Design principles for visualizations">Branch · Design principles for visualizations</a>
+<a class="sidebar-item" href="Design principles for visualizations_68dd8912.html" title="Design principles for visualizations">Design principles for visualizations</a>
+<a class="sidebar-item" href="Abstract final_68d50fc5.html" title="Abstract final">Abstract final</a>
+<a class="sidebar-item" href="Dissertation submission email_68ddd8a9.html" title="Dissertation submission email">Dissertation submission email</a>
+<a class="sidebar-item" href="Related work chapter expansion_68d5a210.html" title="Related work chapter expansion">Related work chapter expansion</a>
+<a class="sidebar-item" href="Discussion conclusion latex formatting_68d5be12.html" title="Discussion conclusion latex formatting">Discussion conclusion latex formatting</a>
+<a class="sidebar-item" href="Event sequence visualization_68dca9de.html" title="Event sequence visualization">Event sequence visualization</a>
+<a class="sidebar-item" href="Write introduction chapter_68d540f7.html" title="Write introduction chapter">Write introduction chapter</a>
+<a class="sidebar-item" href="Write discussion chapter_68d5cf30.html" title="Write discussion chapter">Write discussion chapter</a>
+<a class="sidebar-item" href="Acknowledgement section LaTeX_68d688ae.html" title="Acknowledgement section LaTeX">Acknowledgement section LaTeX</a>
+<a class="sidebar-item" href="Latex dissertation rewrite_68d5cd8d.html" title="Latex dissertation rewrite">Latex dissertation rewrite</a>
+<a class="sidebar-item" href="Evaluation section update_68d5cbcf.html" title="Evaluation section update">Evaluation section update</a>
+<a class="sidebar-item" href="Dissertation summary in LaTeX_68d5c539.html" title="Dissertation summary in LaTeX">Dissertation summary in LaTeX</a>
+<a class="sidebar-item" href="Gantt chart data queries_68d5bfc2.html" title="Gantt chart data queries">Gantt chart data queries</a>
+<a class="sidebar-item" href="Evaluation section latex_68d5bcb1.html" title="Evaluation section latex">Evaluation section latex</a>
+<a class="sidebar-item" href="LaTeX dissertation version_68d5ba39.html" title="LaTeX dissertation version">LaTeX dissertation version</a>
+<a class="sidebar-item" href="Traveler design goals_68d5b6e5.html" title="Traveler design goals">Traveler design goals</a>
+<a class="sidebar-item active" href="Visualization in HPC_68d5b451.html" title="Visualization in HPC">Visualization in HPC</a>
+<a class="sidebar-item" href="Task parallel programs summary_68d5b243.html" title="Task parallel programs summary">Task parallel programs summary</a>
+<a class="sidebar-item" href="Chapter 3 outline_68d5afc7.html" title="Chapter 3 outline">Chapter 3 outline</a>
+<a class="sidebar-item" href="Abstract Initial Draft_68d4ee8f.html" title="Abstract Initial Draft">Abstract Initial Draft</a>
+<a class="sidebar-item" href="Paper summary Traveler platform_68d4edf5.html" title="Paper summary Traveler platform">Paper summary Traveler platform</a>
+<a class="sidebar-item" href="Gantt chart task taxonomy_68d4edc8.html" title="Gantt chart task taxonomy">Gantt chart task taxonomy</a>
+<a class="sidebar-item" href="Summarize ESeMan paper_68d4ed81.html" title="Summarize ESeMan paper">Summarize ESeMan paper</a>
+</nav>
+<div class="main">
+  <div class="header">
+    <h1>Visualization in HPC</h1>
+    <div class="date">2025-09-25 21:29 UTC</div>
+  </div>
+  <div class="chat">
+  <div class="message user"><div class="bubble" dir="auto">Check the following quoted texts<br>&quot;Visualization has been widely-used for performance analysis and debugging in high performance computing~\cite{isaacs2014state, ezzati2017multi}. Among them, execution trace data is typically visualized with Gantt charts~\cite{nagel1996vampir, zaki1999toward, graham2004gprof, reinders2005vtune, adhianto2010hpctoolkit,Drebes2014Aftermath, zhukov2015scalasca,Pinto2016,xie2018visual}---a visual idiom where parallel timelines for each computing resource are arranged as rows and events, such as function calls, are drawn as rectangles within those rows, spanning their time of execution. Dependencies, if depicted, are represented as lines connecting events. <br><br>Gantt charts are often paired with other statistical views. Overviews of event type or utilization are particularly common. SmartTraces~\cite{Osmari2014SmartTraces} implemented a drag-and-drop system of linked views, including a data-flow graph. Traveler similarly has a configurable system of auxiliary views. We add two structural views, an Aggregated Gantt View and a Dependency Tree View to show meaningful levels of abstraction between overview and detail.<br><br>Data scale has been a persistent issue in execution trace visualization. In addition to responsiveness issues, the vast difference in scale between the length of the trace and the individual events can make Gantt charts hard to interpret, especially when dependencies are present. SyncTrace~\cite{Karran2013SyncTrace} has a resource-centric approach where the timeline of one resource is shown in multiple levels of detail with the most zoomed in showing connections to other resources.  Ravel~\cite{isaacs2014combing} used a idealized unit time axis to show dependency patterns. However, this approach assumes a bulk synchronous paradigm that is not present in our data. Haugen et al.~\cite{Haugen2015} show dependencies only for a selected interval. We similarly provide dependencies on interaction, but show the entire chain of dependencies related to an event rather than just direct connections.<br><br>Several approaches eschew the Gantt chart and plot the events or metrics about resources in the same space~\cite{muelder2009visual, muelder2016visual, fujiwara2018visual, li2019visual, kesavan2020visual}. We also aggregate metric data along resources using pre-processing for metric views. However, these approaches do not preserve dependencies between the events, one of the reasons we choose to preserve the Gantt chart.<br><br>Non-timeline approaches use summaries, animation, or networks.<br>Sigovan et al.~\cite{sigovan2013visualizing} showed events bubbling up a duration axis, using animation for time. Sanderson et al.~\cite{sanderson2018coupling} show streaming data for performance analysis and steering, with statistical plots and the projecting of metrics onto the 3D simulation space and machine room layout. Chuimbuko~\cite{kelly2020chimbuko} also shows streaming data, in their case with statistical plots and a call stack plots of streaming data. Of these, only Chimbuko's call stack plot shows dependencies and like SyncTrace it is limited to a specific time range and focus resource. Our users have tasks requiring more fidelity in how resources, events, and dependencies work in concert.<br><br>As scheduling in task parallel programs is defined by an execution graph, per-event layered node-link diagrams have also been used~\cite{Huynh2015DAGViz,Muddukrishna2016GrainGraphs,Reissmann2017GrainGraphs}, but the simplification techniques to keep the graph scalable rely on a fork-join parallelism model that does not match our data.<br>&quot;<br><br>Reformat it for my disserataion section in Chapter 3 where I am discussing the tool Traveler.</div></div>
+<div class="message assistant"><div class="avatar"><svg viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M37.532 16.87a9.963 9.963 0 0 0-.856-8.184 10.078 10.078 0 0 0-10.855-4.835A9.964 9.964 0 0 0 18.306.5a10.079 10.079 0 0 0-9.614 6.977 9.967 9.967 0 0 0-6.664 4.834 10.08 10.08 0 0 0 1.24 11.817 9.965 9.965 0 0 0 .856 8.185 10.079 10.079 0 0 0 10.855 4.835 9.965 9.965 0 0 0 7.516 3.35 10.078 10.078 0 0 0 9.617-6.981 9.967 9.967 0 0 0 6.663-4.834 10.079 10.079 0 0 0-1.243-11.813ZM22.498 37.886a7.474 7.474 0 0 1-4.799-1.735c.061-.033.168-.091.237-.134l7.964-4.6a1.294 1.294 0 0 0 .655-1.134V19.054l3.366 1.944a.12.12 0 0 1 .066.092v9.299a7.505 7.505 0 0 1-7.49 7.496ZM6.392 31.006a7.471 7.471 0 0 1-.894-5.023c.06.036.162.099.237.141l7.964 4.6a1.297 1.297 0 0 0 1.308 0l9.724-5.614v3.888a.12.12 0 0 1-.048.103l-8.051 4.649a7.504 7.504 0 0 1-10.24-2.744ZM4.297 13.62A7.469 7.469 0 0 1 8.2 10.333c0 .068-.004.19-.004.274v9.201a1.294 1.294 0 0 0 .654 1.132l9.723 5.614-3.366 1.944a.12.12 0 0 1-.114.012L7.044 23.86a7.504 7.504 0 0 1-2.747-10.24Zm27.658 6.437-9.724-5.615 3.367-1.943a.121.121 0 0 1 .114-.012l8.048 4.648a7.498 7.498 0 0 1-1.158 13.528V21.36a1.293 1.293 0 0 0-.647-1.132v-.17Zm3.35-5.043c-.059-.037-.162-.099-.236-.141l-7.965-4.6a1.298 1.298 0 0 0-1.308 0l-9.723 5.614v-3.888a.12.12 0 0 1 .048-.103l8.05-4.645a7.497 7.497 0 0 1 11.135 7.763Zm-21.063 6.929-3.367-1.944a.12.12 0 0 1-.065-.092v-9.299a7.497 7.497 0 0 1 12.293-5.756 6.94 6.94 0 0 0-.236.134l-7.965 4.6a1.294 1.294 0 0 0-.654 1.132l-.006 11.225Zm1.829-3.943 4.33-2.501 4.332 2.5v5l-4.331 2.5-4.331-2.5V18Z" fill="currentColor"/></svg></div><div class="content"><div class="md-content" dir="auto" data-md="R290IGl0LiBJ4oCZbGwgcmVmb3JtYXQgYW5kIHNtb290aCB0aGlzIGludG8gZGlzc2VydGF0aW9uLXN0eWxlIHdyaXRpbmcsIGtlZXBpbmcgdGhlIGNpdGF0aW9ucyBpbnRhY3QgYW5kIHBsYWNpbmcgdGhlIGRpc2N1c3Npb24gaW4gdGhlIGNvbnRleHQgb2YgeW91ciBDaGFwdGVyIDMgc2VjdGlvbiBvbiAqKlRyYXZlbGVyKiouIEhlcmXigJlzIHRoZSByZXZpc2VkIHZlcnNpb246ICAKCi0tLQoKVmlzdWFsaXphdGlvbiBoYXMgbG9uZyBwbGF5ZWQgYW4gaW1wb3J0YW50IHJvbGUgaW4gcGVyZm9ybWFuY2UgYW5hbHlzaXMgYW5kIGRlYnVnZ2luZyB3aXRoaW4gaGlnaC1wZXJmb3JtYW5jZSBjb21wdXRpbmcgKEhQQykgc3lzdGVtc35cY2l0ZXtpc2FhY3MyMDE0c3RhdGUsIGV6emF0aTIwMTdtdWx0aX0uIEFtb25nIHRoZSBhdmFpbGFibGUgdmlzdWFsaXphdGlvbiBpZGlvbXMsIGV4ZWN1dGlvbiB0cmFjZXMgYXJlIG1vc3QgY29tbW9ubHkgcmVwcmVzZW50ZWQgdXNpbmcgR2FudHQgY2hhcnRzflxjaXRle25hZ2VsMTk5NnZhbXBpciwgemFraTE5OTl0b3dhcmQsIGdyYWhhbTIwMDRncHJvZiwgcmVpbmRlcnMyMDA1dnR1bmUsIGFkaGlhbnRvMjAxMGhwY3Rvb2xraXQsIERyZWJlczIwMTRBZnRlcm1hdGgsIHpodWtvdjIwMTVzY2FsYXNjYSwgUGludG8yMDE2LCB4aWUyMDE4dmlzdWFsfS4gSW4gdGhpcyByZXByZXNlbnRhdGlvbiwgY29tcHV0aW5nIHJlc291cmNlcyBhcmUgYXJyYW5nZWQgYXMgcGFyYWxsZWwgdGltZWxpbmVzIGFsb25nIHRoZSB2ZXJ0aWNhbCBheGlzLCB3aGlsZSBpbmRpdmlkdWFsIGV2ZW50cywgc3VjaCBhcyBmdW5jdGlvbiBjYWxscywgYXBwZWFyIGFzIHJlY3RhbmdsZXMgc3Bhbm5pbmcgdGhlaXIgZHVyYXRpb24gYWNyb3NzIHRoZSBob3Jpem9udGFsIHRpbWUgYXhpcy4gV2hlbiBkZXBlbmRlbmNpZXMgYXJlIGluY2x1ZGVkLCB0aGV5IGFyZSB0eXBpY2FsbHkgcmVwcmVzZW50ZWQgYXMgbGluZXMgY29ubmVjdGluZyB0aGUgY29ycmVzcG9uZGluZyBldmVudHMuICAKClRvIGV4dGVuZCB0aGUgcmVwcmVzZW50YXRpb25hbCBjYXBhY2l0eSBvZiBHYW50dCBjaGFydHMsIHJlc2VhcmNoZXJzIG9mdGVuIGNvbWJpbmUgdGhlbSB3aXRoIGFkZGl0aW9uYWwgc3RhdGlzdGljYWwgb3Igc3RydWN0dXJhbCB2aWV3cy4gRm9yIGV4YW1wbGUsIFNtYXJ0VHJhY2VzflxjaXRle09zbWFyaTIwMTRTbWFydFRyYWNlc30gaW50cm9kdWNlZCBhIGRyYWctYW5kLWRyb3Agc3lzdGVtIG9mIGxpbmtlZCB2aWV3cyB0aGF0IGluY2x1ZGVzIGEgZGF0YS1mbG93IGdyYXBoIHRvIGNvbnRleHR1YWxpemUgZXZlbnQgZXhlY3V0aW9uLiBTaW1pbGFybHksIFRyYXZlbGVyIHByb3ZpZGVzIGEgY29uZmlndXJhYmxlIGZyYW1ld29yayBvZiBhdXhpbGlhcnkgdmlld3MgZGVzaWduZWQgdG8gY29tcGxlbWVudCB0aGUgR2FudHQgY2hhcnQuIEluIHBhcnRpY3VsYXIsIFRyYXZlbGVyIGludHJvZHVjZXMgdHdvIGFkZGl0aW9uYWwgc3RydWN0dXJhbCBhYnN0cmFjdGlvbnPigJRhbiBBZ2dyZWdhdGVkIEdhbnR0IFZpZXcgYW5kIGEgRGVwZW5kZW5jeSBUcmVlIFZpZXfigJR0aGF0IGJyaWRnZSB0aGUgZ2FwIGJldHdlZW4gaGlnaC1sZXZlbCBzdW1tYXJpZXMgYW5kIGRldGFpbGVkIHRyYWNlcyBieSBlbmFibGluZyBleHBsb3JhdGlvbiBhdCBtdWx0aXBsZSBsZXZlbHMgb2YgYWJzdHJhY3Rpb24uICAKCkRlc3BpdGUgdGhlaXIgdXRpbGl0eSwgR2FudHQgY2hhcnRzIGZhY2Ugd2VsbC1rbm93biBjaGFsbGVuZ2VzIGluIHNjYWxhYmlsaXR5IGFuZCBpbnRlcnByZXRhYmlsaXR5LiBUaGUgZXh0cmVtZSBkaWZmZXJlbmNlIGluIHNjYWxlIGJldHdlZW4gbG9uZy1ydW5uaW5nIHRyYWNlcyBhbmQgc2hvcnQtbGl2ZWQgaW5kaXZpZHVhbCBldmVudHMgY2FuIGhpbmRlciByZWFkYWJpbGl0eSwgZXNwZWNpYWxseSB3aGVuIGRlcGVuZGVuY2llcyBhcmUgdmlzdWFsaXplZC4gQXBwcm9hY2hlcyBzdWNoIGFzIFN5bmNUcmFjZX5cY2l0ZXtLYXJyYW4yMDEzU3luY1RyYWNlfSBhdHRlbXB0IHRvIG1pdGlnYXRlIHRoaXMgcHJvYmxlbSB0aHJvdWdoIGEgcmVzb3VyY2UtY2VudHJpYyBwZXJzcGVjdGl2ZSwgd2hlcmUgbXVsdGlwbGUgbGV2ZWxzIG9mIGRldGFpbCBhcmUgcHJlc2VudGVkIGZvciBhIHNpbmdsZSByZXNvdXJjZSwgd2l0aCB0aGUgbW9zdCBkZXRhaWxlZCB2aWV3IHNob3dpbmcgY3Jvc3MtcmVzb3VyY2UgY29ubmVjdGlvbnMuIFJhdmVsflxjaXRle2lzYWFjczIwMTRjb21iaW5nfSwgYnkgY29udHJhc3QsIGFwcGxpZXMgYW4gaWRlYWxpemVkIHVuaXQgdGltZSBheGlzIHRvIGVtcGhhc2l6ZSBkZXBlbmRlbmN5IHBhdHRlcm5zLCBhbHRob3VnaCB0aGlzIG1ldGhvZCBhc3N1bWVzIGEgYnVsay1zeW5jaHJvbm91cyBleGVjdXRpb24gbW9kZWwgbm90IGFwcGxpY2FibGUgdG8gYWxsIHdvcmtsb2Fkcy4gSGF1Z2VuIGV0IGFsLn5cY2l0ZXtIYXVnZW4yMDE1fSBsaW1pdCBkZXBlbmRlbmN5IHZpc3VhbGl6YXRpb24gdG8gc2VsZWN0ZWQgaW50ZXJ2YWxzLCB3aGlsZSBUcmF2ZWxlciBwcm92aWRlcyBhIG1vcmUgY29tcHJlaGVuc2l2ZSBpbnRlcmFjdGlvbiBtb2RlbCBieSBleHBvc2luZyB0aGUgZW50aXJlIGNoYWluIG9mIGRlcGVuZGVuY2llcyBhc3NvY2lhdGVkIHdpdGggYW4gZXZlbnQsIHJhdGhlciB0aGFuIHJlc3RyaWN0aW5nIHVzZXJzIHRvIGltbWVkaWF0ZSBjb25uZWN0aW9ucy4gIAoKU29tZSB2aXN1YWxpemF0aW9uIHN5c3RlbXMgaGF2ZSBtb3ZlZCBhd2F5IGZyb20gdGltZWxpbmUtYmFzZWQgR2FudHQgY2hhcnRzIGFsdG9nZXRoZXIsIG9wdGluZyBpbnN0ZWFkIHRvIGVuY29kZSBldmVudHMgb3IgYWdncmVnYXRlIG1ldHJpY3MgaW4gc2hhcmVkIHZpc3VhbCBzcGFjZXN+XGNpdGV7bXVlbGRlcjIwMDl2aXN1YWwsIG11ZWxkZXIyMDE2dmlzdWFsLCBmdWppd2FyYTIwMTh2aXN1YWwsIGxpMjAxOXZpc3VhbCwga2VzYXZhbjIwMjB2aXN1YWx9LiBXaGlsZSBUcmF2ZWxlciBkb2VzIGluY29ycG9yYXRlIGFnZ3JlZ2F0ZWQgbWV0cmljIHZpZXdzIHRocm91Z2ggcHJlcHJvY2Vzc2luZywgdGhlc2UgYXBwcm9hY2hlcyB0eXBpY2FsbHkgZGlzY2FyZCB0aGUgZXhwbGljaXQgcHJlc2VydmF0aW9uIG9mIGRlcGVuZGVuY2llcywgd2hpY2ggaXMgb25lIG9mIHRoZSBjZW50cmFsIHJlYXNvbnMgVHJhdmVsZXIgY29udGludWVzIHRvIGVtcGxveSBhIEdhbnR0LWJhc2VkIHJlcHJlc2VudGF0aW9uLiAgCgpBbHRlcm5hdGl2ZSBub24tdGltZWxpbmUgc3RyYXRlZ2llcyBmb2N1cyBvbiBzdW1tYXJpZXMsIGFuaW1hdGlvbnMsIG9yIG5ldHdvcmsgdmlzdWFsaXphdGlvbnMuIEZvciBpbnN0YW5jZSwgU2lnb3ZhbiBldCBhbC5+XGNpdGV7c2lnb3ZhbjIwMTN2aXN1YWxpemluZ30gYW5pbWF0ZSBldmVudHMgYWxvbmcgYSBkdXJhdGlvbiBheGlzLCB3aGlsZSBTYW5kZXJzb24gZXQgYWwuflxjaXRle3NhbmRlcnNvbjIwMThjb3VwbGluZ30gcHJlc2VudCBzdHJlYW1pbmcgZGF0YSB0aHJvdWdoIHN0YXRpc3RpY2FsIHBsb3RzIHByb2plY3RlZCBpbnRvIHNpbXVsYXRpb24gYW5kIG1hY2hpbmUtcm9vbSBsYXlvdXRzIGZvciBwZXJmb3JtYW5jZSBzdGVlcmluZy4gQ2h1aW1idWtvflxjaXRle2tlbGx5MjAyMGNoaW1idWtvfSBzaW1pbGFybHkgdGFyZ2V0cyBzdHJlYW1pbmcgcGVyZm9ybWFuY2UgZGF0YSwgY29tYmluaW5nIHN0YXRpc3RpY2FsIHBsb3RzIHdpdGggY2FsbCBzdGFjayB2aWV3cy4gT2YgdGhlc2UsIG9ubHkgQ2h1aW1idWtvIGluY29ycG9yYXRlcyBkZXBlbmRlbmNpZXMsIGJ1dCBsaWtlIFN5bmNUcmFjZSwgaXQgaXMgbGltaXRlZCB0byBhIG5hcnJvdyB0aW1lIHdpbmRvdyBhbmQgc2luZ2xlLXJlc291cmNlIGZvY3VzLiBJbiBjb250cmFzdCwgVHJhdmVsZXIgaXMgZGVzaWduZWQgZm9yIGFuYWx5dGljIHRhc2tzIHJlcXVpcmluZyBoaWdoZXIgZmlkZWxpdHkgaW4gZGVwaWN0aW5nIGhvdyByZXNvdXJjZXMsIGV2ZW50cywgYW5kIGRlcGVuZGVuY2llcyBpbnRlcmFjdCBob2xpc3RpY2FsbHkuICAKCkFub3RoZXIgYWx0ZXJuYXRpdmUgaXMgdG8gcmVwcmVzZW50IHRhc2sgc2NoZWR1bGluZyB1c2luZyBwZXItZXZlbnQgbGF5ZXJlZCBub2RlLWxpbmsgZGlhZ3JhbXMgZGVyaXZlZCBmcm9tIGV4ZWN1dGlvbiBncmFwaHN+XGNpdGV7SHV5bmgyMDE1REFHVml6LCBNdWRkdWtyaXNobmEyMDE2R3JhaW5HcmFwaHMsIFJlaXNzbWFubjIwMTdHcmFpbkdyYXBoc30uIFdoaWxlIHN1Y2ggbWV0aG9kcyBwcm92aWRlIHVzZWZ1bCBhYnN0cmFjdGlvbnMsIHRoZWlyIHNjYWxhYmlsaXR5IHJlbGllcyBoZWF2aWx5IG9uIGFzc3VtcHRpb25zIG9mIGZvcmstam9pbiBwYXJhbGxlbGlzbSwgd2hpY2ggZG8gbm90IGFsaWduIHdpdGggdGhlIGlycmVndWxhciB0YXNrLXBhcmFsbGVsIHByb2dyYW1zIGFuYWx5emVkIGluIFRyYXZlbGVyLiAgCgotLS0KCldvdWxkIHlvdSBsaWtlIG1lIHRvICoqZnJhbWUgdGhpcyBzZWN0aW9uIGV4cGxpY2l0bHkgYXMgYSDigJxSZWxhdGVkIFN5c3RlbXPigJ0gY29tcGFyaXNvbioqLCBvciBrZWVwIGl0IGFzIGEgKipuYXJyYXRpdmUgb2Ygd2h5IFRyYXZlbGVyIGNob3NlIGl0cyBkZXNpZ24gdHJhZGUtb2ZmcyoqPyBCb3RoIGZpdCBpbnRvIENoYXB0ZXIgMyBidXQgc2VydmUgc2xpZ2h0bHkgZGlmZmVyZW50IHJoZXRvcmljYWwgcHVycG9zZXMu"></div></div></div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/highlight.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  marked.setOptions({
+    highlight: (code, lang) => {
+      if (lang && hljs.getLanguage(lang)) {
+        return hljs.highlight(code, { language: lang }).value;
+      }
+      return hljs.highlightAuto(code).value;
+    },
+    breaks: true,
+  });
+
+  const renderer = new marked.Renderer();
+  renderer.code = function({ text, lang }) {
+    const highlighted = lang && hljs.getLanguage(lang)
+      ? hljs.highlight(text, { language: lang }).value
+      : hljs.highlightAuto(text).value;
+    return '<div class="code-block"><button class="copy-btn" onclick="navigator.clipboard.writeText(this.nextElementSibling.querySelector(\'code\').textContent);this.textContent=\'Copied!\';setTimeout(()=>this.textContent=\'Copy\',1500)">Copy</button>'
+      + '<pre><code class="hljs">' + highlighted + '</code></pre></div>';
+  };
+  marked.use({ renderer });
+
+  document.querySelectorAll('.md-content').forEach(el => {
+    const md = decodeURIComponent(escape(atob(el.dataset.md)));
+    el.innerHTML = marked.parse(md);
+  });
+
+  const active = document.querySelector('.sidebar-item.active');
+  if (active) active.scrollIntoView({ block: 'center', behavior: 'instant' });
+});
+</script>
+</body>
+</html>
