@@ -218,7 +218,7 @@
     \bibliographystyle{\usebibstyle}
 \fi
 
-\RequirePackage{subcaption}
+
 
 % 3) TABLE OF CONTENTS
 

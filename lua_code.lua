@@ -60,8 +60,6 @@ function u_template_make_caption ( string, label )
     local first_sentence = ""
     if FIND ( string, "%." ) then
         first_sentence = SUB ( string, 1, FIND ( string, "%." ) - 1 )
-    else
-        first_sentence = string
     end
     local add = ""
     local label_add = ""
