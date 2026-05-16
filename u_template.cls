@@ -88,7 +88,8 @@
     headings=optiontotoc,%
     toc=nonumberline,%
     parskip=never,%
-    chapterprefix=true
+    chapterprefix=true,%
+    open=any
 ]{scrbook}
 
 \directlua{require ( "lua_code.lua" )} % lua code for advanced functionalities
