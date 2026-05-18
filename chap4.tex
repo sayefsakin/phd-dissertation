@@ -1,6 +1,8 @@
 \chapter{Gantt Chart Task Taxonomy and Data Queries}
 \label{chap:gantt-taxonomy}
 
+\begin{refsection}
+    
 Chapter~\ref{chap:traveler} presented \emph{Traveler}, a design for interactive analysis of large task-parallel execution traces, arguing that effective event-sequence visualization emerges from coupling visual design choices with data management strategies. This chapter broadens the lens beyond a single system to the \emph{visual idiom} most commonly used to depict discrete event sequences with duration and cross-tracks relationships: the Gantt chart. Our goal is to systematize how interactive Gantt charts support user work at scale. We contribute a literature-derived taxonomy of low-level \emph{visualization tasks} for Gantt charts and tightly coupled auxiliary views, and we map these tasks to the \emph{data queries} that enable them. This abstraction supports principled visual design and surfaces the data-access patterns that must be optimized to sustain interactivity for large datasets. This work was published as a short paper in IEEE VIS 2024~\cite{sakin2024gantttaxonomy}. The published paper has been slightly modified and presented in this chapter.
 
 \section{Introduction}
@@ -218,3 +220,6 @@ Queries operate on nodes that may represent individual or aggregated events.
 This chapter distilled three decades of Gantt-centric visualization research into a reusable, implementation-oriented framework: a task taxonomy (T1--T29) and its corresponding query classes (Q1--Q13). The taxonomy offers designers a language to specify and prioritize capabilities, while the query mapping exposes concrete data-access patterns that must be engineered for speed and scale. Despite the prevalence of domains capable of generating billions of events~\cite{isaacs2014state}, most surveyed systems demonstrate performance on orders of magnitude fewer events, suggesting that data-access costs remain a limiting factor. The taxonomy--query bridge supplies a principled basis for selecting and optimizing data management strategies to sustain interactivity.
 
 In Chapter~\ref{chap:eseman}, we leverage this mapping to motivate and evaluate data management techniques tailored to event-sequence workloads, demonstrating how targeted query optimization enables interactive visual analytics even as datasets grow in number of events, tracks, and dependency complexity.
+
+\printbibliography[heading=subbibnumbered]
+\end{refsection}
