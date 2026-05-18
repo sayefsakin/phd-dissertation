@@ -14,10 +14,10 @@ However, many of these applications, especially those coming from automated proc
 
 To better understand strategies and barriers to using Gantt charts with large numbers of events or sequences, we develop a literature-based task taxonomy, focusing on low-level visualization tasks that Gantt-focused systems use to support scale. Our taxonomy includes not only the Gantt-based tasks, but also those of highly coupled auxiliary views supporting the analysis of Gantt data. This taxonomy can be matched with user tasks when designing with Gantt charts in single or multi-view systems. We also match these tasks with data queries supporting them, enabling the analysis of data management techniques for supporting interactions as the datasets scale up. We expect visualization creators to use this taxonomy when considering options for representing large scale Gantt data and when considering implementation needs.
 
-\textbf{Contributions.}
+The contributions of our work are as follows.
 
 \begin{itemize}\itemsep0.25ex
-    \item A multi-layer \textbf{visualization task taxonomy} for interactive Gantt charts and their common auxiliary views.
+    \item A multilevel \textbf{visualization task taxonomy} for interactive Gantt charts and their common auxiliary views.
     \item A \textbf{classification of data queries} and their relationship with the proposed visualization task taxonomy for representing discrete event data visualized by Gantt charts.
     \item A \textbf{literature review} of scholarly articles over the last 30 years that have used Gantt charts as a significant view.
 \end{itemize}
@@ -82,107 +82,136 @@ For each paper, we examined the description of use, task analyses if they existe
 We define the 29 visualization tasks, T1--T29, collected into eight groups by their higher-level user goals. We cite example sources from the literature leading to each task; the full list of sources for each task appears in the supplemental material. These are \emph{visualization} tasks, focused on the functionality the Gantt chart and its closely related auxiliary views need to provide, independent of domain-specific semantics. Choosing this perspective supports both the evaluation of data management strategies and the selection of tasks to support when implementing Gantt charts.
 
 \subsubsection{Event Overviews}
-\textbf{T1: Display the full Gantt chart.} The most basic draw operation. For all but the smallest datasets, rendering to fit on screen involves aggregation, filtering, or overplotting; nevertheless, we assume that all data must be accessed. Highly aggregated overviews often seed subsequent navigation~\cite{nagel1996vampir, zaki1999toward, pinto2016analyzing, kaldor2017canopy}. 
 
-\textbf{T2: Display event attributes.} Beyond time and track, additional attributes appear via color/labels or auxiliary views, typically on demand through brushing~\cite{andre2007continuum, meyer2016visual}, clicking~\cite{pillet1995paraver}, or hovering~\cite{de2010zinsight}. Attributes are shown in static panes~\cite{meyer2016visual, sakin2022traveler, kaldor2017canopy}, multiple coordinated views~\cite{nagel1996vampir,de2010zinsight,sakin2022traveler}, lenses~\cite{nagel1996vampir, luz2010improving, jo2014livegantt}, or tooltips~\cite{de2010zinsight, jo2014livegantt, antweiler2022uncovering}.
+\begin{itemize}\itemsep0.25ex
+\item \textbf{T1: Display the full Gantt chart.} The most basic draw operation. For all but the smallest datasets, rendering to fit on screen involves aggregation, filtering, or overplotting; nevertheless, we assume that all data must be accessed. Highly aggregated overviews often seed subsequent navigation~\cite{nagel1996vampir, zaki1999toward, pinto2016analyzing, kaldor2017canopy}. 
 
-\textbf{T3: Display a window.} Present a subset in time and/or track space, obtained by brushing~\cite{adhianto2010hpctoolkit, sakin2022traveler}, zoom/pan, textual input, or selection via a dependency diagram~\cite{de2010zinsight}. 
+\item \textbf{T2: Display event attributes.} Beyond time and track, additional attributes appear via color/labels or auxiliary views, typically on demand through brushing~\cite{andre2007continuum, meyer2016visual}, clicking~\cite{pillet1995paraver}, or hovering~\cite{de2010zinsight}. Attributes are shown in static panes~\cite{meyer2016visual, sakin2022traveler, kaldor2017canopy}, multiple coordinated views~\cite{nagel1996vampir,de2010zinsight,sakin2022traveler}, lenses~\cite{nagel1996vampir, luz2010improving, jo2014livegantt}, or tooltips~\cite{de2010zinsight, jo2014livegantt, antweiler2022uncovering}.
 
-\textbf{T4: Re-encode.} Alter mappings (e.g., axis-to-attribute~\cite{pillet1995paraver, gupta2016movementslicer}) or time semantics~\cite{isaacs2014combing, jo2014livegantt, zaki1999toward}.
+\item \textbf{T3: Display a window.} Present a subset in time and/or track space, obtained by brushing~\cite{adhianto2010hpctoolkit, sakin2022traveler}, zoom/pan, textual input, or selection via a dependency diagram~\cite{de2010zinsight}. 
 
-\textbf{T5: Compare events from multiple datasets.} Via juxtaposed windows~\cite{sakin2022traveler, kaldor2017canopy} or in-chart overlays~\cite{bell2003paraprof}. 
+\item \textbf{T4: Re-encode.} Alter mappings (e.g., axis-to-attribute~\cite{pillet1995paraver, gupta2016movementslicer}) or time semantics~\cite{isaacs2014combing, jo2014livegantt, zaki1999toward}.
+
+\item \textbf{T5: Compare events from multiple datasets.} Via juxtaposed windows~\cite{sakin2022traveler, kaldor2017canopy} or in-chart overlays~\cite{bell2003paraprof}. 
+\end{itemize}
 
 \subsubsection{Analyze Derived Data}
-\textbf{T6: Display event distributions.} Summaries such as percentages~\cite{adhianto2010hpctoolkit}, histograms~\cite{sakin2022traveler}, or outlier views~\cite{jo2014livegantt, schaubschlaeger2003event}. 
 
-\textbf{T7: Aggregate events.} Compute aggregates (e.g., average/min/max) and display via aggregate Gantt views~\cite{sakin2022traveler, nesi2023summarizing, kaldor2017canopy}, lenses~\cite{jo2014livegantt}, re-encoding~\cite{topol1998pvanim}, or juxtaposition~\cite{gupta2016movementslicer}.
+\begin{itemize}\itemsep0.25ex
+\item \textbf{T6: Display event distributions.} Summaries such as percentages~\cite{adhianto2010hpctoolkit}, histograms~\cite{sakin2022traveler}, or outlier views~\cite{jo2014livegantt, schaubschlaeger2003event}. 
 
-\textbf{T8: Derive event attributes from dependencies.} Compute dependency-aware metrics (e.g., inclusive time) in-chart or in a detail view~\cite{adhianto2010hpctoolkit, sakin2022traveler}.
+\item \textbf{T7: Aggregate events.} Compute aggregates (e.g., average/min/max) and display via aggregate Gantt views~\cite{sakin2022traveler, nesi2023summarizing, kaldor2017canopy}, lenses~\cite{jo2014livegantt}, re-encoding~\cite{topol1998pvanim}, or juxtaposition~\cite{gupta2016movementslicer}.
 
-\textbf{T9: Display patterns.} Define, detect, and depict recurring event/dependency motifs~\cite{de2010zinsight, isaacs2014combing}.
+\item \textbf{T8: Derive event attributes from dependencies.} Compute dependency-aware metrics (e.g., inclusive time) in-chart or in a detail view~\cite{adhianto2010hpctoolkit, sakin2022traveler}.
+
+\item \textbf{T9: Display patterns.} Define, detect, and depict recurring event/dependency motifs~\cite{de2010zinsight, isaacs2014combing}.
+\end{itemize}
 
 \subsubsection{Search}
-\textbf{T10: Browsing.} Zooming and panning leading to T3; nearly universal.
 
-\textbf{T11: Highlight events.} Locate via attribute-based highlighting (color~\cite{adhianto2010hpctoolkit, isaacs2014combing, zaki1999toward, sakin2022traveler, nesi2023summarizing, kaldor2017canopy, dkabrowski2024manufacturing}, marks~\cite{sun2021daisen}, or re-organization~\cite{jo2014livegantt,luz2010improving}).
+\begin{itemize}\itemsep0.25ex
+\item \textbf{T10: Browsing.} Zooming and panning leading to T3; nearly universal.
 
-\textbf{T12: Lookup events.} Show the context of a selected event and propagate selection across views (e.g., source code, maps)~\cite{yan1995performance, adhianto2010hpctoolkit, zaki1999toward, gupta2016movementslicer}.
+\item \textbf{T11: Highlight events.} Locate via attribute-based highlighting (color~\cite{adhianto2010hpctoolkit, isaacs2014combing, zaki1999toward, sakin2022traveler, nesi2023summarizing, kaldor2017canopy, dkabrowski2024manufacturing}, marks~\cite{sun2021daisen}, or re-organization~\cite{jo2014livegantt,luz2010improving}).
+
+\item \textbf{T12: Lookup events.} Show the context of a selected event and propagate selection across views (e.g., source code, maps)~\cite{yan1995performance, adhianto2010hpctoolkit, zaki1999toward, gupta2016movementslicer}.
+\end{itemize}
 
 \subsubsection{Manipulating Tracks}
-\textbf{T13: Aggregate tracks.} Pre-computed~\cite{sakin2022traveler, sun2021daisen, nesi2023summarizing} or interactive~\cite{plaisant1998information, jo2014livegantt, kaldor2017canopy} grouping.
 
-\textbf{T14: Display track detail.} Via tooltips~\cite{sun2021daisen}, lenses~\cite{jo2014livegantt}, color~\cite{schnorr2010triva}, highlighting~\cite{drebes2014aftermath, adhianto2010hpctoolkit}, or sub-rows~\cite{plaisant1998information}. 
+\begin{itemize}\itemsep0.25ex
+\item \textbf{T13: Aggregate tracks.} Pre-computed~\cite{sakin2022traveler, sun2021daisen, nesi2023summarizing} or interactive~\cite{plaisant1998information, jo2014livegantt, kaldor2017canopy} grouping.
 
-\textbf{T15: Re-order tracks.} Manual (dragging~\cite{de2000paje}), attribute-based~\cite{heath1991visualizing}, or condition-driven reordering~\cite{jo2014livegantt, de2010zinsight}. 
+\item \textbf{T14: Display track detail.} Via tooltips~\cite{sun2021daisen}, lenses~\cite{jo2014livegantt}, color~\cite{schnorr2010triva}, highlighting~\cite{drebes2014aftermath, adhianto2010hpctoolkit}, or sub-rows~\cite{plaisant1998information}. 
 
-\textbf{T16: Remove tracks.} Omit tracks entirely (observed in~\cite{gupta2016movementslicer}). 
+\item \textbf{T15: Re-order tracks.} Manual (dragging~\cite{de2000paje}), attribute-based~\cite{heath1991visualizing}, or condition-driven reordering~\cite{jo2014livegantt, de2010zinsight}. 
 
-\textbf{T17: Compare tracks.} Facilitate comparison by repositioning~\cite{sun2021daisen} or hiding unrelated tracks~\cite{koike1997visualinda,tory2013comparative, kaldor2017canopy}; add per-track summaries~\cite{pinto2016analyzing}.
+\item \textbf{T16: Remove tracks.} Omit tracks entirely (observed in~\cite{gupta2016movementslicer}). 
+
+\item \textbf{T17: Compare tracks.} Facilitate comparison by repositioning~\cite{sun2021daisen} or hiding unrelated tracks~\cite{koike1997visualinda,tory2013comparative, kaldor2017canopy}; add per-track summaries~\cite{pinto2016analyzing}.
+\end{itemize}
 
 \subsubsection{Filtering}
-\textbf{T18: Filter events and tracks.} Filter by event attributes (time most common); prevalent across domains.
 
-\textbf{T19: Customize filters.} Construct compound filters via GUIs (dropdowns, sliders, checkboxes)~\cite{fails2006visual, jo2014livegantt, drebes2014aftermath, pillet1995paraver, kaldor2017canopy}. 
+\begin{itemize}\itemsep0.25ex
+\item \textbf{T18: Filter events and tracks.} Filter by event attributes (time most common); prevalent across domains.
+
+\item \textbf{T19: Customize filters.} Construct compound filters via GUIs (dropdowns, sliders, checkboxes)~\cite{fails2006visual, jo2014livegantt, drebes2014aftermath, pillet1995paraver, kaldor2017canopy}. 
+\end{itemize}
 
 \subsubsection{Exploring Dependencies}
-\textbf{T20: Display dependency graph.} View the induced network, either in-place (de-emphasizing other marks)~\cite{schnorr2010triva} or in a linked view~\cite{adhianto2010hpctoolkit, de2010zinsight, sakin2022traveler}. 
 
-\textbf{T21: Follow paths.} Navigate chains of dependencies via Gantt navigation~\cite{haugen2015visualizing, hirakata2022exploring} or linked graph traversal with collapsible subgraphs~\cite{de2010zinsight, sakin2022traveler, adhianto2010hpctoolkit}. 
+\begin{itemize}\itemsep0.25ex
+\item \textbf{T20: Display dependency graph.} View the induced network, either in-place (de-emphasizing other marks)~\cite{schnorr2010triva} or in a linked view~\cite{adhianto2010hpctoolkit, de2010zinsight, sakin2022traveler}. 
 
-\textbf{T22: Link nodes and events.} Connect graph nodes (possibly aggregates) back to constituent events via coordinated highlighting~\cite{de2010zinsight, sakin2022traveler}. 
+\item \textbf{T21: Follow paths.} Navigate chains of dependencies via Gantt navigation~\cite{haugen2015visualizing, hirakata2022exploring} or linked graph traversal with collapsible subgraphs~\cite{de2010zinsight, sakin2022traveler, adhianto2010hpctoolkit}. 
 
-\textbf{T23: Highlight dependencies.} Draw selected dependencies for paths or subgraphs across views~\cite{sakin2022traveler, schnorr2010triva, isaacs2014combing, haugen2015visualizing, tory2013comparative, dkabrowski2024manufacturing}. 
+\item \textbf{T22: Link nodes and events.} Connect graph nodes (possibly aggregates) back to constituent events via coordinated highlighting~\cite{de2010zinsight, sakin2022traveler}. 
 
-\textbf{T24: Display dependency attributes.} Encode dependency details via color or marks~\cite{koike1997visualinda, drebes2014aftermath, de2010zinsight, isaacs2014combing, antweiler2022uncovering, dkabrowski2024manufacturing}. 
+\item \textbf{T23: Highlight dependencies.} Draw selected dependencies for paths or subgraphs across views~\cite{sakin2022traveler, schnorr2010triva, isaacs2014combing, haugen2015visualizing, tory2013comparative, dkabrowski2024manufacturing}. 
 
-\textbf{T25: Compare dependency graphs.} Compare alternative or partitioned graphs (e.g., via treemaps)~\cite{sun2021daisen}. 
+\item \textbf{T24: Display dependency attributes.} Encode dependency details via color or marks~\cite{koike1997visualinda, drebes2014aftermath, de2010zinsight, isaacs2014combing, antweiler2022uncovering, dkabrowski2024manufacturing}. 
 
-\textbf{T26: Display graph metrics.} Compute and present structural metrics (e.g., depth, size, distances)~\cite{adhianto2010hpctoolkit, schnorr2010triva, tory2013comparative}.
+\item \textbf{T25: Compare dependency graphs.} Compare alternative or partitioned graphs (e.g., via treemaps)~\cite{sun2021daisen}. 
+
+\item \textbf{T26: Display graph metrics.} Compute and present structural metrics (e.g., depth, size, distances)~\cite{adhianto2010hpctoolkit, schnorr2010triva, tory2013comparative}.
+\end{itemize}
 
 \subsubsection{Modifying the Data}
-\textbf{T27: Update event data.} Edit attributes, including repositioning events and persisting changes~\cite{jo2014livegantt, bell2003paraprof}.
 
-\textbf{T28: Annotate.} Add textual/graphical annotations separate from base data~\cite{drebes2014aftermath, gupta2016movementslicer}.
+\begin{itemize}\itemsep0.25ex
+\item \textbf{T27: Update event data.} Edit attributes, including repositioning events and persisting changes~\cite{jo2014livegantt, bell2003paraprof}.
+
+\item \textbf{T28: Annotate.} Add textual/graphical annotations separate from base data~\cite{drebes2014aftermath, gupta2016movementslicer}.
+\end{itemize}
 
 \subsubsection{Exporting}
-\textbf{T29: Export.} Output to shareable formats (e.g., PNG/SVG)~\cite{drebes2014aftermath, zaki1999toward, pillet1995paraver, sakin2022traveler}.
+\begin{itemize}\itemsep0.25ex
+\item \textbf{T29: Export.} Output to shareable formats (e.g., PNG/SVG)~\cite{drebes2014aftermath, zaki1999toward, pillet1995paraver, sakin2022traveler}.
+\end{itemize}
 
 \subsection{Data Queries for Gantt Charts}
 \label{subsec:task_queries}
 We organize queries required by the tasks based on the similarity of their data-access profile. (T19 \emph{filter customization} and T29 \emph{export} do not require additional data fetches.)
 
 \subsubsection{Event-Related Fetch Queries}
-\textbf{Q1: Get data from a range.} Multi-dimensional ranges (e.g., time and track). \emph{Input:} range tuples. \emph{Output:} events with start time, end time, and track. \emph{Supports:} T1, T3, T4, T5, T6, T7, T8, T10, T13.
 
-\textbf{Q2: Get the attribute values of an event.} \emph{Input:} event identifier. \emph{Output:} attribute--value list. \emph{Supports:} T2, T12.
+\begin{itemize}\itemsep0.25ex
+\item \textbf{Q1: Get data from a range.} Multi-dimensional ranges (e.g., time and track). \emph{Input:} range tuples. \emph{Output:} events with start time, end time, and track. \emph{Supports:} T1, T3, T4, T5, T6, T7, T8, T10, T13.
 
-\textbf{Q3: Get data matching pattern.} Potentially expensive, application-specific pattern matching. \emph{Input:} search range (as Q1) and pattern. \emph{Output:} matching events. \emph{Supports:} T9.
+\item \textbf{Q2: Get the attribute values of an event.} \emph{Input:} event identifier. \emph{Output:} attribute--value list. \emph{Supports:} T2, T12.
 
-\textbf{Q4: Get events from a range meeting conditions.} Range plus predicates. \emph{Input:} ranges and conditions. \emph{Output:} qualifying events. \emph{Supports:} T11, T18. 
+\item \textbf{Q3: Get data matching pattern.} Potentially expensive, application-specific pattern matching. \emph{Input:} search range (as Q1) and pattern. \emph{Output:} matching events. \emph{Supports:} T9.
 
-\textbf{Q5: Get track details.} By track list or by events-to-tracks. \emph{Input:} track identifiers \emph{or} event identifiers. \emph{Output:} track attribute--values \emph{or} associated tracks. \emph{Supports:} T14, T17. 
+\item \textbf{Q4: Get events from a range meeting conditions.} Range plus predicates. \emph{Input:} ranges and conditions. \emph{Output:} qualifying events. \emph{Supports:} T11, T18. 
 
-\textbf{Q6: Get track ordering.} \emph{Input:} tracks and ordering condition. \emph{Output:} ordered track list. \emph{Supports:} T15.
+\item \textbf{Q5: Get track details.} By track list or by events-to-tracks. \emph{Input:} track identifiers \emph{or} event identifiers. \emph{Output:} track attribute--values \emph{or} associated tracks. \emph{Supports:} T14, T17. 
+
+\item \textbf{Q6: Get track ordering.} \emph{Input:} tracks and ordering condition. \emph{Output:} ordered track list. \emph{Supports:} T15.
+\end{itemize}
 
 \subsubsection{Dependency-Related Fetch Queries}
 Queries operate on nodes that may represent individual or aggregated events.
 
-\textbf{Q7: Get neighbor details of a node.} \emph{Input:} graph node. \emph{Output:} neighbors and attributes. \emph{Supports:} T21, T24.
+\begin{itemize}\itemsep0.25ex
+\item \textbf{Q7: Get neighbor details of a node.} \emph{Input:} graph node. \emph{Output:} neighbors and attributes. \emph{Supports:} T21, T24.
 
-\textbf{Q8: Find a node by attribute.} Often by dependency attribute. \emph{Input:} attribute name and value. \emph{Output:} matching nodes. \emph{Supports:} T22.
+\item \textbf{Q8: Find a node by attribute.} Often by dependency attribute. \emph{Input:} attribute name and value. \emph{Output:} matching nodes. \emph{Supports:} T22.
 
-\textbf{Q9: Calculate graph metrics.} \emph{Input:} metric spec. \emph{Output:} structural metrics. \emph{Supports:} T26. 
+\item \textbf{Q9: Calculate graph metrics.} \emph{Input:} metric spec. \emph{Output:} structural metrics. \emph{Supports:} T26. 
 
-\textbf{Q10: Get graph by attributes.} Build (sub)graphs by attribute filters or connectivity rules. \emph{Input:} attribute names and ranges. \emph{Output:} constructed graph. \emph{Supports:} T20, T23, T25.
+\item \textbf{Q10: Get graph by attributes.} Build (sub)graphs by attribute filters or connectivity rules. \emph{Input:} attribute names and ranges. \emph{Output:} constructed graph. \emph{Supports:} T20, T23, T25.
+\end{itemize}
 
 \subsubsection{Update Queries}
-Each returns a Boolean success indicator.
 
-\textbf{Q11: Add annotation.} \emph{Input:} time, track, and annotation content. \emph{Supports:} T28. 
+\begin{itemize}\itemsep0.25ex
+\item \textbf{Q11: Add annotation.} \emph{Input:} time, track, and annotation content. \emph{Supports:} T28. 
 
-\textbf{Q12: Update event.} \emph{Input:} event identifier and attribute update. \emph{Supports:} T27.
+\item \textbf{Q12: Update event.} \emph{Input:} event identifier and attribute update. \emph{Supports:} T27.
 
-\textbf{Q13: Remove track.} Mark tracks for omission in subsequent queries. \emph{Input:} track identifiers. \emph{Supports:} T16.
+\item \textbf{Q13: Remove track.} Mark tracks for omission in subsequent queries. \emph{Input:} track identifiers. \emph{Supports:} T16.
+\end{itemize}
 
 \section{Discussion and Chapter Conclusion}
 \label{sec:conclusion}

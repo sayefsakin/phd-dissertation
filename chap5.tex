@@ -2,7 +2,7 @@
 \chapter[Managing Data for Scalable and Interactive Event Sequence Visualization]{Managing Data for Scalable and Interactive \\ Event Sequence Visualization}
 \label{chap:eseman}
 
-Event sequence data arises across a wide variety of domains, including healthcare, manufacturing, and high-performance computing (HPC). Such data captures temporally ordered events along multiple tracks or entities, often resulting in millions of records. A widely used visualization idiom for such data is the parallel timeline chart, where each event sequence is drawn on a horizontal track and events are rendered as bars positioned according to their timestamps. These charts provide rich context but encounter serious scalability limitations as data size increases. When analysts attempt to zoom, pan, or filter large event datasets, interactive performance is often lost due to the overwhelming cost of retrieving and rendering all relevant events. This work has been accepted~\cite{sakin2025managing} to present at The 15th IEEE Workshop on Large Data Analysis and Visualization (LDAV 2025). The published paper has been slightly modified and presented in this chapter along with the supplemental materials.
+Event sequence data arises across a wide variety of domains, including healthcare, manufacturing, and high-performance computing (HPC). Such data capture temporally ordered events along multiple tracks or entities, often resulting in millions of records. A widely used visualization idiom for such data is the parallel timeline chart, where each event sequence is drawn on a horizontal track and events are rendered as bars positioned according to their timestamps. These charts provide rich context but encounter serious scalability limitations as data size increases. When analysts attempt to zoom, pan, or filter large event datasets, interactive performance is often lost due to the overwhelming cost of retrieving and rendering all relevant events. This work has been accepted~\cite{sakin2025managing} to present at The 15th IEEE Workshop on Large Data Analysis and Visualization (LDAV 2025). The published paper has been slightly modified and presented in this chapter along with the supplemental materials.
 
 \begin{sloppypar}
 This chapter presents a descriptive summary of \textit{ESeMan} (Event SEquence MANager)~\cite{sakin2025managing}, a system designed to address the fundamental challenge of balancing scalability with interactive responsiveness. ESeMan introduces a resolution-aware, hierarchical data management strategy that retrieves only the events necessary for accurate visualization at the current display scale. By integrating hierarchical summarization, caching, and tunable accuracy, ESeMan enables interactive event sequence visualization on datasets containing millions of events. 
@@ -27,7 +27,7 @@ Parallel timeline charts are a fundamental visualization idiom for depicting mul
 
 Because datasets often cover wide temporal or categorical ranges, analysts rely on zooming and panning to maintain legibility, ensuring that events remain visible above the pixel threshold. At different scales, sub-pixel events must be addressed either by rendering as minimal single-pixel marks, omitting them entirely, or aggregating them into summary representations. The latter, often referred to as \textit{event summarization}~\cite{guo2021survey}, creates reduced forms of event sequences that preserve analytical value. As illustrated in \autoref{fig:eseman_gantt_desc}, even a small excerpt of a dataset may require careful handling of partially visible or densely overlapping events.
 
-The need for aggregation introduces significant challenges for interactivity. Studies such as Davidson et al.~\cite{davidson2023qualitative} highlight how data quality and multi-level aggregation remain persistent obstacles in distributed trace analysis. Broader surveys of software visualization~\cite{isaacs2014state, ezzati2017multi} emphasize that scalable data management is essential to preserve interactive responsiveness when navigating large event sequences.
+The need for aggregation introduces significant challenges for interactivity. Studies such as Davidson et al.~\cite{davidson2023qualitative} highlight how data quality and multilevel aggregation remain persistent obstacles in distributed trace analysis. Broader surveys of software visualization~\cite{isaacs2014state, ezzati2017multi} emphasize that scalable data management is essential to preserve interactive responsiveness when navigating large event sequences.
 
 \subsection{Databases in Event Sequence Visualization}
 Database management systems (DBMS) have been widely employed to support event sequence visualization~\cite{bell2003paraprof, antweiler2022uncovering, sun2021daisen, battle2016dynamic, agarwal2013blinkdb, heer2023mosaic}. While these systems can efficiently query large volumes of data, they are not typically optimized for resolution-aware summarization. Distributed databases have also been used to manage software performance data at scale~\cite{moritz2015perfopticon, kaldor2017canopy, kruchten2022vegafusion, shen2023qevis}, including streaming contexts~\cite{kesavan2020visual, khan2023web}. However, distributed solutions often suffer from high latency due to network communication overhead and configuration complexity, with total response times exceeding the 100ms threshold necessary for smooth interactivity~\cite{kaldor2017canopy, kruchten2022vegafusion}.
@@ -71,14 +71,14 @@ Two deployment patterns are supported: a \emph{forest} of per-track trees (usefu
 
 \addfigure[width=\columnwidth]{figs/2dkdt-02.png}{Two-dimensional KD-tree spanning time and tracks. Internal nodes summarize multi-track regions; when a pixel window maps to a node containing multiple events, only the node's temporal (and track) bounds are returned, forming a faithful summary mark.}{fig:twodkdt}
 
-\textbf{One-dimensional KD-Tree to summarize events per track.}
+\subsubsection{One-dimensional KD-Tree to summarize events per track.}
 
 Starting from a track-level root, we recursively split any node whose time span covers more than two events. We adopt a \emph{fair} splitting rule that partitions the node's events into two children with (as nearly as possible) equal counts, ordered temporally. The \emph{fair} splitting rule yields a balanced search depth and, in our preliminary testing, strong pixel-level accuracy when summarization is set to one pixel. Internal nodes store a concise summary of their covered events; leaves store individual events. See \autoref{fig:hierarchy} for an illustration.
 
-\textbf{Two-dimensional KD-Tree to summarize all events.}
+\subsubsection{Two-dimensional KD-Tree to summarize all events.}
 To simultaneously partition time and tracks, we construct a two-dimensional KD-tree whose root spans the full chart. Splits alternate between the temporal and track axes. For time splits, we use the midpoint between the earliest start and latest end within the parent; if that midpoint intersects events, those events are split across children; if not, child bounds are snapped to the nearest event extents to avoid empty regions. For track splits, we divide the current track set as evenly as possible; once a node contains a single track, splitting reverts to the 1D fair rule. \autoref{fig:twodkdt} shows the resulting partitioning, with boundary-defining events highlighted.
 
-\textbf{Agglomerative clustering to summarize events per track.}
+\subsubsection{Agglomerative clustering to summarize events per track.}
 
 As a bottom-up alternative, we cluster events along a track using single-linkage on the temporal gap between events. Clusters merge greedily by proximity, producing compact temporal groups; each cluster's summary is defined by the earliest start and latest end of its members. The resulting dendrogram provides a hierarchical basis analogous to the KD-tree, but formed by data-driven cohesion rather than axis-aligned partitioning; \autoref{fig:hierarchy} depicts the structure.
 
@@ -116,7 +116,7 @@ To assess the effectiveness of ESeMan, we conducted evaluations combining contro
 \subsection{Experimental Setup}
 The experiments were carried out by extending the Traveler visualization platform~\cite{sakin2022traveler} with a benchmarking harness. Traveler renders parallel timeline charts in an HTML5 \texttt{Canvas}, and for all experiments the horizontal resolution of the visualization canvas was set to 3672 pixels, corresponding to an ultra-high-definition display.
 
-We implemented three configurations of ESeMan, \textbf{ESeMan-1DKDT}, \textbf{ESeMan-KDT}, and \textbf{ESeMan-Agg}, each employing hierarchical indexing strategies. These were compared to four alternative configurations representing commonly used data management techniques: a naive SQL range-query using DuckDB~\cite{raasveldt2019duckdb}, statistical reservoir sub-sampling, the M4 optimization technique~\cite{jugel2014m4} used in libraries such as Vega~\cite{vega}, and a summed-area table~\cite{crow1984summed} implementation previously integrated into Traveler~\cite{sakin2022traveler}. Together, these baselines provide a spectrum of linear, relational, and approximate strategies for managing visualization data.  
+We implemented three configurations of ESeMan, \textbf{ESeMan-1DKDT}, \textbf{ESeMan-KDT}, and \textbf{ESeMan-Agg}, each employing hierarchical indexing strategies. These were compared to four alternative configurations representing commonly used data management techniques: a naive SQL range-query using DuckDB~\cite{raasveldt2019duckdb}, statistical reservoir subsampling, the M4 optimization technique~\cite{jugel2014m4} used in libraries such as Vega~\cite{vega}, and a summed-area table~\cite{crow1984summed} implementation previously integrated into Traveler~\cite{sakin2022traveler}. Together, these baselines provide a spectrum of linear, relational, and approximate strategies for managing visualization data.  
 
 We developed an automated evaluation framework to ensure consistency, repeatability, and timing accuracy in performance measurements. It uses a Selenium-based automated simulator to load the Traveler visualization interface on a Chromium web browser, using each data management configuration in turn to automate the execution of all experiment workflows. The simulator controlled dataset loading, initial rendering, and repeated execution of range and conditional queries to render data on the headless browser. Each query was executed twenty times, and results from the final ten runs were averaged to eliminate noise from initialization or caching effects. 
 
@@ -159,7 +159,7 @@ The percentage breakdown of total time between data fetching and chart rendering
 
 \autoref{fig:rangeqb} presents the average data fetch times (top) and visual accuracy (bottom) for range queries. The ESeMan variants consistently achieved latency below the 100ms interactivity threshold~\cite{battle2019role}, except on the largest synthesized dataset where times reached 400ms. The \texttt{Agg} variant exhibited similar behavior, except for on the Fibonacci dataset where it crashed due to a memory allocation error. The naive SQL and approximate methods frequently exceeded the threshold, particularly for dense or large traces.
 
-In terms of accuracy, ESeMan maintained near-perfect similarity with the naive baseline, whereas sub-sampling and M4 optimization introduced visible distortions. Among ESeMan\'s variants, \texttt{1DKDT} achieved the fastest performance, while both \texttt{1DKDT} and \texttt{Agg} provided the highest fidelity.
+In terms of accuracy, ESeMan maintained near-perfect similarity with the naive baseline, whereas subsampling and M4 optimization introduced visible distortions. Among ESeMan\'s variants, \texttt{1DKDT} achieved the fastest performance, while both \texttt{1DKDT} and \texttt{Agg} provided the highest fidelity.
 
 \addfigure[width=0.9\columnwidth]{figs/cond_stacked_chart.png}{Percentage breakdown of total time spent on data fetching (dark bars) and chart rendering (light bars) across seven data management configurations for conditional range queries. Except for the LULESH, LRA, and Synthesized dataset, data fetch time dominates time for the Non-ESeMan configurations. ESeMan configurations substantially lowers the data fetch percentage.}{fig:crangeqa}
 
@@ -190,31 +190,21 @@ Memory consumption across all configurations is shown in \autoref{fig:memory}. T
 
 To explore tunability, we varied pixel window sizes for \texttt{ESeMan-1DKDT}. \autoref{fig:ssim} illustrates the trade-off between fetch time and SSIM across the three largest datasets. Narrower windows preserved perfect accuracy but incurred longer latencies, while wider windows reduced latency at the cost of structural fidelity. \autoref{fig:teasers} further shows rendered outputs for the LRA dataset, highlighting the effect of summarization window sizes. These results demonstrate that ESeMan allows users to balance responsiveness and accuracy according to analytic needs.
 
-\addfigure[width=\columnwidth]{figs/listings51.png}{C3 - Naive Range Query}{fig:listings51}
+\addfigure[width=\columnwidth]{figs/listings51.png}{C3 - Naive range query.}{fig:listings51}
 
-\addfigure[width=\columnwidth]{figs/listings52.png}{C4 - Statistical Sub-sampling Query}{fig:listings52}
+\addfigure[width=\columnwidth]{figs/listings52.png}{C4 - Statistical subsampling query.}{fig:listings52}
 
 \subsection{Comparison with Perfetto}
 We qualitatively compared ESeMan with Google\'s \emph{Perfetto}~\cite{Perfetto} using the K-Means dataset. Summarization in Perfetto omits fine-grained events at low zoom levels to achieve responsiveness, potentially concealing short-duration events crucial for anomaly detection~\cite{guo2021survey}. ESeMan, in contrast, preserves pixel-level accuracy across zoom levels.
 
 In addition with better visual accuracy, ESeMan demonstrated comparable responsiveness, with interaction-to-next-paint (INP~\cite{inp_webdev}) values of 23ms, closely matching 20ms of Perfetto. ESeMan's comparable responsiveness to Perfetto highlights that high accuracy need not come at the cost of interactive performance.
 
-\addfigure[width=\columnwidth]{figs/listings53.png}{C5 - M4 Optimization Query}{fig:listings53}
+\addfigure[width=\columnwidth]{figs/listings53.png}{C5 - M4 optimization query.}{fig:listings53}
 
 \section{DuckDB configurations}
 In DuckDB, we created a table $intervals$ with all the event sequences. Then we conduct the following queries over the specified range $(begin, end)$ on the track $Location$ with a predefined number of $bins$, which is set to the visible number of pixels $(4236)$.
 
-\textbf{Naive Range Query}
-
-The query presented in \autoref{fig:listings51} selects raw trace entries within a specified time range without any optimization.
-
-\textbf{Statistical Sub-sampling}
-
-In \autoref{fig:listings52}, we use reservoir sampling to reduce data volume while preserving statistical characteristics.
-
-\textbf{M4 Optimization}
-
-Finally, query in \autoref{fig:listings53} uses aggregation over fixed-size time bins (M4 optimization), returning representative min/max pairs.
+The naive range query presented in \autoref{fig:listings51} selects raw trace entries within a specified time range without any optimization. For statistical subsampling presented in \autoref{fig:listings52}, we use reservoir sampling to reduce data volume while preserving statistical characteristics. Finally, the M4 optimization query presented in \autoref{fig:listings53} uses aggregation over fixed-size time bins, returning representative min/max pairs.
 
 \section{Dataset Indexing Time}
 
@@ -276,7 +266,7 @@ To demonstrate the visual accuracy using SSIM, we present here the generated vis
 
 The visualization accuracy is fundamentally determined by the generating summary with the pixel window strategy, where the total display width is divided into a fixed number of pixel window for data summarization. When the number of pixel windows equals the number of horizontal pixels in the visualization, each bin corresponds to exactly one pixel, representing the theoretically ideal pixel-perfect rendering. As the number of pixel windows decreases below the pixel count, each pixel window must represent multiple pixels, leading to spatial summarization that inherently reduces visual accuracy. The summarization relationship with the pixel window directly impacts the effectiveness of different data management approaches, as some methods better preserve fine-grained spatial information than others when operating under reduced pixel window constraints.
 
-The visual accuracy assessment results presented in Table~\ref{tab:ssim-results} show that the DuckDB and summed area table configurations show varying degrees of quality degradation. Here, we highlight the SSIM values in using a colormap presented at the bottom of Table~\ref{tab:ssim-results}. Darker pixels represent low SSIM values (high deviation from the Naive configuration), and lighter pixels represent high SSIM values (high similarity with the Naive configuration). The Summed Area Table approach maintains high accuracy with an SSIM of 0.9996, while the Statistical Sub-sampling method shows moderate quality loss at 0.9915. The M4 Optimization technique exhibits the most significant visual degradation with an SSIM of 0.8908, as evidenced by the visible artifacts and high color distortions in the corresponding visualization. We suspect the M4 optimization is optimized for time series data only, and for event sequences, it omits consecutive longer events. These results confirm that ESeMan's KD-Tree-based aggregation strategy preserves visual integrity while maintaining computational efficiency, outperforming both statistical approximation methods and traditional database querying approaches in terms of visualization quality.
+The visual accuracy assessment results presented in Table~\ref{tab:ssim-results} show that the DuckDB and summed area table configurations show varying degrees of quality degradation. Here, we highlight the SSIM values in using a colormap presented at the bottom of Table~\ref{tab:ssim-results}. Darker pixels represent low SSIM values (high deviation from the Naive configuration), and lighter pixels represent high SSIM values (high similarity with the Naive configuration). The summed area table approach maintains high accuracy with an SSIM of 0.9996, while the Statistical subsampling method shows moderate quality loss at 0.9915. The M4 Optimization technique exhibits the most significant visual degradation with an SSIM of 0.8908, as evidenced by the visible artifacts and high color distortions in the corresponding visualization. We suspect the M4 optimization is optimized for time series data only, and for event sequences, it omits consecutive longer events. These results confirm that ESeMan's KD-Tree-based aggregation strategy preserves visual integrity while maintaining computational efficiency, outperforming both statistical approximation methods and traditional database querying approaches in terms of visualization quality.
 
 
 \subsection{Limitations and Threats to Validity}

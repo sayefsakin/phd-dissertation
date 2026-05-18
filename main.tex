@@ -1,9 +1,6 @@
 % !TEX program = lualatex
 
 \documentclass[american]{u_template}
-
-\def\figurenum{true}   % force List of Figures to always appear
-\def\tablenum{true}  % force List of Tables to always appear
 \newcommand{\nl}{\ifinner\else\\\fi}
 
 \author                 {Sayef Azad Sakin}
@@ -58,7 +55,7 @@ My heartfelt thanks go to Ammu, Sayem vaia, Synthia. Lastly, thank you, Shinjee,
 
 % Sectioning
 
-\mainheadingsnumbered % "\usechapters" for chapters, "\mainheadingsnumbered" for numbered main headings, "\mainheadingsunnumbered" for unnumbered main headings
+\usechapters % "\usechapters" for chapters, "\mainheadingsnumbered" for numbered main headings, "\mainheadingsunnumbered" for unnumbered main headings
 
 \localnumbering % "\localnumbering" for subheadings/figures/tables/etc. numbered within chapters, "\nolocalnumbering" for unnumbered subheadings and continuous numbering of figures/tables/etc. (Will automatically be turned off with option "\mainheadingsunnumbered".)
 
@@ -67,7 +64,7 @@ My heartfelt thanks go to Ammu, Sayem vaia, Synthia. Lastly, thank you, Shinjee,
 
 % Figures and Tables
 
-\intext % "\chapterend" for placing all figures/tables at the end of the chapter, "\withouttext" for placement on a page without accompanying text that follows the page where they are first mentioned, "\intext" for placement at top/bottom of text pages
+\chapterend % "\chapterend" for placing all figures/tables at the end of the chapter, "\withouttext" for placement on a page without accompanying text that follows the page where they are first mentioned, "\intext" for placement at top/bottom of text pages
 
 \setlength{\tabcolsep}{.1in} % separation between table columns
 \renewcommand*{\arraystretch}{1.5} % vertical stretch factor in tables
@@ -75,9 +72,16 @@ My heartfelt thanks go to Ammu, Sayem vaia, Synthia. Lastly, thank you, Shinjee,
 
 \notablecolors % "\tablecolors" for alternating background color of table rows, "\notablecolors" to deactivate
 
-% hide the list of figures and tables as they are not between 5 and 25
-\renewcommand*{\listoffigures}{}
-\renewcommand*{\listoftables}{}
+% Capitalize "Chapter" and "Section" in \autoref
+\AtBeginDocument{%
+    \renewcommand*{\chapterautorefname}{Chapter}%
+    \renewcommand*{\sectionautorefname}{Section}%
+    \renewcommand*{\subsectionautorefname}{Section}%
+    \renewcommand*{\subsubsectionautorefname}{Section}%
+}
+
+% Suppress the automatic (wrong-position) entry
+\def\nomainheadings{false}
 
 \begin{document}
 
