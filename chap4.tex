@@ -2,11 +2,11 @@
 \label{chap:gantt-taxonomy}
 
 \begin{refsection}
-    
-Chapter~\ref{chap:traveler} presented \emph{Traveler}, a design for interactive analysis of large task-parallel execution traces, arguing that effective event-sequence visualization emerges from coupling visual design choices with data management strategies. This chapter broadens the lens beyond a single system to the \emph{visual idiom} most commonly used to depict discrete event sequences with duration and cross-tracks relationships: the Gantt chart. Our goal is to systematize how interactive Gantt charts support user work at scale. We contribute a literature-derived taxonomy of low-level \emph{visualization tasks} for Gantt charts and tightly coupled auxiliary views, and we map these tasks to the \emph{data queries} that enable them. This abstraction supports principled visual design and surfaces the data-access patterns that must be optimized to sustain interactivity for large datasets. This work was published as a short paper in IEEE VIS 2024~\cite{sakin2024gantttaxonomy}. The published paper has been slightly modified and presented in this chapter.
+This work is based on previously published work, 2024 IEEE, Reprinted with permission from S. A. Sakin and K. E. Isaacs, ``A literature-based visualization task taxonomy for gantt charts,'' in 2024 IEEE Vis. and Visual Analytics (VIS), IEEE, 2024, pp. 1-5.
 
 \section{Introduction}
 \label{sec:ch4-first-intro}
+% This chapter discusses the \emph{visual idiom} most commonly used to depict discrete event sequences with duration and cross-tracks relationships: the Gantt chart. Our goal is to systematize how interactive Gantt charts support user work at scale. We contribute a literature-derived taxonomy of low-level \emph{visualization tasks} for Gantt charts and tightly coupled auxiliary views, and we map these tasks to the \emph{data queries} that enable them. This abstraction supports principled visual design and surfaces the data-access patterns that must be optimized to sustain interactivity for large datasets.
 
 Gantt charts are a visual idiom for displaying multiple event sequences with dependencies between events in different sequences. Data is organized on two axes, one representing a notion of time or order and the other partitioning the events by some factor relating them, such as different people, roles, or resources assigned to them.
 
@@ -46,7 +46,7 @@ Events are partitioned into parallel sequences by an attribute indicating the re
 Cross-track relationships often matter as much as per-track activity. We use \emph{dependency} to mean a directed relation in which one event constrains another (e.g., a message receipt enabling a computation). The collection of events and their dependencies forms a \emph{dependency graph}; depending on the application, graph nodes may represent individual events or aggregates thereof. Events and tracks can bear additional attributes (e.g., provenance labels, categorical codes, or resource capacities), which are frequently leveraged for filtering, highlighting, and summarization in analysis workflows.
 
 
-\addfigure[width=1.0\columnwidth]{figs/ganttoverview.pdf}{Gantt chart showing a window of time and three tracks.}{fig:gantt_desc}
+\addfigure[width=1.0\columnwidth, alt={Gantt chart showing a window of time and three tracks.}]{figs/ganttoverview.pdf}{Gantt chart showing a window of time and three tracks.}{fig:gantt_desc}
 
 \subsection{Visual Encoding Assumptions}
 \label{subsec:gantt-encoding}
@@ -69,7 +69,7 @@ We conduct a survey of Gantt charts used in visualizations with an emphasis on t
 %   \label{fig:gantt_heatmap}
 % \end{figure}
 
-\addfigure[width=\textwidth]{figs/Gantt-heatmap-v8.pdf}{Mapping between data queries and interactive visualization tasks for Gantt charts. Each heatmap cell denotes in how many papers we observed the given visualization task. Tasks observed in each paper are included in the supplemental materials. These counts suggest common tasks to support and possibilities for handling scale, and indicate which queries are most common and may be considered for optimization.}{fig:gantt_heatmap}
+\addfigure[width=\textwidth, alt={Mapping between data queries and interactive visualization tasks for Gantt charts. Each heatmap cell denotes in how many papers we observed the given visualization task. Tasks observed in each paper are included in the supplemental materials. There are counts in each cell suggest common tasks to support and possibilities for handling scale, and indicate which queries are most common and may be considered for optimization.}]{figs/Gantt-heatmap-v8.pdf}{Mapping between data queries and interactive visualization tasks for Gantt charts. Each heatmap cell denotes in how many papers we observed the given visualization task. Tasks observed in each paper are included in the supplemental materials. These counts suggest common tasks to support and possibilities for handling scale, and indicate which queries are most common and may be considered for optimization.}{fig:gantt_heatmap}
 
 \subsection{Methodology}
 \label{subsec:task_methods}
