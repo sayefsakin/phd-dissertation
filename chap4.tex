@@ -69,19 +69,19 @@ We conduct a survey of Gantt charts used in visualizations with an emphasis on t
 %   \label{fig:gantt_heatmap}
 % \end{figure}
 
-\addfigure[width=\textwidth, alt={Mapping between data queries and interactive visualization tasks for Gantt charts. Each heatmap cell denotes in how many papers we observed the given visualization task. Tasks observed in each paper are included in the supplemental materials. There are counts in each cell suggest common tasks to support and possibilities for handling scale, and indicate which queries are most common and may be considered for optimization.}]{figs/Gantt-heatmap-v8.pdf}{Mapping between data queries and interactive visualization tasks for Gantt charts. Each heatmap cell denotes in how many papers we observed the given visualization task. Tasks observed in each paper are included in the supplemental materials. These counts suggest common tasks to support and possibilities for handling scale, and indicate which queries are most common and may be considered for optimization.}{fig:gantt_heatmap}
+\addfigure[width=\textwidth, alt={Mapping between data queries and interactive visualization tasks for Gantt charts. Each heatmap cell denotes in how many papers we observed the given visualization task. Tasks observed in each paper are included in the appendix. There are counts in each cell suggest common tasks to support and possibilities for handling scale, and indicate which queries are most common and may be considered for optimization.}]{figs/Gantt-heatmap-v8.pdf}{Mapping between data queries and interactive visualization tasks for Gantt charts. Each heatmap cell denotes in how many papers we observed the given visualization task. Tasks observed in each paper are included in the appendix. These counts suggest common tasks to support and possibilities for handling scale, and indicate which queries are most common and may be considered for optimization.}{fig:gantt_heatmap}
 
 \subsection{Methodology}
 \label{subsec:task_methods}
 We obtained an initial list of papers from surveys that feature Gantt charts~\cite{isaacs2014state, guo2021survey, ezzati2017multi}. We then expanded our list through searches in IEEE Xplore and Google Scholar using the following keywords, sourced from the surveys: \textit{Gantt chart}, \textit{timeline visualization}, \textit{event sequence visualization}, \textit{schedule visualization}, \textit{execution trace visualization}, \textit{trace analysis}, \textit{performance analysis}, \textit{performance visualization}, \textit{parallel program analysis}, \textit{task parallel trace analysis}, and \textit{time-series charts}. We collected papers with promising abstracts, resulting in 137 research articles. We filtered these papers to those including interactive Gantt charts, resulting in a set of 35 papers. 
 
-We also identified 11 additional commercially available online tools that use Gantt charts (see supplemental materials). We did not find additional tasks by investigating their websites. We do not include them in \autoref{fig:gantt_heatmap} as their Gantt view features were not described in detail in their publicly available documentation.
+We also identified 11 additional commercially available online tools that use Gantt charts (see \autoref{chap:appa}). We did not find additional tasks by investigating their websites. We do not include them in \autoref{fig:gantt_heatmap} as their Gantt view features were not described in detail in their publicly available documentation.
 
 For each paper, we examined the description of use, task analyses if they existed, the visualization itself, and any use cases or evaluation. The initial round of qualitative coding focused on identifying, distilling, and tagging how the Gantt chart was used---what visualization tasks it was supporting. We then made a second pass to merge, split, and elaborate on the codes. This two-round process resulted in 29 distinct low-level visualization tasks. We categorized them into groups based on their intended higher-level user goal.
 
 \subsection{Gantt Chart Task Taxonomy}
 \label{subsec:tasks}
-We define the 29 visualization tasks, T1--T29, collected into eight groups by their higher-level user goals. We cite example sources from the literature leading to each task; the full list of sources for each task appears in the supplemental material. These are \emph{visualization} tasks, focused on the functionality the Gantt chart and its closely related auxiliary views need to provide, independent of domain-specific semantics. Choosing this perspective supports both the evaluation of data management strategies and the selection of tasks to support when implementing Gantt charts.
+We define the 29 visualization tasks, T1--T29, collected into eight groups by their higher-level user goals. We cite example sources from the literature leading to each task; the full list of sources for each task appears in the \autoref{chap:appa}. These are \emph{visualization} tasks, focused on the functionality the Gantt chart and its closely related auxiliary views need to provide, independent of domain-specific semantics. Choosing this perspective supports both the evaluation of data management strategies and the selection of tasks to support when implementing Gantt charts.
 
 \subsubsection{Event Overviews}
 
@@ -179,7 +179,7 @@ We organize queries required by the tasks based on the similarity of their data-
 \subsubsection{Event-Related Fetch Queries}
 
 \begin{itemize}\itemsep0.25ex
-\item \textbf{Q1: Get data from a range.} Multi-dimensional ranges (e.g., time and track). \emph{Input:} range tuples. \emph{Output:} events with start time, end time, and track. \emph{Supports:} T1, T3, T4, T5, T6, T7, T8, T10, T13.
+\item \textbf{Q1: Get data from a range.} Multidimensional ranges (e.g., time and track). \emph{Input:} range tuples. \emph{Output:} events with start time, end time, and track. \emph{Supports:} T1, T3, T4, T5, T6, T7, T8, T10, T13.
 
 \item \textbf{Q2: Get the attribute values of an event.} \emph{Input:} event identifier. \emph{Output:} attribute--value list. \emph{Supports:} T2, T12.
 

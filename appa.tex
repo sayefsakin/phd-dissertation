@@ -1,11 +1,74 @@
 %%% -*-LaTeX-*-
 
-\chapter{The First}
+\chapter{Guide to Supplemental Materials}
+\label{chap:appa}
 
-This is an appendix.  Notice that the \LaTeX{} markup for an appendix
-is, surprisingly, \verb=\chapter=.  The \verb=\appendix= command does
-not produce a heading; instead, it just changes the numbering style
-from numeric to alphabetic, and it changes the heading prefix from
-\textbf{CHAPTER} to \textbf{APPENDIX}.
+\begin{refsection}
+The following materials are included in the accompanying \texttt{.zip} file.
+\begin{itemize}
+    \item \textbf{PapersSummary - Keywords.csv}: This CSV file contains the mapping between papers and the Gantt chart visualization tasks found in them. The code for each paper in the column \texttt{paper} of the CSV are mapped to their full citations in \autoref{sec:papers}.
+\end{itemize}
 
-\blah \blah \blah
+\section{Surveyed Papers and Their CSV Code}
+\label{sec:papers}
+We use a short code in ``PapersSummary - Keywords.csv'' when mapping tasks to each paper. We list the codes below along with their full citation.
+
+\begin{enumerate}
+\item HPCToolkit \cite{adhianto2010hpctoolkit},
+\item Aftermath \cite{drebes2014aftermath},
+\item Vampir \cite{nagel1996vampir},
+\item Perf-EV \cite{pinto2016analyzing},
+\item Jumpshot \cite{zaki1999toward},
+\item Smart traces \cite{osmari2014visualization},
+\item TAU \cite{xie2018performance},
+\item Ravel \cite{isaacs2014combing},
+\item VET \cite{haugen2015visualizing},
+\item Paraprof \cite{bell2003paraprof},
+\item Zinsight \cite{de2010zinsight},
+\item AIMS \cite{yan1995performance},
+\item Paje \cite{de2000paje},
+\item Paraver \cite{pillet1995paraver},
+\item Charm++ \cite{kale2006scaling},
+\item Pvanim \cite{topol1998pvanim},
+\item Trivia \cite{schnorr2010triva},
+\item Visualinda \cite{koike1997visualinda},
+\item DeWiz \cite{schaubschlaeger2003event},
+\item LiveGantt \cite{jo2014livegantt},
+\item EW \cite{tang2021visualization},
+\item Ep-Gantt \cite{antweiler2022uncovering},
+\item HP \cite{fails2006visual},
+\item LaifLines \cite{plaisant1998information},
+\item Luz \cite{luz2010improving},
+\item MovementSlicer \cite{gupta2016movementslicer},
+\item TASM \cite{tory2013comparative},
+\item Daisen \cite{sun2021daisen},
+\item GH \cite{hirakata2022exploring},
+\item ParaGraph \cite{heath1991visualizing},
+\item Traveler \cite{sakin2022traveler},
+\item PDP \cite{nesi2023summarizing},
+\item Canopy \cite{kaldor2017canopy},
+\item LogiX \cite{dkabrowski2024manufacturing}, and
+\item JobShopWeb \cite{loch431proposal}.
+\end{enumerate}
+
+\section{Commercial Tools Using Gantt chart}
+\label{sec:ctools}
+In addition to the tools associated with the papers above, we also visited the sites of the following commercial tools found in our searches. We manually searched each site for additional tasks not represented in our literature review, but did not find any. Most sites do not describe in detail the Gantt chart-centered features of these tools, so we did not include them in our accounting of how many times each task was represented.
+
+
+\begin{enumerate}
+    \item Perfetto \cite{Perfetto}
+    \item Jaeger \cite{Jaeger}
+    \item Zipkin \cite{Zipkin}
+    \item AWS X-Ray \cite{AmazonXRay}
+    \item Datadog APM \cite{Datadog}
+    \item Lightstep \cite{Lightstep}
+    \item Flurry \cite{Flurry}
+    \item New Relic \cite{NewRelic}
+    \item Honeycomb \cite{Honeycomb}
+    \item Elastic \cite{Elastic}
+    \item Tableau \cite{Tableau}
+\end{enumerate}
+
+\printbibliography[heading=subbibnumbered]
+\end{refsection}

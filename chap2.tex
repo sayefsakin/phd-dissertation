@@ -4,6 +4,7 @@
 \chapter{Background and Related Work}
 \label{chap:background}
 
+\begin{refsection}
 Event sequence visualization is a widely studied problem that intersects data visualization, visual analytics, process mining, and data management. Prior work spans visualization techniques, data management strategies, and summarization and reduction techniques for handling and visualizing a large number of events. This chapter reviews the literature along these lines, highlighting how this dissertation builds upon and extends prior contributions.
 
 We use the terminology introduced in \autoref{chap:intro}. Events are defined by start and end times, and they optionally contain attributes. Events are grouped into tracks that partition the dataset by a relevant attribute (such as computational resource or patient). Tracks are represented in parallel timeline charts and Gantt charts. We emphasize on techniques that support durational events containing dependencies and grouped attributes. These types of events generally arise in domains where automated event logs are generated over time, such as in visual exploratory analysis of execution traces.
@@ -44,3 +45,6 @@ Our work ESeMan extends these techniques by applying KD-Trees to event sequence 
 
 \section{Summary}
 Visualization techniques, data management strategies, summarization and reduction techniques each address parts of the event sequence visualization problem. However, existing solutions in the literature compromise visual accuracy, incur interactivity overhead, or require infrastructure that creates barriers to adoption by smaller organizations or individual researchers. This dissertation addresses these gaps through three complementary contributions: Traveler, which demonstrates task-driven navigation for HPC traces; the Gantt chart taxonomy, which formalizes unique visualization tasks for Gantt-style charts; and ESeMan, which proposes a scalable, fidelity-preserving data management technique. Together, these contributions demonstrate that effective event sequence visualization requires treating visual design and data management as interdependent concerns.
+
+\printbibliography[heading=subbibnumbered]
+\end{refsection}
